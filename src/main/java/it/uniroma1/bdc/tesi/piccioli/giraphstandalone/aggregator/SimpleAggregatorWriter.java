@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.aggregator;
 
 import java.io.IOException;
 import java.util.Map.Entry;
@@ -67,15 +67,14 @@ public class SimpleAggregatorWriter extends
   }
 
   @Override
-  public void writeAggregator(
-      Iterable<Entry<String, Writable>> aggregatorMap,
-      long superstep) throws IOException {
-    for (Entry<String, Writable> entry : aggregatorMap) {
-      entry.getValue().write(output); 
-      Logger.getLogger(this.getClass()).info(entry.getValue().toString());
-      System.out.println(entry.getValue().toString());
-    }
-    output.flush();
+  public void writeAggregator(         
+            Iterable<Entry<String, Writable>> aggregatorMap,
+            long superstep) throws IOException {
+        for (Entry<String, Writable> entry : aggregatorMap) {
+            output.writeChars(entry.getKey().toString() + "\t" + entry.getValue().toString() + "\n");
+//          entry.getValue().write(output); 
+        }
+        output.flush();
   }
 
   @Override

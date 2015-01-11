@@ -10,7 +10,7 @@ import org.apache.giraph.utils.ConfigurationUtils;
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.job.GiraphJob;
 /*if[PURE_YARN]
-import org.apache.giraph.yarn.GiraphYarnClient;
+//import org.apache.giraph.yarn.GiraphYarnClient;
 end[PURE_YARN]*/
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.filecache.DistributedCache;
@@ -56,6 +56,12 @@ public class App implements Tool {
       conf = new Configuration();
     }
     GiraphConfiguration giraphConf = new GiraphConfiguration(getConf());
+    //conf ad hoc per Triangle Countig
+//    giraphConf.setAggregatorWriterClass(SimpleAggregatorWriter.class);
+//    giraphConf.setVertexInputFormatClass(TextTextNullTextInputFormat.class);
+//    giraphConf.setVertexOutputFormatClass(VertexWithTextValueNullEdgeTextOutputFormat.class);
+//    giraphConf.setMasterComputeClass(TriangleCountMasterCompute.class);
+//    giraphConf.setZookeeperList("127.0.0.1:2181");
     CommandLine cmd = ConfigurationUtils.parseArgs(giraphConf, args);
     if (null == cmd) {
       return 0; // user requested help/info printout, don't run a job.
@@ -65,9 +71,16 @@ public class App implements Tool {
     final String vertexClassName = args[0];
     final String jobName = "Giraph: " + vertexClassName;
     /*if[PURE_YARN]
-    GiraphYarnClient job = new GiraphYarnClient(giraphConf, jobName);
+//    GiraphYarnClient job = new GiraphYarnClient(giraphConf, jobName);
     else[PURE_YARN]*/
     GiraphJob job = new GiraphJob(giraphConf, jobName);
+    
+    //conf ad hoc per Triangle Countig
+//    job.getConfiguration().setAggregatorWriterClass(SimpleAggregatorWriter.class);
+//    job.getConfiguration().setVertexInputFormatClass(TextTextNullTextInputFormat.class);
+//    job.getConfiguration().setVertexOutputFormatClass(VertexWithTextValueNullEdgeTextOutputFormat.class);
+//    job.getConfiguration().setMasterComputeClass(TriangleCountMasterCompute.class);
+//    
     prepareHadoopMRJob(job, cmd);
     /*end[PURE_YARN]*/
 

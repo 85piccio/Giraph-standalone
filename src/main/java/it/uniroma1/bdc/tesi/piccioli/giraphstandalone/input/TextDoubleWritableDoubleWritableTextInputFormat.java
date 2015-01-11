@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.input;
 
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.EdgeFactory;

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.output;
 
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.formats.TextVertexOutputFormat;
