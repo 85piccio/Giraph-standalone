@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import org.apache.hadoop.io.Text;
 
-public class SimpleShortestPathsComputationTextValue1 extends BasicComputation<Text, DoubleWritable, DoubleWritable, DoubleWritable> {
+public class SimpleShortestPathsComputationTextValue extends BasicComputation<Text, DoubleWritable, DoubleWritable, DoubleWritable> {
 
     /**
      * The shortest paths id
@@ -39,7 +39,7 @@ public class SimpleShortestPathsComputationTextValue1 extends BasicComputation<T
      * Class logger
      */
     private static final Logger LOG
-            = Logger.getLogger(SimpleShortestPathsComputationTextValue1.class);
+            = Logger.getLogger(SimpleShortestPathsComputationTextValue.class);
 
     /**
      * Is this vertex the source id?

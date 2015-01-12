@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 
-public class SimpleInDegreeCountComputation extends BasicComputation<Text, Text, NullWritable, Text>  {
+public class SimpleDegreeCountComputation extends BasicComputation<Text, Text, NullWritable, Text>  {
 
     @Override
     public void compute(
