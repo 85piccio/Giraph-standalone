@@ -1,4 +1,4 @@
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.simpledegree;
 
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.edge.Edge;

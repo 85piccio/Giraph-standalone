@@ -55,6 +55,10 @@ public class SimpleShortestPathsComputationTextValue extends BasicComputation<Te
     public void compute(
             Vertex<Text, DoubleWritable, DoubleWritable> vertex,
             Iterable<DoubleWritable> messages) throws IOException {
+        //Stop forzato alla 3 iterazioni - limito risorse
+         if (getSuperstep() == 3) {
+             vertex.voteToHalt();
+         }
         if (getSuperstep() == 0) {
             vertex.setValue(new DoubleWritable(Double.MAX_VALUE));
         }
