@@ -17,17 +17,18 @@
  */
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecount;
 
+import com.google.common.collect.Sets;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.NullWritable;
-
 import java.io.IOException;
+import java.util.Set;
 import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 
 @SuppressWarnings("rawtypes")
-public class TriangleCounting extends BasicComputation<Text, Text, NullWritable, Text> {
+public class TriangleCount extends BasicComputation<Text, Text, NullWritable, Text> {
 
     /**
      * Somma aggregator name
@@ -38,52 +39,36 @@ public class TriangleCounting extends BasicComputation<Text, Text, NullWritable,
     public void compute(Vertex<Text, Text, NullWritable> vertex,
             Iterable<Text> messages) throws IOException {
 
+        Iterable<Edge<Text, NullWritable>> edges = vertex.getEdges();
+
         if (getSuperstep() == 0) {
 
-            //costruisco Text lista vicini
-            Text neigborhood = new Text();
-
-            Iterable<Edge<Text, NullWritable>> edges = vertex.getEdges();
-
             for (Edge<Text, NullWritable> edge : edges) {
-                neigborhood.set(neigborhood.toString() + "-" + edge.getTargetVertexId().toString());
-            }
-
-            for (Edge<Text, NullWritable> edge : edges) {
-                this.sendMessage(edge.getTargetVertexId(), neigborhood);
+                this.sendMessageToAllEdges(vertex, edge.getTargetVertexId());
             }
 
         } else if (getSuperstep() == 1) {
 
             Double T = 0.0;
-
-            //confronto edge "mancanti" inviati con lista vicini nodo
+            Set<String> edgeMap = Sets.<String>newHashSet();
+            
+            for (Edge<Text, NullWritable> edge : edges) {
+                edgeMap.add(edge.getTargetVertexId().toString());
+            }
             for (Text message : messages) {
-                String[] msgSplit = message.toString().split("-");//lista neigbohood
-
-                Iterable<Edge<Text, NullWritable>> edges = vertex.getEdges();
-
-                for (Edge<Text, NullWritable> edge : edges) {
-                    for (String missEdge : msgSplit) {
-                        if (missEdge.equals(edge.getTargetVertexId().toString())) {
-                            T++;
-                        }
-                    }
+                if (edgeMap.contains(message.toString())) {
+                    T++;
                 }
-
             }
 
             T = T / 6;
+
             vertex.setValue(new Text(T.toString()));
             vertex.voteToHalt();
 
             aggregate(SOMMA, new DoubleWritable(T));
-//            getAggregatedValue(SOMMA);
-//            System.out.println("DEBUG "+ getAggregatedValue(SOMMA));
 
         }
 
     }
-
-
 }
