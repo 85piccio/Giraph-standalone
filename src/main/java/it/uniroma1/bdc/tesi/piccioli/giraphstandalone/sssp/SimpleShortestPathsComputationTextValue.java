@@ -18,13 +18,13 @@
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.sssp;
 
 import org.apache.giraph.graph.BasicComputation;
-import org.apache.giraph.conf.LongConfOption;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import org.apache.giraph.conf.StrConfOption;
 import org.apache.hadoop.io.Text;
 
 public class SimpleShortestPathsComputationTextValue extends BasicComputation<Text, DoubleWritable, DoubleWritable, DoubleWritable> {
@@ -32,8 +32,8 @@ public class SimpleShortestPathsComputationTextValue extends BasicComputation<Te
     /**
      * The shortest paths id
      */
-    public static final LongConfOption SOURCE_ID
-            = new LongConfOption("SimpleShortestPathsVertex.sourceId", 0,
+    public static final StrConfOption SOURCE_ID
+            = new StrConfOption("SimpleShortestPathsVertex.sourceId", "0",
                     "The shortest paths id");
     /**
      * Class logger
@@ -48,17 +48,14 @@ public class SimpleShortestPathsComputationTextValue extends BasicComputation<Te
      * @return True if the source id
      */
     private boolean isSource(Vertex<Text, ?, ?> vertex) {
-        return vertex.getId().toString().equals(Long.toString(SOURCE_ID.get(getConf())));
+        return vertex.getId().toString().equals(SOURCE_ID.get(getConf()));
     }
 
     @Override
     public void compute(
             Vertex<Text, DoubleWritable, DoubleWritable> vertex,
             Iterable<DoubleWritable> messages) throws IOException {
-        //Stop forzato alla 3 iterazioni - limito risorse
-         if (getSuperstep() == 3) {
-             vertex.voteToHalt();
-         }
+
         if (getSuperstep() == 0) {
             vertex.setValue(new DoubleWritable(Double.MAX_VALUE));
         }
