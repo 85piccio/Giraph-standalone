@@ -15,19 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecount;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.kcircuit;
 
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.NullWritable;
-
 import java.io.IOException;
 import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 
 @SuppressWarnings("rawtypes")
-public class TriangleCount_OLD extends BasicComputation<Text, Text, NullWritable, Text> {
+public class kCircuitCount extends BasicComputation<Text, Text, NullWritable, Text> {
 
     /**
      * Somma aggregator name
@@ -38,49 +37,37 @@ public class TriangleCount_OLD extends BasicComputation<Text, Text, NullWritable
     public void compute(Vertex<Text, Text, NullWritable> vertex,
             Iterable<Text> messages) throws IOException {
 
+        int k = 3; //circuiti chiusi di lunghezza k
+
+        Iterable<Edge<Text, NullWritable>> edges = vertex.getEdges();
+
         if (getSuperstep() == 0) {
+            this.sendMessageToAllEdges(vertex, vertex.getId());
 
-            //costruisco Text lista vicini
-            Text neigborhood = new Text();
+        } else if (getSuperstep() > 0 && getSuperstep() < k) {
 
-            Iterable<Edge<Text, NullWritable>> edges = vertex.getEdges();
-
-            for (Edge<Text, NullWritable> edge : edges) {
-                neigborhood.set(neigborhood.toString() + "-" + edge.getTargetVertexId().toString());
-            }
-
-            for (Edge<Text, NullWritable> edge : edges) {
-                this.sendMessage(edge.getTargetVertexId(), neigborhood);
-            }
-
-        } else if (getSuperstep() == 1) {
-
-            Double T = 0.0;
-            Iterable<Edge<Text, NullWritable>> edges = vertex.getEdges();
-            //confronto edge "mancanti" inviati con lista vicini nodo
             for (Text message : messages) {
-                String[] msgSplit = message.toString().split("-");//lista neigbohood
-
-                for (Edge<Text, NullWritable> edge : edges) {
-                    for (String missEdge : msgSplit) {
-                        if (missEdge.equals(edge.getTargetVertexId().toString())) {
-                            T++;
-                        }
-                    }
+                if (!message.toString().equals(vertex.getId().toString())) {
+                    this.sendMessageToAllEdges(vertex, message);
+//                    System.out.println("Propagazione msg\t" + message);
                 }
-
             }
+            
+        } else if(getSuperstep() == k ){
+            Double T = 0.0;
+            for (Text message : messages) {
+//                System.out.println(vertex.getId()+"\t"+message);
+                if (message.toString().equals(vertex.getId().toString())) {
+                    T++;                    
+                }
+            }
+            T = T / (2 * k);
 
-            T = T / 6;
             vertex.setValue(new Text(T.toString()));
-            vertex.voteToHalt();
-
+            vertex.voteToHalt(); 
             aggregate(SOMMA, new DoubleWritable(T));
-            getAggregatedValue(SOMMA);
-            System.out.println("DEBUG "+ getAggregatedValue(SOMMA));
 
         }
 
     }
-
 }

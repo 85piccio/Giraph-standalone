@@ -5,7 +5,6 @@
  */
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone;
 
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.input.TextTextNullTextInputFormat;
 import org.apache.commons.cli.CommandLine;
 import org.apache.giraph.utils.ConfigurationUtils;
 import org.apache.giraph.conf.GiraphConfiguration;
