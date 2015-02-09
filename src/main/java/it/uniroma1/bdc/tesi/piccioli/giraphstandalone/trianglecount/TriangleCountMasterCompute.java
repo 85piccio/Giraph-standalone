@@ -23,6 +23,7 @@ import java.io.IOException;
 import org.apache.giraph.aggregators.DoubleSumAggregator;
 import org.apache.giraph.master.MasterCompute;
 import org.apache.hadoop.io.DoubleWritable;
+import org.apache.log4j.Logger;
 
 /**
  * A dumb implementation of {@link MasterCompute}. This is the default implementation when no MasterCompute is defined by the user. It does nothing.
@@ -30,28 +31,33 @@ import org.apache.hadoop.io.DoubleWritable;
 public class TriangleCountMasterCompute extends MasterCompute {
 
     /**
+     * Class logger
+     */
+    private static final Logger LOG = Logger.getLogger(TriangleCountMasterCompute.class);
+    /**
      * Somma aggregator name
      */
     private static String SOMMA = "somma";
-
+    
     @Override
     public void readFields(DataInput in) throws IOException {
     }
-
+    
     @Override
     public void write(DataOutput out) throws IOException {
     }
-
+    
     @Override
     public void compute() {
+//        LOG.info("SUPERSTEP: " + this.getSuperstep());
     }
-
+    
     @Override
     public void initialize() throws InstantiationException,
             IllegalAccessException {
         registerPersistentAggregator(SOMMA, DoubleSumAggregator.class);
         setAggregatedValue(SOMMA, new DoubleWritable(0));
-        System.out.println("MasterCompute initialize");
+//        System.out.println("MasterCompute initialize");
     }
-
+    
 }
