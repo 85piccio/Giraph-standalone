@@ -17,6 +17,7 @@
  */
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.kcircuit;
 
+import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.message.CustomMessage;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.NullWritable;
@@ -26,8 +27,12 @@ import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 
 @SuppressWarnings("rawtypes")
-public class kCircuitCount extends BasicComputation<Text, Text, NullWritable, Text> {
+public class kCircuitCount extends BasicComputation<Text, Text, NullWritable, CustomMessage> {
 
+    /**
+     * Class logger
+     */
+//    private static final Logger LOG = Logger.getLogger(kCircuitCount.class);
     /**
      * Somma aggregator name
      */
@@ -35,36 +40,53 @@ public class kCircuitCount extends BasicComputation<Text, Text, NullWritable, Te
 
     @Override
     public void compute(Vertex<Text, Text, NullWritable> vertex,
-            Iterable<Text> messages) throws IOException {
+            Iterable<CustomMessage> messages) throws IOException {
 
         int k = 3; //circuiti chiusi di lunghezza k
 
-        Iterable<Edge<Text, NullWritable>> edges = vertex.getEdges();
-
         if (getSuperstep() == 0) {
-            this.sendMessageToAllEdges(vertex, vertex.getId());
+            CustomMessage msg = new CustomMessage(vertex.getId(), vertex.getId());
+            sendMessageToAllEdges(vertex, msg);
+//            LOG.info("SEND TO ALL EDGE\t" + msg);
 
         } else if (getSuperstep() > 0 && getSuperstep() < k) {
 
-            for (Text message : messages) {
-                if (!message.toString().equals(vertex.getId().toString())) {
-                    this.sendMessageToAllEdges(vertex, message);
+            for (CustomMessage message : messages) {
+//                LOG.info(vertex.getId() + " RECEIVED MSG FROM " + message.getSource() + " CONTEINED " + message.getMessage() );
+                
+                //Scarto messaggi contenente l'id del vertice durante i passi intermedi
+                if (!message.getMessage().toString().equals(vertex.getId().toString())) {
+                    
+                    Iterable<Edge<Text, NullWritable>> edges = vertex.getEdges();
+                    for (Edge<Text, NullWritable> edge : edges) {
+                        //evito "rimbalzo" di messaggi tra 2 vertici vicini
+                        if (!edge.getTargetVertexId().toString().equals(message.getSource().toString())) {
+
+                            CustomMessage msg = new CustomMessage(vertex.getId(), message.getMessage());
+
+//                            LOG.info("SEND MESSAGE " + msg.getMessage() + " FROM " + msg.getSource() + " TO " + edge.getTargetVertexId());
+                            sendMessage(edge.getTargetVertexId(), msg);
+                        }
+
+                    }
+
+//                    CustomMessage msg = new CustomMessage(vertex.getId(), message.getMessage());
 //                    System.out.println("Propagazione msg\t" + message);
                 }
             }
-            
-        } else if(getSuperstep() == k ){
+
+        } else if (getSuperstep() == k) {
             Double T = 0.0;
-            for (Text message : messages) {
-//                System.out.println(vertex.getId()+"\t"+message);
-                if (message.toString().equals(vertex.getId().toString())) {
-                    T++;                    
+            for (CustomMessage message : messages) {
+//                System.out.println(vertex.getSource()+"\t"+message);
+                if (message.getMessage().toString().equals(vertex.getId().toString())) {
+                    T++;
                 }
             }
             T = T / (2 * k);
 
             vertex.setValue(new Text(T.toString()));
-            vertex.voteToHalt(); 
+            vertex.voteToHalt();
             aggregate(SOMMA, new DoubleWritable(T));
 
         }
