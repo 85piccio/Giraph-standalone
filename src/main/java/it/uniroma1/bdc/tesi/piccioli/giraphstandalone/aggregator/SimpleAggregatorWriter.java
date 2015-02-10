@@ -27,7 +27,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Mapper.Context;
-import org.apache.log4j.Logger;
 
 /**
  * This is a simple example for an aggregator writer. After each superstep
@@ -71,7 +70,7 @@ public class SimpleAggregatorWriter extends
             Iterable<Entry<String, Writable>> aggregatorMap,
             long superstep) throws IOException {
         for (Entry<String, Writable> entry : aggregatorMap) {
-            output.writeChars(entry.getKey().toString() + "\t" + entry.getValue().toString() + "\n");
+            output.writeChars(entry.getKey()+ "\t" + entry.getValue() + "\n");
 //          entry.getValue().write(output); 
         }
         output.flush();
