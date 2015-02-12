@@ -52,11 +52,7 @@ public class VertexWithTextAndHashesValueNullEdgeTextOutputFormat extends
       
       String strval = vertex.getId() 
               +"\t"
-              + vertex.getValue().getId()
-              + "\t" 
-              +  vertex.getValue().getGeneratedHash().size() 
-              + "\t"
-              +  vertex.getValue().getSeenHash().size();
+              + vertex.getValue().getValue();
       
       output.append( strval );
       

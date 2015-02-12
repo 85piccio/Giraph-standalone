@@ -22,8 +22,8 @@ import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.NullWritable;
 import java.io.IOException;
+import java.util.HashSet;
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
@@ -45,7 +45,7 @@ public class kCircuitCount extends BasicComputation<Text, TextAndHashes, NullWri
     public void compute(Vertex<Text, TextAndHashes, NullWritable> vertex,
             Iterable<CustomMessage> messages) throws IOException {
 
-        int k = 4; //circuiti chiusi di lunghezza k
+        int k = 5; //circuiti chiusi di lunghezza k
 //        LOG.info("LOG HASHES " + vertex.getValue().getGeneratedHash().size() + "\t" + vertex.getValue().getSeenHash().size());
 
         if (getSuperstep() == 0) {
@@ -66,24 +66,30 @@ public class kCircuitCount extends BasicComputation<Text, TextAndHashes, NullWri
         } else if (getSuperstep() > 0 && getSuperstep() < k) {
 
             for (CustomMessage message : messages) {
-                LOG.info(vertex.getId() + " RECEIVED MSG FROM " + message.getSource() + " CONTEINED " + message.getMessage());
+//                LOG.info(vertex.getId() + " RECEIVED MSG FROM " + message.getSource() + " CONTEINED " + message.getMessage());
 
                 //Scarto messaggi contenente l'id del vertice durante i passi intermedi
+                
+                //init set relativo arco entrante al primo messaggio ricevuto
+                if(!vertex.getValue().getSeenHash().containsKey(message.getSource())){
+                    vertex.getValue().getSeenHash().put(message.getSource(), new HashSet<Integer>());
+                }
+                
                 if (!vertex.getValue().getGeneratedHash().contains(message.getMessage())
-                        && !vertex.getValue().getSeenHash().contains(message.getMessage())) {
+                    && !vertex.getValue().getSeenHash().get(message.getSource()).contains(message.getMessage())) {
 
-                    vertex.getValue().getSeenHash().add(message.getMessage());
+                    vertex.getValue().getSeenHash().get(message.getSource()).add(message.getMessage());
 
                     for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
                         //evito "rimbalzo" di messaggi tra 2 vertici vicini
                         //ho eliminato controllo "rimbalzo" perche non puo piu accadare dopo l'introduzione controllo hash msg
-//                        if (!edge.getTargetVertexId().toString().equals(message.getSource().toString())) {
+                        if (!edge.getTargetVertexId().toString().equals(message.getSource().toString())) {
 
                         CustomMessage msg = new CustomMessage(vertex.getId(), message.getMessage());
 
-                        LOG.info("SEND MESSAGE " + msg.getMessage() + " FROM " + msg.getSource() + " TO " + edge.getTargetVertexId());
+//                        LOG.info("SEND MESSAGE " + msg.getMessage() + " FROM " + msg.getSource() + " TO " + edge.getTargetVertexId());
                         sendMessage(edge.getTargetVertexId(), msg);
-//                        }
+                        }
 
                     }
 
@@ -93,9 +99,12 @@ public class kCircuitCount extends BasicComputation<Text, TextAndHashes, NullWri
             }
 
         } else if (getSuperstep() == k) {
-            LOG.info(this.printGeneratedHashSet(vertex));
+            LOG.info(this.printGeneratedHashSet(vertex));            
+//            LOG.info(this.printSeenHashSet(vertex));
+            
             Double T = 0.0;
             for (CustomMessage message : messages) {
+                LOG.info(vertex.getId() + "\tReceive\t" + message);
 //                System.out.println(vertex.getSource()+"\t"+message);
                 if (vertex.getValue().getGeneratedHash().contains(message.getMessage())) {
                     T++;
@@ -120,16 +129,27 @@ public class kCircuitCount extends BasicComputation<Text, TextAndHashes, NullWri
 //    }
 
     private String printGeneratedHashSet(Vertex<Text, TextAndHashes, NullWritable> vertex) {
-        String strBuild = "";
+        String strBuild = "\n";
         strBuild += "vertex id:\t";
         strBuild += vertex.getId();
-        strBuild += "\nGenerated hash:";
+        strBuild += "\nGenerated hash:\t";
 
         for (int item : vertex.getValue().getGeneratedHash()) {
-            strBuild += "\t\t"+item;
+            strBuild += "\t\t"+item+"\n";
         }
         return strBuild;
     }
+//    private String printSeenHashSet(Vertex<Text, TextAndHashes, NullWritable> vertex) {
+//        String strBuild = "\n";
+//        strBuild += "vertex id:\t";
+//        strBuild += vertex.getId();
+//        strBuild += "\nSeen hash:\t";
+//
+//        for (int item : vertex.getValue().getSeenHash()) {
+//            strBuild += "\t\t"+item+"\n";
+//        }
+//        return strBuild;
+//    }
 
 }
 

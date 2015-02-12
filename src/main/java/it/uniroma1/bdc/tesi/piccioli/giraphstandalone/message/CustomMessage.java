@@ -58,4 +58,10 @@ public class CustomMessage implements Writable {
         message = di.readInt();
     }
 
+    @Override
+    public String toString() {
+        return source.toString() + "\t" + message;
+    }
+
+    
 }
