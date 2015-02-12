@@ -22,51 +22,68 @@ import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.NullWritable;
 import java.io.IOException;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.log4j.Logger;
 
 @SuppressWarnings("rawtypes")
-public class kCircuitCount extends BasicComputation<Text, Text, NullWritable, CustomMessage> {
+public class kCircuitCount extends BasicComputation<Text, TextAndHashes, NullWritable, CustomMessage> {
 
     /**
      * Class logger
      */
-//    private static final Logger LOG = Logger.getLogger(kCircuitCount.class);
+    private static final Logger LOG = Logger.getLogger(kCircuitCount.class);
     /**
      * Somma aggregator name
      */
     private static final String SOMMA = "somma";
 
     @Override
-    public void compute(Vertex<Text, Text, NullWritable> vertex,
+    public void compute(Vertex<Text, TextAndHashes, NullWritable> vertex,
             Iterable<CustomMessage> messages) throws IOException {
 
-        int k = 3; //circuiti chiusi di lunghezza k
+        int k = 4; //circuiti chiusi di lunghezza k
+//        LOG.info("LOG HASHES " + vertex.getValue().getGeneratedHash().size() + "\t" + vertex.getValue().getSeenHash().size());
 
         if (getSuperstep() == 0) {
-            CustomMessage msg = new CustomMessage(vertex.getId(), vertex.getId());
-            sendMessageToAllEdges(vertex, msg);
-//            LOG.info("SEND TO ALL EDGE\t" + msg);
+
+            for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
+
+//                int hsg = edge.hashCode();//TODO: da controllare
+                String rnd = RandomStringUtils.random(32);//TODO: da controllare
+                int hsg = rnd.hashCode();
+//                LOG.info("SEND TO ALL EDGE\t" + hsg);
+
+                vertex.getValue().getGeneratedHash().add(hsg);
+
+                CustomMessage msg = new CustomMessage(vertex.getId(), hsg);
+                sendMessage(edge.getTargetVertexId(), msg);
+            }
 
         } else if (getSuperstep() > 0 && getSuperstep() < k) {
 
             for (CustomMessage message : messages) {
-//                LOG.info(vertex.getId() + " RECEIVED MSG FROM " + message.getSource() + " CONTEINED " + message.getMessage() );
-                
+                LOG.info(vertex.getId() + " RECEIVED MSG FROM " + message.getSource() + " CONTEINED " + message.getMessage());
+
                 //Scarto messaggi contenente l'id del vertice durante i passi intermedi
-                if (!message.getMessage().toString().equals(vertex.getId().toString())) {
-                    
-                    Iterable<Edge<Text, NullWritable>> edges = vertex.getEdges();
-                    for (Edge<Text, NullWritable> edge : edges) {
+                if (!vertex.getValue().getGeneratedHash().contains(message.getMessage())
+                        && !vertex.getValue().getSeenHash().contains(message.getMessage())) {
+
+                    vertex.getValue().getSeenHash().add(message.getMessage());
+
+                    for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
                         //evito "rimbalzo" di messaggi tra 2 vertici vicini
-                        if (!edge.getTargetVertexId().toString().equals(message.getSource().toString())) {
+                        //ho eliminato controllo "rimbalzo" perche non puo piu accadare dopo l'introduzione controllo hash msg
+//                        if (!edge.getTargetVertexId().toString().equals(message.getSource().toString())) {
 
-                            CustomMessage msg = new CustomMessage(vertex.getId(), message.getMessage());
+                        CustomMessage msg = new CustomMessage(vertex.getId(), message.getMessage());
 
-//                            LOG.info("SEND MESSAGE " + msg.getMessage() + " FROM " + msg.getSource() + " TO " + edge.getTargetVertexId());
-                            sendMessage(edge.getTargetVertexId(), msg);
-                        }
+                        LOG.info("SEND MESSAGE " + msg.getMessage() + " FROM " + msg.getSource() + " TO " + edge.getTargetVertexId());
+                        sendMessage(edge.getTargetVertexId(), msg);
+//                        }
 
                     }
 
@@ -76,20 +93,43 @@ public class kCircuitCount extends BasicComputation<Text, Text, NullWritable, Cu
             }
 
         } else if (getSuperstep() == k) {
+            LOG.info(this.printGeneratedHashSet(vertex));
             Double T = 0.0;
             for (CustomMessage message : messages) {
 //                System.out.println(vertex.getSource()+"\t"+message);
-                if (message.getMessage().toString().equals(vertex.getId().toString())) {
+                if (vertex.getValue().getGeneratedHash().contains(message.getMessage())) {
                     T++;
                 }
             }
             T = T / (2 * k);
 
-            vertex.setValue(new Text(T.toString()));
+            vertex.setValue(new TextAndHashes(new Text(T.toString())));
             vertex.voteToHalt();
             aggregate(SOMMA, new DoubleWritable(T));
 
         }
 
     }
+//
+//    public int hashCode(Text id) {
+//     // you pick a hard-coded, randomly chosen, non-zero, odd number
+//        // ideally different for each class
+//        return new HashCodeBuilder(17, 37).
+//                append(id).
+//                toHashCode();
+//    }
+
+    private String printGeneratedHashSet(Vertex<Text, TextAndHashes, NullWritable> vertex) {
+        String strBuild = "";
+        strBuild += "vertex id:\t";
+        strBuild += vertex.getId();
+        strBuild += "\nGenerated hash:";
+
+        for (int item : vertex.getValue().getGeneratedHash()) {
+            strBuild += "\t\t"+item;
+        }
+        return strBuild;
+    }
+
 }
+

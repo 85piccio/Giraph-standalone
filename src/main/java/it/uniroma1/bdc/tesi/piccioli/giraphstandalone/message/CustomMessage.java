@@ -18,14 +18,13 @@ import org.apache.hadoop.io.Writable;
 public class CustomMessage implements Writable {
 
     private Text source;
-    private Text message;
+    private int message;
 
     public CustomMessage() {
         this.source = new Text();
-        this.message = new Text();
     }
 
-    public CustomMessage(Text id, Text message) {
+    public CustomMessage(Text id, int message) {
         this.source = id;
         this.message = message;
     }
@@ -38,25 +37,25 @@ public class CustomMessage implements Writable {
         this.source = id;
     }
 
-    public Text getMessage() {
+    public int getMessage() {
         return message;
     }
 
-    public void setMessage(Text message) {
+    public void setMessage(int message) {
         this.message = message;
     }
 
     @Override
     public void write(DataOutput d) throws IOException {
         source.write(d);
-        message.write(d);
+        d.writeInt(message);
 
     }
 
     @Override
     public void readFields(DataInput di) throws IOException {
         source.readFields(di);
-        message.readFields(di);
+        message = di.readInt();
     }
 
 }
