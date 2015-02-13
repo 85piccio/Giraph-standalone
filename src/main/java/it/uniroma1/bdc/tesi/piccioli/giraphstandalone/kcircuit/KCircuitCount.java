@@ -29,12 +29,12 @@ import org.apache.hadoop.io.Text;
 import org.apache.log4j.Logger;
 
 @SuppressWarnings("rawtypes")
-public class kCircuitCountInMsg extends BasicComputation<Text, Text, NullWritable, CustomMessageWithPath> {
+public class KCircuitCount extends BasicComputation<Text, Text, NullWritable, CustomMessageWithPath> {
 
     /**
      * Class logger
      */
-    private static final Logger LOG = Logger.getLogger(kCircuitCountInMsg.class);
+    private static final Logger LOG = Logger.getLogger(KCircuitCount.class);
     /**
      * Somma aggregator name
      */
@@ -65,12 +65,8 @@ public class kCircuitCountInMsg extends BasicComputation<Text, Text, NullWritabl
             for (CustomMessageWithPath message : messages) {
                 if (!message.getPath().contains(vertex.getId())) {
                     for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
-//                        if (!edge.getTargetVertexId().toString().equals(message.getSource().toString())) {
-
-//                            CustomMessageWithPath msg = new CustomMessageWithPath(vertex.getId(), message.getMessage());
                         message.getPath().add(vertex.getId());
                         sendMessage(edge.getTargetVertexId(), message);
-//                        }
                     }
                 }
             }
@@ -80,7 +76,7 @@ public class kCircuitCountInMsg extends BasicComputation<Text, Text, NullWritabl
             Double T = 0.0;
             for (CustomMessageWithPath message : messages) {
                 if (message.getT().toString().equals(vertex.getId().toString())) {
-                    System.out.println("Confronto" + message.getPath().toArray()[0] + "\t" + vertex.getId());
+//                    System.out.println("Confronto" + message.getPath().toArray()[0] + "\t" + vertex.getId());
                     T++;
                 }
 

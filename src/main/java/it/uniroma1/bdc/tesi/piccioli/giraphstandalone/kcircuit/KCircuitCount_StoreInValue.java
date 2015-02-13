@@ -30,12 +30,12 @@ import org.apache.hadoop.io.Text;
 import org.apache.log4j.Logger;
 
 @SuppressWarnings("rawtypes")
-public class kCircuitCount extends BasicComputation<Text, TextAndHashes, NullWritable, CustomMessage> {
+public class KCircuitCount_StoreInValue extends BasicComputation<Text, TextAndHashes, NullWritable, CustomMessage> {
 
     /**
      * Class logger
      */
-    private static final Logger LOG = Logger.getLogger(kCircuitCount.class);
+    private static final Logger LOG = Logger.getLogger(KCircuitCount_StoreInValue.class);
     /**
      * Somma aggregator name
      */
