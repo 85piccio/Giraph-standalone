@@ -25,7 +25,7 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import com.google.common.collect.Lists;
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.kcircuit.TextAndHashes;
+import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.ksimplecycle.TextAndHashes;
 
 import java.io.IOException;
 import java.util.List;

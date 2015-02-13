@@ -20,6 +20,7 @@ package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecount;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.logging.Level;
 import org.apache.giraph.aggregators.DoubleSumAggregator;
 import org.apache.giraph.master.MasterCompute;
 import org.apache.hadoop.io.DoubleWritable;
@@ -49,14 +50,22 @@ public class TriangleCountMasterCompute extends MasterCompute {
     
     @Override
     public void compute() {
-//        LOG.info("SUPERSTEP: " + this.getSuperstep());
+        try {
+            //        LOG.info("SUPERSTEP: " + this.getSuperstep());
+
+            registerPersistentAggregator(SOMMA+getSuperstep(), DoubleSumAggregator.class);
+            
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(TriangleCountMasterCompute.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(TriangleCountMasterCompute.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        setAggregatedValue(SOMMA, new DoubleWritable(0));
     }
     
     @Override
     public void initialize() throws InstantiationException,
             IllegalAccessException {
-        registerPersistentAggregator(SOMMA, DoubleSumAggregator.class);
-        setAggregatedValue(SOMMA, new DoubleWritable(0));
 //        System.out.println("MasterCompute initialize");
     }
     

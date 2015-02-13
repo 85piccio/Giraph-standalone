@@ -20,59 +20,57 @@ import org.apache.hadoop.io.Writable;
 public class CustomMessageWithPath implements Writable {
 
    
-    private Set<Text> path;
-    private Text t;
+    private Set<Text> visitedVertex;
+    private Text sourceVertex;
 
-    public Text getT() {
-        return t;
+    public Text getSourceVertex() {
+        return sourceVertex;
     }
 
-    public void setT(Text t) {
-        this.t = t;
+    public void setSourceVertex(Text sourceVertex) {
+        this.sourceVertex = sourceVertex;
     }
-
-
     
-    public Set<Text> getPath() {
-        return path;
+    public Set<Text> getVisitedVertex() {
+        return visitedVertex;
     }
 
-    public void setPath(Set<Text> path) {
-        this.path = path;
+    public void setVisitedVertex(Set<Text> visitedVertex) {
+        this.visitedVertex = visitedVertex;
     }
 
     public CustomMessageWithPath() {
-        this.path = new HashSet<Text>();
-        this.t = new Text();
+        this.visitedVertex = new HashSet<Text>();
+        this.sourceVertex = new Text();
     }
 
     public CustomMessageWithPath(HashSet<Text> path, Text tx) {
     
-        this.path = path;
-        this.t = tx;
+        this.visitedVertex = path;
+        this.sourceVertex = tx;
     }
 
     @Override
     public void write(DataOutput out) throws IOException {
 
-        out.writeInt(path.size());
-        for (Text item : path) {
+        out.writeInt(visitedVertex.size());
+        for (Text item : visitedVertex) {
             item.write(out);
         }
-        t.write(out);
+        sourceVertex.write(out);
     }
 
     @Override
     public void readFields(DataInput in) throws IOException {
         
         int size = in.readInt();
-        path = new HashSet<Text>();
+        visitedVertex = new HashSet<Text>();
         for (int i = 0; i < size; i++) {
             Text toAdd = new Text();
             toAdd.readFields(in);
-            path.add(toAdd);
+            visitedVertex.add(toAdd);
         }
-        t.readFields(in); 
+        sourceVertex.readFields(in); 
     }
 
 }
