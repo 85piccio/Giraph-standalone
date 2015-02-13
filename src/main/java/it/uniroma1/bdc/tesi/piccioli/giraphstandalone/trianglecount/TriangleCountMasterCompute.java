@@ -60,7 +60,7 @@ public class TriangleCountMasterCompute extends MasterCompute {
         } catch (IllegalAccessException ex) {
             java.util.logging.Logger.getLogger(TriangleCountMasterCompute.class.getName()).log(Level.SEVERE, null, ex);
         }
-        setAggregatedValue(SOMMA, new DoubleWritable(0));
+        setAggregatedValue(SOMMA+getSuperstep(), new DoubleWritable(0));
     }
     
     @Override

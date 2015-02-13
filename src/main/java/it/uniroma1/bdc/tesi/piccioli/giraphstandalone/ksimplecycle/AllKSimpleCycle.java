@@ -46,7 +46,9 @@ public class AllKSimpleCycle extends BasicComputation<Text, TextValueAndSetPerSu
 
         int k = 5; //circuiti chiusi di lunghezza k
 
-        if (getSuperstep() == 0) {
+        long superstep = getSuperstep();
+
+        if (superstep == 0) {
 
             for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
 
@@ -58,13 +60,16 @@ public class AllKSimpleCycle extends BasicComputation<Text, TextValueAndSetPerSu
                 sendMessage(edge.getTargetVertexId(), msg);
             }
 
-        } else if (getSuperstep() > 0 && getSuperstep() < k) {
+        } else if (superstep > 0 && superstep <= k) {
             //invio solo messaggi coerenti 
             for (CustomMessageWithPath message : messages) {
                 if (!message.getVisitedVertex().contains(vertex.getId())) {
                     for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
-                        message.getVisitedVertex().add(vertex.getId());
-                        sendMessage(edge.getTargetVertexId(), message);
+                        // TODO: controllo per prevedere se il vertice scarterà il msg
+//                        if (!message.getVisitedVertex().contains(edge.getTargetVertexId())) {
+                            message.getVisitedVertex().add(vertex.getId());
+                            sendMessage(edge.getTargetVertexId(), message);
+//                        }
                     }
                 }
             }
@@ -76,11 +81,10 @@ public class AllKSimpleCycle extends BasicComputation<Text, TextValueAndSetPerSu
                 }
 
             }
-            T = T / (2 * k);
-            vertex.getValue().getSetPerSuperstep().put(new LongWritable(getSuperstep()),new DoubleWritable (T));
+            T = T / (2 * superstep);
+            vertex.getValue().getSetPerSuperstep().put(new LongWritable(superstep), new DoubleWritable(T));
             vertex.voteToHalt();
-            aggregate(SOMMA+getSuperstep(), new DoubleWritable(T));
-            
+            aggregate(SOMMA + superstep, new DoubleWritable(T));
 
         }
 
