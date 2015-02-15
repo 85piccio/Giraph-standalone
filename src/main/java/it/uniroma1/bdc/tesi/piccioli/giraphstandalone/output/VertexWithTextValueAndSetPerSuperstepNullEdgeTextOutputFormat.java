@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.output;
 
 import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.ksimplecycle.TextAndHashes;
@@ -27,37 +26,43 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import java.io.IOException;
+import org.apache.hadoop.io.LongWritable;
 
 /**
- * Output format for vertices with a long as id, a double as value and
- * null edges
+ * Output format for vertices with a long as id, a double as value and null edges
  */
 public class VertexWithTextValueAndSetPerSuperstepNullEdgeTextOutputFormat extends
-    TextVertexOutputFormat<Text, TextValueAndSetPerSuperstep, NullWritable> {
-  @Override
-  public TextVertexOutputFormat.TextVertexWriter createVertexWriter(TaskAttemptContext context)
-    throws IOException, InterruptedException {
-    return new VertexWithTextValueWriter();
-  }
+        TextVertexOutputFormat<Text, TextValueAndSetPerSuperstep, NullWritable> {
 
-  /**
-   * Vertex writer used with
-   * {@link VertexWithDoubleValueNullEdgeTextOutputFormat}.
-   */
-  public class VertexWithTextValueWriter extends  TextVertexWriter {
     @Override
-    public void writeVertex(
-        Vertex<Text, TextValueAndSetPerSuperstep, NullWritable> vertex)
-      throws IOException, InterruptedException {
-      StringBuilder output = new StringBuilder();
-      
-      String strval = vertex.getId() + "";
-//              +"\t"
-//              + vertex.getValue().getValue();
-      
-      output.append( strval );
-      
-      getRecordWriter().write(new Text(output.toString()), null);
+    public TextVertexOutputFormat.TextVertexWriter createVertexWriter(TaskAttemptContext context)
+            throws IOException, InterruptedException {
+        return new VertexWithTextValueWriter();
     }
-  }
+
+    /**
+     * Vertex writer used with {@link VertexWithDoubleValueNullEdgeTextOutputFormat}.
+     */
+    public class VertexWithTextValueWriter extends TextVertexWriter {
+
+        @Override
+        public void writeVertex(
+                Vertex<Text, TextValueAndSetPerSuperstep, NullWritable> vertex)
+                throws IOException, InterruptedException {
+            StringBuilder output = new StringBuilder();
+
+            String strval = vertex.getId() + ":\n";
+            for (LongWritable key : vertex.getValue().getSetPerSuperstep().keySet()) {
+
+                output.append("\nsupestep:\t");
+                output.append(key);
+                output.append("\tCicli rilevati:\t");
+                output.append(vertex.getValue().getSetPerSuperstep().get(key));
+
+            }
+
+            output.append(strval);
+            getRecordWriter().write(new Text(output.toString()), null);
+        }
+    }
 }

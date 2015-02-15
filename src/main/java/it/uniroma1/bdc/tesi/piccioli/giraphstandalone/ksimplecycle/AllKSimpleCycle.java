@@ -44,8 +44,7 @@ public class AllKSimpleCycle extends BasicComputation<Text, TextValueAndSetPerSu
     public void compute(Vertex<Text, TextValueAndSetPerSuperstep, NullWritable> vertex,
             Iterable<CustomMessageWithPath> messages) throws IOException {
 
-        int k = 5; //circuiti chiusi di lunghezza k
-
+//        int k = 5; //circuiti chiusi di lunghezza k
         long superstep = getSuperstep();
 
         if (superstep == 0) {
@@ -60,31 +59,37 @@ public class AllKSimpleCycle extends BasicComputation<Text, TextValueAndSetPerSu
                 sendMessage(edge.getTargetVertexId(), msg);
             }
 
-        } else if (superstep > 0 && superstep <= k) {
+        } else if (superstep > 0 /*&& superstep <= k*/) {
             //invio solo messaggi coerenti 
+
+            Double T = 0.0;
             for (CustomMessageWithPath message : messages) {
                 if (!message.getVisitedVertex().contains(vertex.getId())) {
+
+                    message.getVisitedVertex().add(vertex.getId());
+
                     for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
                         // TODO: controllo per prevedere se il vertice scarterà il msg
+//                    LOG.info(vertex.getId() + " compare: " + edge.getTargetVertexId());
 //                        if (!message.getVisitedVertex().contains(edge.getTargetVertexId())) {
-                            message.getVisitedVertex().add(vertex.getId());
+
+//                            LOG.info(vertex.getId() + " send: " + edge.getTargetVertexId());
                             sendMessage(edge.getTargetVertexId(), message);
 //                        }
                     }
                 }
-            }
-            //conto i cicli semplici rilevati nel superstep corrente
-            Double T = 0.0;
-            for (CustomMessageWithPath message : messages) {
+                //conto i cicli semplici rilevati nel superstep corrente
                 if (message.getSourceVertex().toString().equals(vertex.getId().toString())) {
                     T++;
                 }
-
             }
+
             T = T / (2 * superstep);
+
             vertex.getValue().getSetPerSuperstep().put(new LongWritable(superstep), new DoubleWritable(T));
-            vertex.voteToHalt();
             aggregate(SOMMA + superstep, new DoubleWritable(T));
+
+            vertex.voteToHalt();
 
         }
 
