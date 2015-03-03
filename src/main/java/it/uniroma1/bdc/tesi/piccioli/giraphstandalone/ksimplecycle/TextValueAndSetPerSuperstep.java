@@ -20,25 +20,7 @@ import org.apache.hadoop.io.WritableComparable;
  */
 public class TextValueAndSetPerSuperstep implements WritableComparable {
 
-//    private Text value;
-//    private Map<Text, Set<Text>> setPerSuperstep;
     private Map<LongWritable, DoubleWritable> setPerSuperstep;
-
-//    public Text getValue() {
-//        return value;
-//    }
-//
-//    public void setValue(Text id) {
-//        this.value = id;
-//    }
-
-//    public Map<Text, Set<Text>> getSetPerSuperstep() {
-//        return setPerSuperstep;
-//    }
-//
-//    public void setSetPerSuperstep(Map<Text, Set<Text>> setPerSuperstep) {
-//        this.setPerSuperstep = setPerSuperstep;
-//    }
 
     public Map<LongWritable, DoubleWritable> getSetPerSuperstep() {
         return setPerSuperstep;
@@ -47,40 +29,21 @@ public class TextValueAndSetPerSuperstep implements WritableComparable {
     public void setSetPerSuperstep(Map<LongWritable, DoubleWritable> setPerSuperstep) {
         this.setPerSuperstep = setPerSuperstep;
     }
-    
 
     public TextValueAndSetPerSuperstep() {
-//        this.value = new Text();
-//        this.setPerSuperstep = new HashMap<Text, Set<Text>>();
         this.setPerSuperstep = new HashMap<LongWritable, DoubleWritable>();
     }
-
-//    public TextValueAndSetPerSuperstep(Text id) {
-////        this.value = id;
-////        this.setPerSuperstep = new HashMap<Text, Set<Text>>();
-//        this.setPerSuperstep = new HashMap<LongWritable, DoubleWritable>();
-//    }
 
     @Override
     public void write(DataOutput out) throws IOException {
         int size;
-//        value.write(out);
-        
 
         size = this.setPerSuperstep.size();
         out.writeInt(size);//scrivo numero di chiavi nella MAP
         for (LongWritable itemKey : setPerSuperstep.keySet()) {
             itemKey.write(out);//Scrivo chiave 
-            this.setPerSuperstep.get(itemKey).write(out);//scrivo val
-//
-//            sizeSet = this.setPerSuperstep.get(itemKey).size();//Numero elementi per la chiave
-//            out.writeInt(sizeSet);//Scrivo numero elementi 
-//            
-//            for (Text item : setPerSuperstep.get(itemKey)) {
-//                item.write(out);//Scrivo elementi
-//            }
+            this.setPerSuperstep.get(itemKey).write(out);
         }
-
     }
 
     @Override
@@ -88,7 +51,6 @@ public class TextValueAndSetPerSuperstep implements WritableComparable {
         int size;
 //        value.readFields(in);
 
-        
         size = in.readInt();//Leggo numero di key da inserire nella MAP
         for (int i = 0; i < size; i++) {
 
@@ -96,16 +58,7 @@ public class TextValueAndSetPerSuperstep implements WritableComparable {
             key.readFields(in);//Leggo Chiave
             DoubleWritable valueh = new DoubleWritable();
             valueh.readFields(in);//Leggo Chiave
-            this.setPerSuperstep.put(key, valueh);//inserisco chiave nella MAP
-
-//            int sizeSet = in.readInt();//Leggo numero elementi nel set puntanto dal value in setPerSuperstep
-//
-//            for (int j = 0; j < sizeSet; j++) {
-//                Text toAdd = new Text();
-//                toAdd.readFields(in);
-//                this.setPerSuperstep.get(key).add(toAdd);
-//            }
-
+            this.setPerSuperstep.put(key, valueh);
         }
 
 //      

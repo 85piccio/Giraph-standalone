@@ -17,11 +17,12 @@
  */
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.ksimplecycle;
 
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.message.CustomMessageWithPath;
+import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.message.CustomMessageWithAggregatedPath;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.NullWritable;
 import java.io.IOException;
+import java.util.HashSet;
 import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -29,12 +30,12 @@ import org.apache.hadoop.io.Text;
 import org.apache.log4j.Logger;
 
 @SuppressWarnings("rawtypes")
-public class AllKSimpleCycle extends BasicComputation<Text, TextValueAndSetPerSuperstep, NullWritable, CustomMessageWithPath> {
+public class AllKSimpleCycleAggregateMsg extends BasicComputation<Text, TextValueAndSetPerSuperstep, NullWritable, CustomMessageWithAggregatedPath> {
 
     /**
      * Class logger
      */
-    private static final Logger LOG = Logger.getLogger(AllKSimpleCycle.class);
+    private static final Logger LOG = Logger.getLogger(AllKSimpleCycleAggregateMsg.class);
     /**
      * Somma aggregator name
      */
@@ -42,7 +43,7 @@ public class AllKSimpleCycle extends BasicComputation<Text, TextValueAndSetPerSu
 
     @Override
     public void compute(Vertex<Text, TextValueAndSetPerSuperstep, NullWritable> vertex,
-            Iterable<CustomMessageWithPath> messages) throws IOException {
+            Iterable<CustomMessageWithAggregatedPath> messages) throws IOException {
 
 //        int k = 5; //circuiti chiusi di lunghezza k
         long superstep = getSuperstep();
@@ -51,10 +52,11 @@ public class AllKSimpleCycle extends BasicComputation<Text, TextValueAndSetPerSu
 
             for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
 
-                CustomMessageWithPath msg = new CustomMessageWithPath();
+                CustomMessageWithAggregatedPath msg = new CustomMessageWithAggregatedPath();
 
-                msg.getVisitedVertex().add(vertex.getId());
-                msg.setSourceVertex(vertex.getId());
+                //primo elemento lista = vertice che genera il msg
+                msg.getVisitedVertex().add(new HashSet<Text>());
+                msg.getVisitedVertex().get(0).add(vertex.getId());
 
                 sendMessage(edge.getTargetVertexId(), msg);
             }
@@ -63,38 +65,32 @@ public class AllKSimpleCycle extends BasicComputation<Text, TextValueAndSetPerSu
             //invio solo messaggi coerenti 
 
             Double T = 0.0;
-            for (CustomMessageWithPath message : messages) {
-                if (!message.getVisitedVertex().contains(vertex.getId())) {
+            for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
+                CustomMessageWithAggregatedPath nextMsg = new CustomMessageWithAggregatedPath();
+                for (CustomMessageWithAggregatedPath message : messages) {
 
-                    message.getVisitedVertex().add(vertex.getId());
-
-                    for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
-                        // TODO: controllo per prevedere se il vertice scarterà il msg
-//                    LOG.info(vertex.getId() + " compare: " + edge.getTargetVertexId());
-//                        if (!message.getVisitedVertex().contains(edge.getTargetVertexId())) {
-
-//                            LOG.info(vertex.getId() + " send: " + edge.getTargetVertexId());
-                        Text ed = edge.getTargetVertexId();
-//                        if (!message.getVisitedVertex().contains(ed)) {
-                            sendMessage(ed, message);
-//                        }
-//                        }
+                    for (HashSet<Text> item : message.getVisitedVertex()) {
+                        if (!item.contains(vertex.getId())) {
+                            item.add(vertex.getId());
+                            nextMsg.getVisitedVertex().add(item);
+                        } else {
+                            T++;
+                            message.getVisitedVertex().remove(item);
+                            break;
+                        }
                     }
+
                 }
-                //conto i cicli semplici rilevati nel superstep corrente
-                if (message.getSourceVertex().toString().equals(vertex.getId().toString())) {
-                    T++;
+                if (!nextMsg.getVisitedVertex().isEmpty()) {
+                    sendMessage(edge.getTargetVertexId(), nextMsg);
                 }
             }
-
             T = T / (2 * superstep);
-
             vertex.getValue().getSetPerSuperstep().put(new LongWritable(superstep), new DoubleWritable(T));
             aggregate(SOMMA + superstep, new DoubleWritable(T));
-
             vertex.voteToHalt();
 
         }
-    }
 
+    }
 }

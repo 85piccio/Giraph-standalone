@@ -22,7 +22,6 @@ import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.NullWritable;
 import java.io.IOException;
-import java.util.HashSet;
 import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
@@ -44,7 +43,7 @@ public class KSimpleCycle extends BasicComputation<Text, Text, NullWritable, Cus
     public void compute(Vertex<Text, Text, NullWritable> vertex,
             Iterable<CustomMessageWithPath> messages) throws IOException {
 
-        int k = 5; //circuiti chiusi di lunghezza k
+        int k = 3; //circuiti chiusi di lunghezza k
 
         if (getSuperstep() == 0) {
 
@@ -82,7 +81,7 @@ public class KSimpleCycle extends BasicComputation<Text, Text, NullWritable, Cus
 
             vertex.setValue(new Text(T.toString()));
             vertex.voteToHalt();
-            aggregate(SOMMA, new DoubleWritable(T));
+//            aggregate(SOMMA, new DoubleWritable(T));
 
         }
 

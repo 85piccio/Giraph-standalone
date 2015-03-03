@@ -17,24 +17,25 @@
  */
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecount;
 
-import com.google.common.collect.Sets;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.NullWritable;
 import java.io.IOException;
-import java.util.Set;
 import org.apache.giraph.edge.Edge;
-import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
+import java.util.Set;
 
 @SuppressWarnings("rawtypes")
-public class TriangleCount extends BasicComputation<Text, Text, NullWritable, Text> {
+public class TriangleCountPlusPlus extends BasicComputation<Text, Text, NullWritable, Text> {
 
     /**
      * Somma aggregator name
      */
     private static final String SOMMA = "somma";
 
+    /* SOLO GRAFO NON DIRETTO ? */
     @Override
     public void compute(Vertex<Text, Text, NullWritable> vertex,
             Iterable<Text> messages) throws IOException {
@@ -42,32 +43,48 @@ public class TriangleCount extends BasicComputation<Text, Text, NullWritable, Te
         Iterable<Edge<Text, NullWritable>> edges = vertex.getEdges();
 
         if (getSuperstep() == 0) {
+            //calcolo degree e invio a vertici vicini
+            Integer degree = Iterables.size(edges);
+            vertex.setValue(new Text(degree.toString()));
 
             for (Edge<Text, NullWritable> edge : edges) {
-                this.sendMessageToAllEdges(vertex, edge.getTargetVertexId());
+                this.sendMessage(edge.getTargetVertexId(), new Text(vertex.getId() + "-" + degree.toString()));
             }
 
         } else if (getSuperstep() == 1) {
+            for (Text message : messages) {
+                String[] splitMsg = message.toString().split("-");
+                if (splitMsg.length > 0 && !(vertex.getId().toString().equals("") || vertex.getValue().toString().equals(""))) {
 
-            Double T = 0.0;
+                    int messageValue = Integer.parseInt(splitMsg[1]);
+                    int vertexValue = Integer.parseInt(vertex.getValue().toString());
+                    long messageId = Long.parseLong(splitMsg[0]);
+                    long vertexId = Long.parseLong(vertex.getId().toString());
+
+                    if ((messageValue < vertexValue) || ((messageValue == vertexValue) && (messageId < vertexId))) {
+                        this.removeEdgesRequest(new Text(splitMsg[0]), vertex.getId());
+                    }
+                }
+            }
+        } else if (getSuperstep() == 2) {
+            for (Edge<Text, NullWritable> edge : edges) {
+                this.sendMessageToAllEdges(vertex, edge.getTargetVertexId());
+            }
+        } else if (getSuperstep() == 3) {
+            Integer T = 0;
             Set<String> edgeMap = Sets.<String>newHashSet();
 
             for (Edge<Text, NullWritable> edge : edges) {
                 edgeMap.add(edge.getTargetVertexId().toString());
             }
+
             for (Text message : messages) {
                 if (edgeMap.contains(message.toString())) {
                     T++;
                 }
             }
-
-            T = T / 6;
-
             vertex.setValue(new Text(T.toString()));
             vertex.voteToHalt();
-
-            aggregate(SOMMA + getSuperstep(), new DoubleWritable(T));
-
         }
 
     }
