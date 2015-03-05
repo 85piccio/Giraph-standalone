@@ -39,7 +39,7 @@ import org.apache.hadoop.io.LongWritable;
  *
  * Each line consists of: vertex neighbor1 neighbor2 ...
  */
-public class DoubleWritableDoubleWritableNullTextInputFormat extends
+public class LongWritableLongWritableNullTextInputFormat extends
     TextVertexInputFormat<LongWritable, LongWritable, NullWritable> {
   /** Separator of the vertex and neighbors */
 //  private static final Pattern SEPARATOR = Pattern.compile("[\t ]");
