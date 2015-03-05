@@ -66,7 +66,7 @@ public class TriangleCount extends BasicComputation<Text, Text, NullWritable, Te
             vertex.setValue(new Text(T.toString()));
             vertex.voteToHalt();
 
-            aggregate(SOMMA + getSuperstep(), new DoubleWritable(T));
+//            aggregate(SOMMA + getSuperstep(), new DoubleWritable(T));
 
         }
 
