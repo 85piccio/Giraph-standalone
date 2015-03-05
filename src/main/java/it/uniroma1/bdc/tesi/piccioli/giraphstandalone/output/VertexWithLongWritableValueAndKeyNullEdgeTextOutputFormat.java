@@ -25,14 +25,13 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import java.io.IOException;
-import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 
 /**
  * Output format for vertices with a long as id, a double as value and
  * null edges
  */
-public class VertexWithDoubleWritableValueAndKeyNullEdgeTextOutputFormat extends
+public class VertexWithLongWritableValueAndKeyNullEdgeTextOutputFormat extends
     TextVertexOutputFormat<LongWritable, LongWritable, NullWritable> {
   @Override
   public TextVertexOutputFormat.TextVertexWriter createVertexWriter(TaskAttemptContext context)
