@@ -76,7 +76,7 @@ public class TriangleCountPlusPlus extends BasicComputation<LongWritable, LongWr
             }
         } else if (getSuperstep() == 3) {
             Integer T = 0;
-            Set<Long> edgeMap = new HashSet<Long>();
+            Set<Long> edgeMap = Sets.<Long>newHashSet();
 
             for (Edge<LongWritable, NullWritable> edge : edges) {
                 edgeMap.add(edge.getTargetVertexId().get());

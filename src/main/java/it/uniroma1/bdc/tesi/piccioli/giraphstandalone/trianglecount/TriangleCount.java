@@ -25,10 +25,10 @@ import java.io.IOException;
 import java.util.Set;
 import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.LongWritable;
 
 @SuppressWarnings("rawtypes")
-public class TriangleCount extends BasicComputation<Text, Text, NullWritable, Text> {
+public class TriangleCount extends BasicComputation<LongWritable, DoubleWritable, NullWritable, LongWritable> {
 
     /**
      * Somma aggregator name
@@ -36,34 +36,34 @@ public class TriangleCount extends BasicComputation<Text, Text, NullWritable, Te
     private static final String SOMMA = "somma";
 
     @Override
-    public void compute(Vertex<Text, Text, NullWritable> vertex,
-            Iterable<Text> messages) throws IOException {
+    public void compute(Vertex<LongWritable, DoubleWritable, NullWritable> vertex,
+            Iterable<LongWritable> messages) throws IOException {
 
-        Iterable<Edge<Text, NullWritable>> edges = vertex.getEdges();
+        Iterable<Edge<LongWritable, NullWritable>> edges = vertex.getEdges();
 
         if (getSuperstep() == 0) {
 
-            for (Edge<Text, NullWritable> edge : edges) {
+            for (Edge<LongWritable, NullWritable> edge : edges) {
                 this.sendMessageToAllEdges(vertex, edge.getTargetVertexId());
             }
 
         } else if (getSuperstep() == 1) {
 
             Double T = 0.0;
-            Set<String> edgeMap = Sets.<String>newHashSet();
+            Set<Long> edgeMap = Sets.<Long>newHashSet();
 
-            for (Edge<Text, NullWritable> edge : edges) {
-                edgeMap.add(edge.getTargetVertexId().toString());
+            for (Edge<LongWritable, NullWritable> edge : edges) {
+                edgeMap.add(edge.getTargetVertexId().get());
             }
-            for (Text message : messages) {
-                if (edgeMap.contains(message.toString())) {
+            for (LongWritable message : messages) {
+                if (edgeMap.contains(message.get())) {
                     T++;
                 }
             }
 
             T = T / 6;
 
-            vertex.setValue(new Text(T.toString()));
+            vertex.setValue(new DoubleWritable(T));
             vertex.voteToHalt();
 
 //            aggregate(SOMMA + getSuperstep(), new DoubleWritable(T));
