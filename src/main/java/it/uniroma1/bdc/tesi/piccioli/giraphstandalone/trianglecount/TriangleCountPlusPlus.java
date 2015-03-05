@@ -26,9 +26,11 @@ import org.apache.hadoop.io.Text;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import java.util.Set;
+import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.LongWritable;
 
 @SuppressWarnings("rawtypes")
-public class TriangleCountPlusPlus extends BasicComputation<Text, Text, NullWritable, Text> {
+public class TriangleCountPlusPlus extends BasicComputation<LongWritable, LongWritable, NullWritable, Text> {
 
     /**
      * Somma aggregator name
@@ -37,44 +39,44 @@ public class TriangleCountPlusPlus extends BasicComputation<Text, Text, NullWrit
 
     /* SOLO GRAFO NON DIRETTO ? */
     @Override
-    public void compute(Vertex<Text, Text, NullWritable> vertex,
+    public void compute(Vertex<LongWritable, LongWritable, NullWritable> vertex,
             Iterable<Text> messages) throws IOException {
 
-        Iterable<Edge<Text, NullWritable>> edges = vertex.getEdges();
+        Iterable<Edge<LongWritable, NullWritable>> edges = vertex.getEdges();
 
         if (getSuperstep() == 0) {
             //calcolo degree e invio a vertici vicini
-            Integer degree = Iterables.size(edges);
-            vertex.setValue(new Text(degree.toString()));
+            LongWritable degree = new LongWritable (Iterables.size(edges));
+            vertex.setValue(degree); 
 
-            for (Edge<Text, NullWritable> edge : edges) {
-                this.sendMessage(edge.getTargetVertexId(), new Text(vertex.getId() + "-" + degree.toString()));
+            for (Edge<LongWritable, NullWritable> edge : edges) {
+                this.sendMessage(edge.getTargetVertexId(), new Text(vertex.getId().toString() + "-" + degree.toString()));
             }
 
         } else if (getSuperstep() == 1) {
             for (Text message : messages) {
                 String[] splitMsg = message.toString().split("-");
-                if (splitMsg.length > 0 && !(vertex.getId().toString().equals("") || vertex.getValue().toString().equals(""))) {
+                if (splitMsg.length > 0 /*&& !(vertex.getId().toString().equals("") || vertex.getValue().toString().equals(""))*/) {
 
                     int messageValue = Integer.parseInt(splitMsg[1]);
                     int vertexValue = Integer.parseInt(vertex.getValue().toString());
-                    long messageId = Long.parseLong(splitMsg[0]);
-                    long vertexId = Long.parseLong(vertex.getId().toString());
+                    DoubleWritable messageId = new DoubleWritable(Double.parseDouble(splitMsg[0]));
+                    DoubleWritable vertexId =  new DoubleWritable(Double.parseDouble(vertex.getId().toString()));
 
-                    if ((messageValue < vertexValue) || ((messageValue == vertexValue) && (messageId < vertexId))) {
-                        this.removeEdgesRequest(new Text(splitMsg[0]), vertex.getId());
+                    if ((messageValue < vertexValue) || ((messageValue == vertexValue) && (messageId.compareTo(vertexId) < 0))) {
+                        this.removeEdgesRequest(new LongWritable(Long.parseLong(splitMsg[0])), vertex.getId());
                     }
                 }
             }
         } else if (getSuperstep() == 2) {
-            for (Edge<Text, NullWritable> edge : edges) {
-                this.sendMessageToAllEdges(vertex, edge.getTargetVertexId());
+            for (Edge<LongWritable, NullWritable> edge : edges) {
+                this.sendMessageToAllEdges(vertex, new Text(edge.getTargetVertexId().toString()));
             }
         } else if (getSuperstep() == 3) {
             Integer T = 0;
             Set<String> edgeMap = Sets.<String>newHashSet();
 
-            for (Edge<Text, NullWritable> edge : edges) {
+            for (Edge<LongWritable, NullWritable> edge : edges) {
                 edgeMap.add(edge.getTargetVertexId().toString());
             }
 
@@ -83,9 +85,10 @@ public class TriangleCountPlusPlus extends BasicComputation<Text, Text, NullWrit
                     T++;
                 }
             }
-            vertex.setValue(new Text(T.toString()));
+            vertex.setValue(new LongWritable(T));
             vertex.voteToHalt();
         }
 
     }
+
 }
