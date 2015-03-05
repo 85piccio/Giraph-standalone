@@ -25,6 +25,7 @@ import java.io.IOException;
 import org.apache.giraph.edge.Edge;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import java.util.HashSet;
 import java.util.Set;
 import org.apache.hadoop.io.LongWritable;
 
@@ -57,13 +58,14 @@ public class TriangleCountPlusPlus extends BasicComputation<LongWritable, LongWr
 //                String[] splitMsg = message.toString().split("-");
 //                if (splitMsg.length > 0 /*&& !(vertex.getId().toString().equals("") || vertex.getValue().toString().equals(""))*/) {
 
-                long messageValue = message.getValue().get();
-                long vertexValue = vertex.getValue().get();
+                LongWritable messageValue = message.getValue();
+                LongWritable vertexValue = vertex.getValue();
                 LongWritable messageId = message.getId();
                 LongWritable vertexId = vertex.getId();
 
 //                    if ((messageValue < vertexValue) || ((messageValue == vertexValue) && (messageId.compareTo(vertexId) < 0))) {
-                if ((messageValue < vertexValue) || ((messageValue == vertexValue) && (messageId.get() < vertexId.get()))) {
+                if ((messageValue.compareTo(vertexValue) < 0)
+                        || ((messageValue.compareTo(vertexValue) == 0) && (messageId.compareTo(vertexId) < 0))) {
                     this.removeEdgesRequest(messageId, vertexId);
                 }
 //                }
@@ -74,14 +76,14 @@ public class TriangleCountPlusPlus extends BasicComputation<LongWritable, LongWr
             }
         } else if (getSuperstep() == 3) {
             Integer T = 0;
-            Set<LongWritable> edgeMap = Sets.<LongWritable>newHashSet();
+            Set<Long> edgeMap = new HashSet<Long>();
 
             for (Edge<LongWritable, NullWritable> edge : edges) {
-                edgeMap.add(edge.getTargetVertexId());
+                edgeMap.add(edge.getTargetVertexId().get());
             }
 
             for (MessageLongIdLondValue message : messages) {
-                if (edgeMap.contains(message.getId())) {
+                if (edgeMap.contains(message.getId().get())) {
                     T++;
                 }
             }
