@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.giraph.io.formats.TextVertexInputFormat;
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecount.TextPair;
+import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trash.TextPair;
 
 /**
  * Simple text-based {@link org.apache.giraph.io.VertexInputFormat} for

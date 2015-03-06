@@ -1,4 +1,4 @@
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecount;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trash;
 
 import java.io.DataInput;
 import java.io.DataOutput;

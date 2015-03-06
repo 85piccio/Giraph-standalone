@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecount;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trash;
 
 import java.io.DataInput;
 import java.io.DataOutput;

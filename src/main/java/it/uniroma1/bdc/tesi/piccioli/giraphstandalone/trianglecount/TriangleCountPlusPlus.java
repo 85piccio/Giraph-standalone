@@ -25,7 +25,6 @@ import java.io.IOException;
 import org.apache.giraph.edge.Edge;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import java.util.HashSet;
 import java.util.Set;
 import org.apache.hadoop.io.LongWritable;
 
@@ -37,7 +36,7 @@ public class TriangleCountPlusPlus extends BasicComputation<LongWritable, LongWr
      */
     private static final String SOMMA = "somma";
 
-    /* SOLO GRAFO NON DIRETTO ? */
+    /* SOLO GRAFO NON DIRETTO  */
     @Override
     public void compute(Vertex<LongWritable, LongWritable, NullWritable> vertex,
             Iterable<MessageLongIdLondValue> messages) throws IOException {
@@ -54,23 +53,22 @@ public class TriangleCountPlusPlus extends BasicComputation<LongWritable, LongWr
             }
 
         } else if (getSuperstep() == 1) {
-            for (MessageLongIdLondValue message : messages) {
-//                String[] splitMsg = message.toString().split("-");
-//                if (splitMsg.length > 0 /*&& !(vertex.getId().toString().equals("") || vertex.getValue().toString().equals(""))*/) {
-
+            
+            //Ricevo Degree dai nodi vicini, elimino edge che collegano nodi "< degree minori"
+            for (MessageLongIdLondValue message : messages) {                
+                
                 LongWritable messageValue = message.getValue();
                 LongWritable vertexValue = vertex.getValue();
                 LongWritable messageId = message.getId();
                 LongWritable vertexId = vertex.getId();
-
-//                    if ((messageValue < vertexValue) || ((messageValue == vertexValue) && (messageId.compareTo(vertexId) < 0))) {
+                
                 if ((messageValue.compareTo(vertexValue) < 0)
                         || ((messageValue.compareTo(vertexValue) == 0) && (messageId.compareTo(vertexId) < 0))) {
                     this.removeEdgesRequest(messageId, vertexId);
-                }
-//                }
+                }                
             }
         } else if (getSuperstep() == 2) {
+            //triangle count 
             for (Edge<LongWritable, NullWritable> edge : edges) {
                 this.sendMessageToAllEdges(vertex, new MessageLongIdLondValue(edge.getTargetVertexId(), new LongWritable(Long.MAX_VALUE)));
             }

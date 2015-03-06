@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecount;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trash;
 
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;

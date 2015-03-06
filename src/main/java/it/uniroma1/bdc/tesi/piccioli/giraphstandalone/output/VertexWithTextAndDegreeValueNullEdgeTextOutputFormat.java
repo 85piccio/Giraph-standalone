@@ -18,8 +18,8 @@
 
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.output;
 
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecount.TextAndDegree;
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecount.TextPair;
+import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trash.TextAndDegree;
+import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trash.TextPair;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.formats.TextVertexOutputFormat;
 import org.apache.hadoop.io.NullWritable;
