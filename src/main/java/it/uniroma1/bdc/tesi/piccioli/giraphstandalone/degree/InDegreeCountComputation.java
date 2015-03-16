@@ -8,21 +8,25 @@ import java.io.IOException;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 
-public class InDegreeCountComputation extends BasicComputation<Text, Text, NullWritable, Text> {
+public class InDegreeCountComputation extends BasicComputation<Text, Text, NullWritable, Text>  {
 
     @Override
     public void compute(
             Vertex<Text, Text, NullWritable> vertex,
             Iterable<Text> messages) throws IOException {
-
-        Long sum = 0L;
-
-        Iterable<Edge<Text, NullWritable>> edges = vertex.getEdges();
-        for (Edge<Text, NullWritable> edge :  edges ) {
-            sum++;
+        if (getSuperstep() == 0) {
+            Iterable<Edge<Text, NullWritable>> edges = vertex.getEdges();
+            for (Edge<Text, NullWritable> edge : edges) {
+                sendMessage(edge.getTargetVertexId(), new Text("0"));
+            }
+        } else {
+            Long sum = 0L;
+            for (Text message : messages) {
+                sum = sum + 1;
+            }
+            
+            vertex.setValue(new Text(sum.toString()));
+            vertex.voteToHalt();
         }
-        
-        vertex.setValue(new Text(sum.toString()));
-        vertex.voteToHalt();
     }
 }
