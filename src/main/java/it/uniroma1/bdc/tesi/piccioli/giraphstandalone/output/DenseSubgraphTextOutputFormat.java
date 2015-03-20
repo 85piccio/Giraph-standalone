@@ -18,7 +18,6 @@
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.output;
 
 import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.DenseSubgraphVertexValue;
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.ksimplecycle.TextAndHashes;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.formats.TextVertexOutputFormat;
 import org.apache.hadoop.io.NullWritable;
@@ -55,20 +54,19 @@ public class DenseSubgraphTextOutputFormat extends
                 throws IOException, InterruptedException {
             StringBuilder output = new StringBuilder();
 
-//            Long optimalSuperstep = this.getContext().getConfiguration().getLong(OPTIMALSUPERSTEP, Long.MAX_VALUE);
-//            //output only vertecies that belong to optimal density partition
-//            System.out.println(optimalSuperstep);
-//            if (!vertex.getValue().getDeletedSuperstep().equals(optimalSuperstep) ) {
-//                return;
-//            }
-            
-            String strval = vertex.getId()
-                    + "\t"
-                    + vertex.getValue().getDeletedSuperstep();
+            Long optimalSuperstep = this.getConf().getLong(OPTIMALSUPERSTEP, Long.MAX_VALUE);
 
-            output.append(strval);
+            //output soltanto vertici appartengono alla partizione con densità maggiore
+            if (vertex.getValue().getDeletedSuperstep().compareTo(optimalSuperstep) >= 0) {
 
-            getRecordWriter().write(new Text(output.toString()), null);
+                String strval = vertex.getId()
+                        + "\t"
+                        + vertex.getValue().getDeletedSuperstep();
+
+                output.append(strval);
+
+                getRecordWriter().write(new Text(output.toString()), null);
+            }
         }
     }
 }

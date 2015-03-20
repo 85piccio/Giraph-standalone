@@ -20,11 +20,9 @@ package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import org.apache.giraph.aggregators.DoubleSumAggregator;
-import org.apache.giraph.aggregators.IntSumAggregator;
+import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.master.MasterCompute;
-import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.log4j.Logger;
 
 /**
@@ -50,11 +48,12 @@ public class DenseSubgraphMasterCompute extends MasterCompute {
     private static final String OPTIMALSUPERSTEP = "optimalSuperstep";
     private static final String SOGLIA = "soglia";
     private static final String REMOVEDVERTICIES = "removedVerticies";
+    private static final String REMOVEDEDGES = "removedEdges";
     private static final String PREVSTEPREMOVEDEDVERTEX = "prevStepRemovedVertex";
 
     private static long optimalDensitySuperstep = 0;
     private static Double optimalDensity = Double.NEGATIVE_INFINITY;
-    private static final Double epsilon = Double.MIN_NORMAL;
+    private static final Double epsilon = 0.0;
 
     @Override
     public void readFields(DataInput in) throws IOException {
@@ -68,54 +67,60 @@ public class DenseSubgraphMasterCompute extends MasterCompute {
     public void compute() {
 
         long superstep = getSuperstep();
+        LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
+        LongWritable removedVertex = this.getAggregatedValue(REMOVEDVERTICIES);//superstep precedente
 
-        IntWritable removedVertex = this.getAggregatedValue(REMOVEDVERTICIES);
-        Integer prevStepRemovedVertex = this.getContext().getConfiguration().getInt(PREVSTEPREMOVEDEDVERTEX, Integer.MIN_VALUE);
+        Long prevStepRemovedVertex = this.getContext().getConfiguration().getLong(PREVSTEPREMOVEDEDVERTEX, Long.MIN_VALUE);
 
-        LOG.info("confronto \t" + prevStepRemovedVertex + "\t" + removedVertex);
+        if (isEven(superstep)) {//0,2,4....
 
-        if (removedVertex.compareTo(new IntWritable(prevStepRemovedVertex)) == 0 && superstep > 1) {
-            LOG.info("NO CHANGES - HALT COMPUTATION");
-            LOG.info("BEST DENSITY\t" + optimalDensity + " at " + optimalDensitySuperstep);
-            this.haltComputation();
-            return;
+            LOG.info("confronto \t" + prevStepRemovedVertex + "\t" + removedEdges);
+
+            //con rimozione effettiva dei vertici ci vogliono 2 step per startup
+            if ((prevStepRemovedVertex.equals(removedEdges.get())) && superstep > 2) {
+                LOG.info("NO CHANGES - HALT COMPUTATION");
+                LOG.info("BEST DENSITY\t" + optimalDensity + " at " + optimalDensitySuperstep);
+                this.haltComputation();
+                return;
+            }
+
+            //Aggiorno variabile vertici rimossi per step successivo
+            this.getContext().getConfiguration().setLong(PREVSTEPREMOVEDEDVERTEX, removedEdges.get());
+
+            //DENSITY ρ(S) = |E(S)| / |S|
+            Long edges = this.getTotalNumEdges() - removedEdges.get();
+            Long vertices = this.getTotalNumVertices() - removedVertex.get();
+            Double currDensity = (edges.doubleValue() / 2) / vertices.doubleValue();
+
+            LOG.info("superstep\t" + superstep + "\tedge\t" + edges + "\tvertices\t" + vertices + "\tdensity\t" + currDensity);
+
+            if (currDensity > optimalDensity) {
+                optimalDensity = currDensity;
+                optimalDensitySuperstep = superstep / 2;
+                this.getConf().setLong(OPTIMALSUPERSTEP, superstep / 2);
+            }
+
+            //soglia = 2(1 + epsilon) ρ(S)
+            Double soglia = 2 * (1 + epsilon) * currDensity;
+            LOG.info("soglia = " + soglia);
+
+            this.getContext().getConfiguration().setDouble(SOGLIA, soglia);
+
+        } else {//1,3,5...
+
         }
-
-        this.getContext().getConfiguration().setInt(PREVSTEPREMOVEDEDVERTEX, removedVertex.get());
-
-        //current density
-        DoubleWritable edges = this.getAggregatedValue(EDGES);//superstep precedente
-        DoubleWritable vertices = this.getAggregatedValue(VERTECIES);//superstep precedente
-        Double currDensity = (edges.get() / 2) / vertices.get();
-
-        LOG.info("superstep\t" + superstep + "\tedge\t" + edges + "\tvertices\t" + vertices + "\tdensity\t" + currDensity);
-
-        if (currDensity > optimalDensity) {
-            optimalDensity = currDensity;
-            optimalDensitySuperstep = superstep - 1;
-            this.getContext().getConfiguration().setLong(OPTIMALSUPERSTEP, superstep);
-        }
-
-        //nuova soglia
-        Double soglia = 2 * (1 + epsilon) * currDensity;
-        LOG.info("soglia = " + soglia);
-
-        this.getContext().getConfiguration().setDouble(SOGLIA, soglia);
-
-        //reset aggregators per calcolo densita superstep successivo
-        this.setAggregatedValue(VERTECIES, new DoubleWritable(0));
-        this.setAggregatedValue(EDGES, new DoubleWritable(0));
 
     }
 
     @Override
     public void initialize() throws InstantiationException,
             IllegalAccessException {
-        registerPersistentAggregator(VERTECIES, DoubleSumAggregator.class);
-        registerPersistentAggregator(EDGES, DoubleSumAggregator.class);
+        registerPersistentAggregator(REMOVEDEDGES, LongSumAggregator.class);
+        registerPersistentAggregator(REMOVEDVERTICIES, LongSumAggregator.class);
+    }
 
-        registerPersistentAggregator(REMOVEDVERTICIES, IntSumAggregator.class);
-
+    private boolean isEven(long a) {
+        return (a % 2 == 0);
     }
 
 }

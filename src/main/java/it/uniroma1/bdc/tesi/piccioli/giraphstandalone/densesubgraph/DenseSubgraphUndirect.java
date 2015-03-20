@@ -5,11 +5,11 @@
  */
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph;
 
+import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.*;
 import java.io.IOException;
+import org.apache.giraph.edge.Edge;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
-import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.log4j.Logger;
@@ -27,41 +27,68 @@ public class DenseSubgraphUndirect extends BasicComputation<LongWritable, DenseS
     /**
      * Somma aggregator name
      */
-    private static final String VERTECIES = "vertecies";
-    private static final String EDGES = "edges";
+//    private static final String VERTECIES = "vertecies";
+//    private static final String EDGES = "edges";
 
     private static final String REMOVEDVERTICIES = "removedVerticies";
+    private static final String REMOVEDEDGES = "removedEdges";
     private static final String SOGLIA = "soglia";
 
     @Override
-    public void compute(Vertex<LongWritable, DenseSubgraphVertexValue, NullWritable> vertex, Iterable<LongWritable> itrbl) throws IOException {
-        long superstep = getSuperstep();
+    public void compute(Vertex<LongWritable, DenseSubgraphVertexValue, NullWritable> vertex, Iterable<LongWritable> messages) throws IOException {
+        long superstep = this.getSuperstep();
 
-        Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, Double.NaN);
-        //degree del nodo
-        Integer degree = vertex.getNumEdges();
+        int edgeToRemove = 0;
 
-//        //A(S) ← {i ∈ S | deg S (i) ≤ 2(1 + )ρ(S)}
-//        if(degree <= soglia){
-//            //elimino edge nodo
-//            for(Edge<LongWritable,NullWritable> edge : vertex.getEdges()){
-//                this.removeEdgesRequest(vertex.getId(), edge.getTargetVertexId());
-//            }
-//            //Elimino vertice
-//            this.removeVertexRequest(vertex.getId());
-//        }
-        if (degree < soglia ) {
-            vertex.getValue().setIsActive(Boolean.FALSE);
-            vertex.getValue().setDeletedSuperstep(superstep);
-            
-            this.aggregate(REMOVEDVERTICIES, new IntWritable(1));
+        if (isEven(superstep)) {//superstep = 0,2,4....
 
-            vertex.voteToHalt();
-        } else {
-            this.aggregate(VERTECIES, new DoubleWritable(1));
-            this.aggregate(EDGES, new DoubleWritable(degree));
+            Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, Double.NaN);
+
+            //degree del nodo
+            Integer degree = vertex.getNumEdges();
+
+            if (degree <= soglia) {
+                //rimozione logica del vertice
+                if (vertex.getValue().getIsActive()) {
+                    this.aggregate(REMOVEDVERTICIES, new LongWritable(1));
+
+                    //rimozione logica dei vertici
+                    vertex.getValue().setIsActive(Boolean.FALSE);
+                    vertex.getValue().setDeletedSuperstep(superstep);
+
+                    //rimozione logica dei Edge (solo quelli verso vertici ancora attivi, non eliminati in superstep precedenti)
+                    for (Edge<LongWritable, NullWritable> edge : vertex.getEdges()) {
+                        if (!vertex.getValue().getEdgeRemoved().contains(edge.getTargetVertexId().get())) {
+                            //mando messaggio a nodi vicini di considerare l'edge rimosso
+                            this.sendMessageToAllEdges(vertex, vertex.getId());
+                            vertex.getValue().getEdgeRemoved().add(edge.getTargetVertexId().get());
+                            //Rimuovo 
+                            edgeToRemove++;
+                        }
+
+                    }
+                }
+                vertex.voteToHalt();
+            }
+
+        } else {//superstep = 1,3,5....
+
+            for (LongWritable msg : messages) {
+                if (!vertex.getValue().getEdgeRemoved().contains(msg.get())) {
+                    vertex.getValue().getEdgeRemoved().add(msg.get());
+                    edgeToRemove++;
+                }
+            }
+
         }
-        
+
+        if (edgeToRemove > 0) {
+            this.aggregate(REMOVEDEDGES, new LongWritable(edgeToRemove));
+        }
+    }
+
+    private boolean isEven(long a) {
+        return (a % 2 == 0);
     }
 
 }
