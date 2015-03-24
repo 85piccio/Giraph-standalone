@@ -34,12 +34,12 @@ public class DenseSubgraphVertexValue implements Writable {
         this.edgeRemoved = set;
     }
 
-    public Boolean getIsActive() {
+    public Boolean IsActive() {
         return isActive;
     }
 
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
+    public void deactive() {
+        this.isActive = Boolean.FALSE;
     }
 
     public Long getDeletedSuperstep() {

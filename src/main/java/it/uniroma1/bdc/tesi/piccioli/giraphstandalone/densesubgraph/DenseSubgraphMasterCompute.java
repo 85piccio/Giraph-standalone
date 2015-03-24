@@ -53,7 +53,7 @@ public class DenseSubgraphMasterCompute extends MasterCompute {
 
     private static long optimalDensitySuperstep = 0;
     private static Double optimalDensity = Double.NEGATIVE_INFINITY;
-    private static final Double epsilon = 0.0;
+    private static final Double epsilon = 0.001;
 
     @Override
     public void readFields(DataInput in) throws IOException {
@@ -87,7 +87,7 @@ public class DenseSubgraphMasterCompute extends MasterCompute {
             //Aggiorno variabile vertici rimossi per step successivo
             this.getContext().getConfiguration().setLong(PREVSTEPREMOVEDEDVERTEX, removedEdges.get());
 
-            //DENSITY ρ(S) = |E(S)| / |S|
+            //DENSITY UNDIRECT ρ(S) = (|E(S)| / 2 ) / |S|
             Long edges = this.getTotalNumEdges() - removedEdges.get();
             Long vertices = this.getTotalNumVertices() - removedVertex.get();
             Double currDensity = (edges.doubleValue() / 2) / vertices.doubleValue();
@@ -96,8 +96,8 @@ public class DenseSubgraphMasterCompute extends MasterCompute {
 
             if (currDensity > optimalDensity) {
                 optimalDensity = currDensity;
-                optimalDensitySuperstep = superstep / 2;
-                this.getConf().setLong(OPTIMALSUPERSTEP, superstep / 2);
+                optimalDensitySuperstep = superstep;
+                this.getConf().setLong(OPTIMALSUPERSTEP, superstep);
             }
 
             //soglia = 2(1 + epsilon) ρ(S)
