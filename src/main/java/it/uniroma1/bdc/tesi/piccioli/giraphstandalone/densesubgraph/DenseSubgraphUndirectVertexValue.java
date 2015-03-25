@@ -8,30 +8,30 @@ package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 import org.apache.hadoop.io.Writable;
 
 /**
  *
  * @author piccio
  */
-public class DenseSubgraphVertexValue implements Writable {
+public class DenseSubgraphUndirectVertexValue implements Writable {
 
     private Boolean isActive;
     private Long deletedSuperstep;
-    private Set<Long> edgeRemoved;
+//    private Set<Long> edgeRemoved;
+    private Integer edgeRemoved;
+    
 
-    public DenseSubgraphVertexValue() {
+    public DenseSubgraphUndirectVertexValue() {
         isActive = Boolean.TRUE;
         deletedSuperstep = Long.MAX_VALUE;
-        edgeRemoved = new HashSet<Long>();
+        edgeRemoved =  0;
     }
 
-    public DenseSubgraphVertexValue(Boolean isActive, Long deletedSuperstep, Set set) {
+    public DenseSubgraphUndirectVertexValue(Boolean isActive, Long deletedSuperstep, Integer er) {
         this.isActive = isActive;
         this.deletedSuperstep = deletedSuperstep;
-        this.edgeRemoved = set;
+        this.edgeRemoved = er;
     }
 
     public Boolean IsActive() {
@@ -50,22 +50,32 @@ public class DenseSubgraphVertexValue implements Writable {
         this.deletedSuperstep = deletedSuperstep;
     }
 
-    public Set<Long> getEdgeRemoved() {
+//    public Set<Long> getEdgeRemoved() {
+//        return edgeRemoved;
+//    }
+//
+//    public void setEdgeRemoved(Set<Long> edgeRemoved) {
+//        this.edgeRemoved = edgeRemoved;
+//    }
+
+    public Integer getEdgeRemoved() {
         return edgeRemoved;
     }
 
-    public void setEdgeRemoved(Set<Long> edgeRemoved) {
+    public void setEdgeRemoved(Integer edgeRemoved) {
         this.edgeRemoved = edgeRemoved;
     }
+    
     
     @Override
     public void write(DataOutput d) throws IOException {
         d.writeBoolean(this.isActive);
         d.writeLong(this.deletedSuperstep);
-        d.writeInt(this.edgeRemoved.size());
-        for(Long item  : this.edgeRemoved){
-            d.writeLong(item);
-        }
+//        d.writeInt(this.edgeRemoved.size());
+//        for(Long item  : this.edgeRemoved){
+//            d.writeLong(item);
+//        }
+        d.writeInt(this.edgeRemoved);
     }
 
     @Override
@@ -73,12 +83,13 @@ public class DenseSubgraphVertexValue implements Writable {
         this.isActive = di.readBoolean();
         this.deletedSuperstep = di.readLong();
        
-        int setSize = di.readInt();
-        this.edgeRemoved = new HashSet();
-        for (int i = 0; i< setSize; i++ ){
-            this.edgeRemoved.add(di.readLong());
-            
-        }
+//        int setSize = di.readInt();
+//        this.edgeRemoved = new HashSet();
+//        for (int i = 0; i< setSize; i++ ){
+//            this.edgeRemoved.add(di.readLong());
+//            
+//        }
+        this.edgeRemoved  = di.readInt();
     }
 
 }

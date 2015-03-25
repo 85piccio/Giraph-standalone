@@ -33,26 +33,28 @@ import org.apache.log4j.Logger;
  * and aggregator used by the master are consistent with aggregator values from
  * the workers from the previous superstep.
  */
-public class DenseSubgraphMasterCompute extends MasterCompute {
+public class DenseSubgraphUndirectMasterCompute extends MasterCompute {
 
     /**
      * Class logger
      */
-    private static final Logger LOG = Logger.getLogger(DenseSubgraphMasterCompute.class);
+    private static final Logger LOG = Logger.getLogger(DenseSubgraphUndirectMasterCompute.class);
     /**
      * Somma aggregator name
      */
-    private static final String VERTECIES = "vertecies";
-    private static final String EDGES = "edges";
-
+    private static final String REMOVEDVERTICIES = "removedVerticies";  
+    private static final String REMOVEDEDGES = "removedEdges";
+    /**
+     * variabili globali
+     */
     private static final String OPTIMALSUPERSTEP = "optimalSuperstep";
     private static final String SOGLIA = "soglia";
-    private static final String REMOVEDVERTICIES = "removedVerticies";
-    private static final String REMOVEDEDGES = "removedEdges";
-    private static final String PREVSTEPREMOVEDEDVERTEX = "prevStepRemovedVertex";
-
-    private static long optimalDensitySuperstep = 0;
-    private static Double optimalDensity = Double.NEGATIVE_INFINITY;
+    
+    
+//    private static final String PREVSTEPREMOVEDEDVERTEX = "prevStepRemovedVertex";
+    private static Long prevStepRemovedVertex = Long.MIN_VALUE;
+    private static long bestDensitySuperstep = 0;
+    private static Double bestlDensity = Double.NEGATIVE_INFINITY;
     private static final Double epsilon = 0.001;
 
     @Override
@@ -69,9 +71,7 @@ public class DenseSubgraphMasterCompute extends MasterCompute {
         long superstep = getSuperstep();
         LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
         LongWritable removedVertex = this.getAggregatedValue(REMOVEDVERTICIES);//superstep precedente
-
-        Long prevStepRemovedVertex = this.getContext().getConfiguration().getLong(PREVSTEPREMOVEDEDVERTEX, Long.MIN_VALUE);
-
+        
         if (isEven(superstep)) {//0,2,4....
 
             LOG.info("confronto \t" + prevStepRemovedVertex + "\t" + removedEdges);
@@ -79,13 +79,13 @@ public class DenseSubgraphMasterCompute extends MasterCompute {
             //con rimozione effettiva dei vertici ci vogliono 2 step per startup
             if ((prevStepRemovedVertex.equals(removedEdges.get())) && superstep > 2) {
                 LOG.info("NO CHANGES - HALT COMPUTATION");
-                LOG.info("BEST DENSITY\t" + optimalDensity + " at " + optimalDensitySuperstep);
+                LOG.info("BEST DENSITY\t" + bestlDensity + " at " + bestDensitySuperstep);
                 this.haltComputation();
                 return;
             }
 
             //Aggiorno variabile vertici rimossi per step successivo
-            this.getContext().getConfiguration().setLong(PREVSTEPREMOVEDEDVERTEX, removedEdges.get());
+            prevStepRemovedVertex = removedEdges.get();
 
             //DENSITY UNDIRECT ρ(S) = (|E(S)| / 2 ) / |S|
             Long edges = this.getTotalNumEdges() - removedEdges.get();
@@ -94,9 +94,9 @@ public class DenseSubgraphMasterCompute extends MasterCompute {
 
             LOG.info("superstep\t" + superstep + "\tedge\t" + edges + "\tvertices\t" + vertices + "\tdensity\t" + currDensity);
 
-            if (currDensity > optimalDensity) {
-                optimalDensity = currDensity;
-                optimalDensitySuperstep = superstep;
+            if (currDensity > bestlDensity) {
+                bestlDensity = currDensity;
+                bestDensitySuperstep = superstep;
                 this.getConf().setLong(OPTIMALSUPERSTEP, superstep);
             }
 
@@ -106,9 +106,10 @@ public class DenseSubgraphMasterCompute extends MasterCompute {
 
             this.getContext().getConfiguration().setDouble(SOGLIA, soglia);
 
-        } else {//1,3,5...
-
-        }
+        } 
+//        else {//1,3,5...
+//
+//        }
 
     }
 
