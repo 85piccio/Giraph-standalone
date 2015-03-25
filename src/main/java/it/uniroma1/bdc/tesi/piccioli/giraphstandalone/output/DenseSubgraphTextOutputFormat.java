@@ -17,7 +17,7 @@
  */
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.output;
 
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.DenseSubgraphVertexValue;
+import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.DenseSubgraphUndirectVertexValue;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.formats.TextVertexOutputFormat;
 import org.apache.hadoop.io.NullWritable;
@@ -32,7 +32,7 @@ import org.apache.hadoop.io.LongWritable;
  * edges
  */
 public class DenseSubgraphTextOutputFormat extends
-        TextVertexOutputFormat<LongWritable, DenseSubgraphVertexValue, NullWritable> {
+        TextVertexOutputFormat<LongWritable, DenseSubgraphUndirectVertexValue, NullWritable> {
 
     private static final String OPTIMALSUPERSTEP = "optimalSuperstep";
 
@@ -50,7 +50,7 @@ public class DenseSubgraphTextOutputFormat extends
 
         @Override
         public void writeVertex(
-                Vertex<LongWritable, DenseSubgraphVertexValue, NullWritable> vertex)
+                Vertex<LongWritable, DenseSubgraphUndirectVertexValue, NullWritable> vertex)
                 throws IOException, InterruptedException {
             StringBuilder output = new StringBuilder();
 
