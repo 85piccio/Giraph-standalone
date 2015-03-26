@@ -3,10 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect;
 
 import java.io.IOException;
-import org.apache.giraph.edge.Edge;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.LongWritable;
@@ -72,7 +71,7 @@ public class DenseSubgraphUndirect extends BasicComputation<LongWritable, DenseS
                     edgeToRemove++;
                 }
 
-                vertex.getValue().setEdgeRemoved(vertex.getValue().getEdgeRemoved()+edgeToRemove);
+                vertex.getValue().setEdgeRemoved(vertex.getValue().getEdgeRemoved() + edgeToRemove);
 
                 this.aggregate(REMOVEDEDGES, new LongWritable(edgeToRemove));
             }

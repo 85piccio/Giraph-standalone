@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.direct;
 
 import java.io.DataInput;
 import java.io.DataOutput;
