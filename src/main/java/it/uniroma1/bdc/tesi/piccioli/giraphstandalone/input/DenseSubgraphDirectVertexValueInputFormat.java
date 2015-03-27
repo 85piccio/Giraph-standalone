@@ -25,6 +25,7 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import com.google.common.collect.Lists;
+import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.direct.DenseSubgraphDirectVertexValue;
 import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.DenseSubgraphUndirectVertexValue;
 
 import java.io.IOException;
@@ -39,8 +40,8 @@ import org.apache.hadoop.io.LongWritable;
  *
  * Each line consists of: vertex neighbor1 neighbor2 ...
  */
-public class DenseSubgraphVertexValueInputFormat extends
-    TextVertexInputFormat<LongWritable, DenseSubgraphUndirectVertexValue, NullWritable> {
+public class DenseSubgraphDirectVertexValueInputFormat extends
+    TextVertexInputFormat<LongWritable, DenseSubgraphDirectVertexValue, NullWritable> {
   /** Separator of the vertex and neighbors */
 //  private static final Pattern SEPARATOR = Pattern.compile("[\t ]");
     
@@ -60,13 +61,13 @@ public class DenseSubgraphVertexValueInputFormat extends
       TextVertexReaderFromEachLineProcessed<String[]> {
     /** Cached vertex id for the current line */
     private LongWritable id;
-    private DenseSubgraphUndirectVertexValue value;
+    private DenseSubgraphDirectVertexValue value;
 
     @Override
     protected String[] preprocessLine(Text line) throws IOException {
       String[] tokens = SEPARATOR.split(line.toString());
       id = new LongWritable(Long.parseLong(tokens[0]));
-      value = new DenseSubgraphUndirectVertexValue();
+      value = new DenseSubgraphDirectVertexValue();
       return tokens;
     }
 
@@ -76,7 +77,7 @@ public class DenseSubgraphVertexValueInputFormat extends
     }
 
     @Override
-    protected DenseSubgraphUndirectVertexValue getValue(String[] tokens) throws IOException {
+    protected DenseSubgraphDirectVertexValue getValue(String[] tokens) throws IOException {
       return value;
     }
 

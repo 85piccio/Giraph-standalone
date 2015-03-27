@@ -5,6 +5,7 @@
  */
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.direct;
 
+import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.DenseSubgraphUndirectVertexValue;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -18,83 +19,31 @@ import org.apache.hadoop.io.Writable;
  */
 public class DenseSubgraphDirectVertexValue implements Writable {
 
-    private Boolean isActiveInS;
-    private Boolean isActiveInT;
-
-    private Long deletedSuperstepInS;
-    private Long deletedSuperstepInT;
-
-    private Set<Long> edgeRemovedInS;
-    private Set<Long> edgeRemovedInT;
+    DenseSubgraphUndirectVertexValue partitionS;
+    DenseSubgraphUndirectVertexValue partitionT;
 
     private Set<Long> IncomingEdge;
 
     public DenseSubgraphDirectVertexValue() {
-        this.isActiveInS = Boolean.FALSE;
-        this.isActiveInT = Boolean.FALSE;
-        this.deletedSuperstepInS = Long.MAX_VALUE;
-        this.deletedSuperstepInT = Long.MAX_VALUE;
-        this.edgeRemovedInS = new HashSet<Long>();
-        this.edgeRemovedInT = new HashSet<Long>();
-        this.IncomingEdge = new HashSet<Long>();
+        this.IncomingEdge = new HashSet();
+        this.partitionS = new DenseSubgraphUndirectVertexValue();
+        this.partitionT = new DenseSubgraphUndirectVertexValue();
     }
 
-    public DenseSubgraphDirectVertexValue(Boolean isActiveInS, Boolean isActiveInT, Long deletedSuperstepInS, Long deletedSuperstepInT, Set<Long> edgeRemovedInS, Set<Long> edgeRemovedInT, Set<Long> IncomingEdge) {
-        this.isActiveInS = isActiveInS;
-        this.isActiveInT = isActiveInT;
-        this.deletedSuperstepInS = deletedSuperstepInS;
-        this.deletedSuperstepInT = deletedSuperstepInT;
-        this.edgeRemovedInS = edgeRemovedInS;
-        this.edgeRemovedInT = edgeRemovedInT;
-        this.IncomingEdge = IncomingEdge;
+    public DenseSubgraphUndirectVertexValue getPartitionS() {
+        return partitionS;
     }
 
-    public Boolean getIsActiveInS() {
-        return isActiveInS;
+    public void setPartitionS(DenseSubgraphUndirectVertexValue partitionS) {
+        this.partitionS = partitionS;
     }
 
-    public void setIsActiveInS(Boolean isActiveInS) {
-        this.isActiveInS = isActiveInS;
+    public DenseSubgraphUndirectVertexValue getPartitionT() {
+        return partitionT;
     }
 
-    public Boolean getIsActiveInT() {
-        return isActiveInT;
-    }
-
-    public void setIsActiveInT(Boolean isActiveInT) {
-        this.isActiveInT = isActiveInT;
-    }
-
-    public Long getDeletedSuperstepInS() {
-        return deletedSuperstepInS;
-    }
-
-    public void setDeletedSuperstepInS(Long deletedSuperstepInS) {
-        this.deletedSuperstepInS = deletedSuperstepInS;
-    }
-
-    public Long getDeletedSuperstepInT() {
-        return deletedSuperstepInT;
-    }
-
-    public void setDeletedSuperstepInT(Long deletedSuperstepInT) {
-        this.deletedSuperstepInT = deletedSuperstepInT;
-    }
-
-    public Set<Long> getEdgeRemovedInS() {
-        return edgeRemovedInS;
-    }
-
-    public void setEdgeRemovedInS(Set<Long> edgeRemovedInS) {
-        this.edgeRemovedInS = edgeRemovedInS;
-    }
-
-    public Set<Long> getEdgeRemovedInT() {
-        return edgeRemovedInT;
-    }
-
-    public void setEdgeRemovedInT(Set<Long> edgeRemovedInT) {
-        this.edgeRemovedInT = edgeRemovedInT;
+    public void setPartitionT(DenseSubgraphUndirectVertexValue partitionT) {
+        this.partitionT = partitionT;
     }
 
     public Set<Long> getIncomingEdge() {
@@ -107,51 +56,23 @@ public class DenseSubgraphDirectVertexValue implements Writable {
 
     @Override
     public void write(DataOutput d) throws IOException {
-        d.writeBoolean(this.isActiveInS);
-        d.writeBoolean(this.isActiveInT);
-
-        d.writeLong(this.deletedSuperstepInS);
-        d.writeLong(this.deletedSuperstepInT);
-
-        d.writeInt(this.edgeRemovedInS.size());
-        for (Long item : this.edgeRemovedInS) {
-            d.writeLong(item);
-        }
-        d.writeInt(this.edgeRemovedInT.size());
-        for (Long item : this.edgeRemovedInT) {
-            d.writeLong(item);
-        }
+        this.partitionS.write(d);
+        this.partitionT.write(d);
         d.writeInt(this.IncomingEdge.size());
-        for (Long item : this.IncomingEdge) {
-            d.writeLong(item);
+        for (Long e : this.IncomingEdge) {
+            d.writeLong(e);
         }
     }
 
     @Override
     public void readFields(DataInput di) throws IOException {
+        this.partitionS.readFields(di);
+        this.partitionT.readFields(di);
 
-        this.isActiveInS = di.readBoolean();
-        this.isActiveInT = di.readBoolean();
-        this.deletedSuperstepInS = di.readLong();
-        this.deletedSuperstepInT = di.readLong();
-
-        int setSize = di.readInt();
-        this.edgeRemovedInS = new HashSet();
-        for (int i = 0; i < setSize; i++) {
-            this.edgeRemovedInS.add(di.readLong());
-
-        }
-        setSize = di.readInt();
-        this.edgeRemovedInT = new HashSet();
-        for (int i = 0; i < setSize; i++) {
-            this.edgeRemovedInT.add(di.readLong());
-
-        }
-        setSize = di.readInt();
-        this.IncomingEdge = new HashSet();
-        for (int i = 0; i < setSize; i++) {
+        int size = di.readInt();
+        this.IncomingEdge = new HashSet<Long>();
+        for (int i = 0; i < size; i++) {
             this.IncomingEdge.add(di.readLong());
-
         }
     }
 

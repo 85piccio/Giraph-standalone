@@ -31,7 +31,7 @@ import org.apache.hadoop.io.LongWritable;
  * Output format for vertices with a long as id, a double as value and null
  * edges
  */
-public class DenseSubgraphTextOutputFormat extends
+public class DenseSubgraphUndirectTextOutputFormat extends
         TextVertexOutputFormat<LongWritable, DenseSubgraphUndirectVertexValue, NullWritable> {
 
     private static final String OPTIMALSUPERSTEP = "optimalSuperstep";

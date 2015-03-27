@@ -1,118 +1,193 @@
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.direct;
 
-//*/
-// * To change this license header, choose License Headers in Project Properties.
-// * To change this template file, choose Tools | Templates
-// * and open the template in the editor.
-// */
-//package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph;
-//
-//import java.io.IOException;
-//import org.apache.giraph.edge.Edge;
-//import org.apache.giraph.graph.BasicComputation;
-//import org.apache.giraph.graph.Vertex;
-//import org.apache.hadoop.io.LongWritable;
-//import org.apache.hadoop.io.NullWritable;
-//import org.apache.log4j.Logger;
-//
-///**
-// *
-// * @author piccio
-// */
-//public class DenseSubgraphDirect extends BasicComputation<LongWritable, DenseSubgraphDirectVertexValue, NullWritable, LongWritable> {
-//
-//    /**
-//     * Class logger
-//     */
-//    private static final Logger LOG = Logger.getLogger(DenseSubgraphDirect.class);
-//    /**
-//     * Somma aggregator name
-//     */
-////    private static final String VERTECIES = "vertecies";
-////    private static final String EDGES = "edges";
-//
-//    /**
-//     * Somma aggregator name
-//     */
-//    private static final String REMOVEDVERTICIESINS = "removedVerticiesFromS";
-//    private static final String REMOVEDEDGESINS = "removedEdgesFromS";
-//    private static final String REMOVEDVERTICIESINT = "removedVerticiesFromT";
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+import java.io.IOException;
+import org.apache.giraph.graph.BasicComputation;
+import org.apache.giraph.graph.Vertex;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
+import org.apache.log4j.Logger;
+
+/**
+ *
+ * @author piccio
+ */
+public class DenseSubgraphDirect extends BasicComputation<LongWritable, DenseSubgraphDirectVertexValue, NullWritable, LongWritable> {
+
+    /**
+     * Class logger
+     */
+    private static final Logger LOG = Logger.getLogger(DenseSubgraphDirect.class);
+
+    /**
+     * Somma aggregator name
+     */
+    private static final String REMOVEDVERTICIESINS = "removedVerticiesFromS";
+    private static final String REMOVEDEDGES = "removedEdges";
+    private static final String REMOVEDVERTICIESINT = "removedVerticiesFromT";
 //    private static final String REMOVEDEDGESINT = "removedEdgesFromT";
+
+    private static final String SOGLIA = "soglia";
+    private static final String PARTITIONTOPROCESS = "partitionToProcess";
+
+    @Override
+    public void compute(Vertex<LongWritable, DenseSubgraphDirectVertexValue, NullWritable> vertex, Iterable<LongWritable> messages) throws IOException {
+	Long superstep = this.getSuperstep();
+	if (superstep > 1) {
+	    String partition = this.getContext().getConfiguration().getStrings(PARTITIONTOPROCESS)[0];
+
+	    //dbug
+	    System.out.println("case partition\t" + partition);
+
+	    Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, 0.0);
+	    if (partition.compareTo("S") == 0) {
+		//Partition S
+		if (this.isEven(superstep)) {
+		    //2, 4, 6 ..
+		    if (vertex.getValue().getPartitionS().IsActive()) {
+
+			int outDegree = vertex.getNumEdges() - vertex.getValue().getPartitionS().getEdgeRemoved();
+
+			if (outDegree <= soglia) {
+			    //elimino vertice dalla partizione S
+			    vertex.getValue().getPartitionS().deactive();
+			    vertex.getValue().getPartitionS().setDeletedSuperstep(superstep);
+
+			    this.aggregate(REMOVEDVERTICIESINS, new LongWritable(1));
+
+			    //invio messaggi a vertici in Partizione T che diminueranno il loro inDegree
+			    this.sendMessageToAllEdges(vertex, vertex.getId());
+			    this.aggregate(REMOVEDEDGES, new LongWritable(outDegree));
+			}
+		    }
+
+//		    //Calcolo degree
+//		    //degree = n edge che hanno come destinazione un vertice della partizione T
+//		    int vertexOutDegreeT = vertex.getNumEdges() - vertex.getValue().getPartitionT().getEdgeRemoved();
+//		    int vertexOutDegreeS = vertex.getNumEdges() - vertex.getValue().getPartitionS().getEdgeRemoved();
+//		    if (vertexOutDegreeT <= soglia) {
+//			vertex.getValue().getPartitionS().deactive();
+//			//"eliminato" dalla partizione S durante superstep
+//			vertex.getValue().getPartitionS().setDeletedSuperstep(superstep);
+//			this.aggregate(REMOVEDVERTICIESINS, new LongWritable(1));
+//			//Segnalo ad incoming edge che nodo è stato eliminato dalla partizione S
+//			for (Long inEdge : vertex.getValue().getIncomingEdge()) {
+//			    this.sendMessage(new LongWritable(inEdge), vertex.getId());
+//			}
 //
-//    private static final String SOGLIA = "soglia";
-//    private static final String PARTITIONTOPROCESS = "partitionToProcess";
+//			//sengalo con id negativo per distinguerli da msg precedenti 
+//			this.sendMessageToAllEdges(vertex, new LongWritable(-vertex.getId().get()));
 //
-//    @Override
-//    public void compute(Vertex<LongWritable, DenseSubgraphDirectVertexValue, NullWritable> vertex, Iterable<LongWritable> messages) throws IOException {
-//        long superstep = this.getSuperstep();
+//			this.aggregate(REMOVEDEDGESINS, new LongWritable(vertexOutDegreeS));
+//		    }
+		} else {
+		    //3,5,7 ..
+		    //vertici nella partizione T
+
+		    //elimino da lista incoming edge
+//		    Set tmp = vertex.getValue().getIncomingEdge();
+		    if (vertex.getValue().getPartitionT().IsActive()) {
+			for (LongWritable msg : messages) {
+			    vertex.getValue().getIncomingEdge().remove(msg.get());
+			}
+		    }
+
+//		    int outEdgeToRemove = 0;
+//		    int inEdgeToRemove = 0;
+//		    //messaggi da dest outcoming edge che sono stati eliminati durante supertesp precedete
+//		    for (LongWritable msg : messages) {
+//			if (msg.get() > 0) {
+//			    outEdgeToRemove++;
+//			} else {
+//			    inEdgeToRemove++;
+//			}
 //
-//        int edgeToRemove = 0;
-//        
-//        if(superstep == 0){
-//            for(Edge<LongWritable,NullWritable> edge : vertex.getEdges()){
-//                this.sendMessage(edge.getTargetVertexId(), vertex.getId());
-//            }
-//        }
+//		    }
+//		    vertex.getValue().getPartitionS().setEdgeRemoved(vertex.getValue().getPartitionS().getEdgeRemoved() - outEdgeToRemove);
+//		    vertex.getValue().getPartitionT().setEdgeRemoved(vertex.getValue().getPartitionT().getEdgeRemoved() - inEdgeToRemove);
+//		    this.aggregate(REMOVEDEDGESINS, new LongWritable(outEdgeToRemove));
+		}
+
+	    } else if (partition.compareTo("T") == 0) {//Partition T
+		if (this.isEven(superstep)) {
+		    //2, 4, 6 ..
 //
-//        if (isEven(superstep)) {//superstep = 0,2,4....
+		    if (vertex.getValue().getPartitionT().IsActive()) {
+			int inDegree = vertex.getValue().getIncomingEdge().size();
+
+			if (inDegree <= soglia) {
+			    //rimuovo vertice da partizione T
+			    vertex.getValue().getPartitionT().deactive();
+			    vertex.getValue().getPartitionT().setDeletedSuperstep(superstep);
+			    this.aggregate(REMOVEDVERTICIESINT, new LongWritable(1));
+			}
+
+			for (Long inEdge : vertex.getValue().getIncomingEdge()) {
+			    this.sendMessage(new LongWritable(inEdge), vertex.getId());
+			}
+			 vertex.getValue().getIncomingEdge().clear();
+		    }
+//		    //Calcolo degree
+//		    //vertexInDegreeS _ n incoming edge con vertice sorgente in S
+//		    int vertexInDegreeS = vertex.getValue().getIncomingEdge().size() - vertex.getValue().getPartitionS().getEdgeRemoved();
+//		    int vertexOutDegreeT = vertex.getNumEdges() - vertex.getValue().getPartitionT().getEdgeRemoved();
 //
-//            Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, 0.0);
-//            String partitionToProcess =  this.getContext().getConfiguration().getStrings(PARTITIONTOPROCESS)[0];
+//		    if (vertexInDegreeS <= soglia) {
+//			vertex.getValue().getPartitionT().deactive();
+//			vertex.getValue().getPartitionT().setDeletedSuperstep(superstep);
+//			this.aggregate(REMOVEDVERTICIESINT, new LongWritable(1));
 //
-//            //degree del nodo effettivi (copresi edge rimossi )
-//            Integer degree = vertex.getNumEdges() - vertex.getValue().getEdgeRemoved().size();
-//
-//            if (degree <= soglia) {
-//                if(partitionToProcess == "S"){
-//                    //S
-//                    
-//                }else{
-//                    //T
-//                    
-//                    
-//                }
-//                //rimozione logica del vertice
-//                if (vertex.getValue().IsActive()) {
-//                    this.aggregate(REMOVEDVERTICIES, new LongWritable(1));
-//
-//                    //rimozione logica dei vertici
-//                    vertex.getValue().deactive();
-//                    vertex.getValue().setDeletedSuperstep(superstep);
-//
-//                    //rimozione logica dei Edge (solo quelli verso vertici ancora attivi, non eliminati in superstep precedenti)
-//                    for (Edge<LongWritable, NullWritable> edge : vertex.getEdges()) {
-//                        //se edge non è già stato rimosso
-//                        if (!vertex.getValue().getEdgeRemoved().contains(edge.getTargetVertexId().get())) {
-//                            //mando messaggio a nodi vicini di considerare l'edge rimosso (rimuovere l'altra direzione)
-//                            this.sendMessageToAllEdges(vertex, vertex.getId());
-//                            vertex.getValue().getEdgeRemoved().add(edge.getTargetVertexId().get());
-//                            //Rimuovo 
-//                            edgeToRemove++;
-//                        }
-//                    }
-//                }
-//                vertex.voteToHalt();
-//            }
-//
-//        } else {//superstep = 1,3,5....
-//
-////            //rimuovo edge "di ritorno" trovati nel superstep precedente
-////            for (LongWritable msg : messages) {
-////                //se edge non è già stato rimosso
-////                if (!vertex.getValue().getEdgeRemoved().contains(msg.get())) {
-////                    vertex.getValue().getEdgeRemoved().add(msg.get());
-////                    edgeToRemove++;
-////                }
-////            }
-//
-//        }
-//
-//        if (edgeToRemove > 0) {
-//            this.aggregate(REMOVEDEDGES, new LongWritable(edgeToRemove));
-//        }
-//    }
-//
-//    private boolean isEven(long a) {
-//        return (a % 2 == 0);
-//    }
-//}
+//			for (Long inEdge : vertex.getValue().getIncomingEdge()) {
+//			    this.sendMessage(new LongWritable(inEdge), vertex.getId());
+//			}
+//			this.aggregate(REMOVEDEDGESINT, new LongWritable(vertexOutDegreeT));
+//		    }
+		} else {
+		    //3,5,7 ..
+
+		    int edgeToRemove = 0;
+		    for (LongWritable msg : messages) {
+			edgeToRemove++;
+		    }
+		    this.aggregate(REMOVEDEDGES, new LongWritable(edgeToRemove));
+
+		    //aggiorno outDegree S-->T
+		    int edgeRemoved = vertex.getValue().getPartitionS().getEdgeRemoved();
+		    vertex.getValue().getPartitionS().setEdgeRemoved(edgeRemoved + edgeToRemove);
+
+		    //		    int edgeToRemove = 0;
+		    //		    for (LongWritable msg : messages) {
+		    //			edgeToRemove++;
+		    //		    }
+		    //		    vertex.getValue().getPartitionT().setEdgeRemoved(vertex.getValue().getPartitionT().getEdgeRemoved() - edgeToRemove);
+		    //		    this.aggregate(REMOVEDEDGESINT, new LongWritable(edgeToRemove));
+		    {
+
+		    }
+		}
+	    } else {
+		//Throw an error
+	    }
+
+	} else {
+	    //Superstep 0 e 1 creano lista incoming edge
+	    if (superstep == 0) {
+		this.sendMessageToAllEdges(vertex, vertex.getId());
+	    }
+	    if (superstep == 1) {
+		for (LongWritable msg : messages) {
+		    vertex.getValue().getIncomingEdge().add(msg.get());
+		}
+	    }
+	}
+
+    }
+
+    private boolean isEven(long a) {
+	return (a % 2 == 0);
+    }
+}
