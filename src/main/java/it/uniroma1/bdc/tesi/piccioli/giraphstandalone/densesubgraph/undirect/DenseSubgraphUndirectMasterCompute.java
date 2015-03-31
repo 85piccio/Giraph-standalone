@@ -88,6 +88,7 @@ public class DenseSubgraphUndirectMasterCompute extends MasterCompute {
             prevStepRemovedVertex = removedEdges.get();
 
             //DENSITY UNDIRECT ρ(S) = (|E(S)| / 2 ) / |S|
+	    // |E(S)| / 2 perchè giraph rappresenta edge non diretto con 2 edge diretti
             Long edges = this.getTotalNumEdges() - removedEdges.get();
             Long vertices = this.getTotalNumVertices() - removedVertex.get();
             Double currDensity = (edges.doubleValue() / 2) / vertices.doubleValue();
@@ -96,7 +97,7 @@ public class DenseSubgraphUndirectMasterCompute extends MasterCompute {
 
             if (currDensity > bestlDensity) {
                 bestlDensity = currDensity;
-                bestDensitySuperstep = superstep;
+                bestDensitySuperstep = superstep - 2 ;//Densità calcolata sul supertep pari precedente
                 this.getConf().setLong(OPTIMALSUPERSTEP, superstep);
             }
 

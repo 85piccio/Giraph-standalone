@@ -25,55 +25,60 @@ public class DenseSubgraphDirectVertexValue implements Writable {
     private Set<Long> IncomingEdge;
 
     public DenseSubgraphDirectVertexValue() {
-        this.IncomingEdge = new HashSet();
-        this.partitionS = new DenseSubgraphUndirectVertexValue();
-        this.partitionT = new DenseSubgraphUndirectVertexValue();
+	this.IncomingEdge = new HashSet();
+	this.partitionS = new DenseSubgraphUndirectVertexValue();
+	this.partitionT = new DenseSubgraphUndirectVertexValue();
     }
 
     public DenseSubgraphUndirectVertexValue getPartitionS() {
-        return partitionS;
+	return partitionS;
     }
 
     public void setPartitionS(DenseSubgraphUndirectVertexValue partitionS) {
-        this.partitionS = partitionS;
+	this.partitionS = partitionS;
     }
 
     public DenseSubgraphUndirectVertexValue getPartitionT() {
-        return partitionT;
+	return partitionT;
     }
 
     public void setPartitionT(DenseSubgraphUndirectVertexValue partitionT) {
-        this.partitionT = partitionT;
+	this.partitionT = partitionT;
     }
 
     public Set<Long> getIncomingEdge() {
-        return IncomingEdge;
+	return IncomingEdge;
     }
 
     public void setIncomingEdge(Set<Long> IncomingEdge) {
-        this.IncomingEdge = IncomingEdge;
+	this.IncomingEdge = IncomingEdge;
     }
 
     @Override
     public void write(DataOutput d) throws IOException {
-        this.partitionS.write(d);
-        this.partitionT.write(d);
-        d.writeInt(this.IncomingEdge.size());
-        for (Long e : this.IncomingEdge) {
-            d.writeLong(e);
-        }
+	this.partitionS.write(d);
+	this.partitionT.write(d);
+	d.writeInt(this.IncomingEdge.size());
+	for (Long e : this.IncomingEdge) {
+	    d.writeLong(e);
+	}
     }
 
     @Override
     public void readFields(DataInput di) throws IOException {
-        this.partitionS.readFields(di);
-        this.partitionT.readFields(di);
+	this.partitionS.readFields(di);
+	this.partitionT.readFields(di);
 
-        int size = di.readInt();
-        this.IncomingEdge = new HashSet<Long>();
-        for (int i = 0; i < size; i++) {
-            this.IncomingEdge.add(di.readLong());
-        }
+	int size = di.readInt();
+	this.IncomingEdge = new HashSet<Long>();
+	for (int i = 0; i < size; i++) {
+	    this.IncomingEdge.add(di.readLong());
+	}
+    }
+
+    @Override
+    public String toString() {
+	return "DenseSubgraphDirectVertexValue{" + "partitionS=" + partitionS + ", partitionT=" + partitionT + ", IncomingEdge=" + IncomingEdge + '}';
     }
 
 }

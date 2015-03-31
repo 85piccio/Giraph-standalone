@@ -1,0 +1,83 @@
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.direct;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+import java.io.IOException;
+import org.apache.giraph.graph.BasicComputation;
+import org.apache.giraph.graph.Vertex;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
+import org.apache.log4j.Logger;
+
+/**
+ *
+ * @author piccio
+ * 
+ * Classe vertici partizione T
+ */
+public class DenseSubgraphDirectPartitionT extends BasicComputation<LongWritable, DenseSubgraphDirectVertexValue, NullWritable, LongWritable> {
+
+    /**
+     * Class logger
+     */
+    private static final Logger LOG = Logger.getLogger(DenseSubgraphDirectPartitionT.class);
+
+    /**
+     * Somma aggregator name
+     */
+    private static final String REMOVEDEDGES = "removedEdges";
+    private static final String REMOVEDVERTICIESINT = "removedVerticiesFromT";
+
+    private static final String SOGLIA = "soglia";
+
+    @Override
+    public void compute(Vertex<LongWritable, DenseSubgraphDirectVertexValue, NullWritable> vertex, Iterable<LongWritable> messages) throws IOException {
+	Long superstep = this.getSuperstep();
+//	System.out.println("T");
+	if (superstep > 1) {
+
+	    Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, Double.NEGATIVE_INFINITY);
+
+	    if (this.isEven(superstep)) {
+		//2, 4, 6 ..
+//
+		if (vertex.getValue().getPartitionT().IsActive()) {
+		    int inDegree = vertex.getValue().getIncomingEdge().size();
+
+		    if (inDegree <= soglia) {
+			//rimuovo vertice da partizione T
+			vertex.getValue().getPartitionT().deactive();
+			vertex.getValue().getPartitionT().setDeletedSuperstep(superstep);
+			this.aggregate(REMOVEDVERTICIESINT, new LongWritable(1));
+		    }
+
+		    for (Long inEdge : vertex.getValue().getIncomingEdge()) {
+			this.sendMessage(new LongWritable(inEdge), vertex.getId());
+		    }
+		    vertex.getValue().getIncomingEdge().clear();
+		}
+	    } else {
+		//3,5,7 ..
+
+		int edgeToRemove = 0;
+		for (LongWritable msg : messages) {
+		    edgeToRemove++;
+		}
+		this.aggregate(REMOVEDEDGES, new LongWritable(edgeToRemove));
+
+		//aggiorno outDegree S-->T
+		int edgeRemoved = vertex.getValue().getPartitionS().getEdgeRemoved();
+		vertex.getValue().getPartitionS().setEdgeRemoved(edgeRemoved + edgeToRemove);
+	    }
+
+	} 
+
+    }
+
+    private boolean isEven(long a) {
+	return (a % 2 == 0);
+    }
+}

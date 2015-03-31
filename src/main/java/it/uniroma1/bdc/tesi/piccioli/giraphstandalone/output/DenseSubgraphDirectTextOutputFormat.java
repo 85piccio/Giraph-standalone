@@ -18,7 +18,6 @@
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.output;
 
 import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.direct.DenseSubgraphDirectVertexValue;
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.DenseSubgraphUndirectVertexValue;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.formats.TextVertexOutputFormat;
 import org.apache.hadoop.io.NullWritable;
@@ -61,7 +60,8 @@ public class DenseSubgraphDirectTextOutputFormat extends
 		String strval = "Partition S\t"
 			+ vertex.getId()
 			+ "\t"
-			+ vertex.getValue().getPartitionS().getDeletedSuperstep();
+			+ vertex.getValue().getPartitionS().getDeletedSuperstep() 
+			+ "\n";
 
 		output.append(strval);
 
@@ -71,12 +71,13 @@ public class DenseSubgraphDirectTextOutputFormat extends
 		String strval = "Partition T\t"
 			+ vertex.getId()
 			+ "\t"
-			+ vertex.getValue().getPartitionT().getDeletedSuperstep();
+			+ vertex.getValue().getPartitionT().getDeletedSuperstep()
+			+ "\n";
 
 		output.append(strval);
 
 	    }
-	    
+
 	    if (output.length() > 0) {
 		getRecordWriter().write(new Text(output.toString()), null);
 	    }

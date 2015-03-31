@@ -92,4 +92,11 @@ public class DenseSubgraphUndirectVertexValue implements Writable {
         this.edgeRemoved  = di.readInt();
     }
 
+    @Override
+    public String toString() {
+	return "DenseSubgraphUndirectVertexValue{" + "isActive=" + isActive + ", deletedSuperstep=" + deletedSuperstep + ", edgeRemoved=" + edgeRemoved + '}';
+    }
+    
+    
+
 }

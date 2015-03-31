@@ -40,10 +40,7 @@ public class DenseSubgraphDirect extends BasicComputation<LongWritable, DenseSub
 	if (superstep > 1) {
 	    String partition = this.getContext().getConfiguration().getStrings(PARTITIONTOPROCESS)[0];
 
-	    //dbug
-	    System.out.println("case partition\t" + partition);
-
-	    Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, 0.0);
+	    Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, Double.NEGATIVE_INFINITY);
 	    if (partition.compareTo("S") == 0) {
 		//Partition S
 		if (this.isEven(superstep)) {
@@ -64,52 +61,16 @@ public class DenseSubgraphDirect extends BasicComputation<LongWritable, DenseSub
 			    this.aggregate(REMOVEDEDGES, new LongWritable(outDegree));
 			}
 		    }
-
-//		    //Calcolo degree
-//		    //degree = n edge che hanno come destinazione un vertice della partizione T
-//		    int vertexOutDegreeT = vertex.getNumEdges() - vertex.getValue().getPartitionT().getEdgeRemoved();
-//		    int vertexOutDegreeS = vertex.getNumEdges() - vertex.getValue().getPartitionS().getEdgeRemoved();
-//		    if (vertexOutDegreeT <= soglia) {
-//			vertex.getValue().getPartitionS().deactive();
-//			//"eliminato" dalla partizione S durante superstep
-//			vertex.getValue().getPartitionS().setDeletedSuperstep(superstep);
-//			this.aggregate(REMOVEDVERTICIESINS, new LongWritable(1));
-//			//Segnalo ad incoming edge che nodo è stato eliminato dalla partizione S
-//			for (Long inEdge : vertex.getValue().getIncomingEdge()) {
-//			    this.sendMessage(new LongWritable(inEdge), vertex.getId());
-//			}
-//
-//			//sengalo con id negativo per distinguerli da msg precedenti 
-//			this.sendMessageToAllEdges(vertex, new LongWritable(-vertex.getId().get()));
-//
-//			this.aggregate(REMOVEDEDGESINS, new LongWritable(vertexOutDegreeS));
-//		    }
 		} else {
 		    //3,5,7 ..
 		    //vertici nella partizione T
 
 		    //elimino da lista incoming edge
-//		    Set tmp = vertex.getValue().getIncomingEdge();
 		    if (vertex.getValue().getPartitionT().IsActive()) {
 			for (LongWritable msg : messages) {
 			    vertex.getValue().getIncomingEdge().remove(msg.get());
 			}
 		    }
-
-//		    int outEdgeToRemove = 0;
-//		    int inEdgeToRemove = 0;
-//		    //messaggi da dest outcoming edge che sono stati eliminati durante supertesp precedete
-//		    for (LongWritable msg : messages) {
-//			if (msg.get() > 0) {
-//			    outEdgeToRemove++;
-//			} else {
-//			    inEdgeToRemove++;
-//			}
-//
-//		    }
-//		    vertex.getValue().getPartitionS().setEdgeRemoved(vertex.getValue().getPartitionS().getEdgeRemoved() - outEdgeToRemove);
-//		    vertex.getValue().getPartitionT().setEdgeRemoved(vertex.getValue().getPartitionT().getEdgeRemoved() - inEdgeToRemove);
-//		    this.aggregate(REMOVEDEDGESINS, new LongWritable(outEdgeToRemove));
 		}
 
 	    } else if (partition.compareTo("T") == 0) {//Partition T
@@ -129,23 +90,8 @@ public class DenseSubgraphDirect extends BasicComputation<LongWritable, DenseSub
 			for (Long inEdge : vertex.getValue().getIncomingEdge()) {
 			    this.sendMessage(new LongWritable(inEdge), vertex.getId());
 			}
-			 vertex.getValue().getIncomingEdge().clear();
+			vertex.getValue().getIncomingEdge().clear();
 		    }
-//		    //Calcolo degree
-//		    //vertexInDegreeS _ n incoming edge con vertice sorgente in S
-//		    int vertexInDegreeS = vertex.getValue().getIncomingEdge().size() - vertex.getValue().getPartitionS().getEdgeRemoved();
-//		    int vertexOutDegreeT = vertex.getNumEdges() - vertex.getValue().getPartitionT().getEdgeRemoved();
-//
-//		    if (vertexInDegreeS <= soglia) {
-//			vertex.getValue().getPartitionT().deactive();
-//			vertex.getValue().getPartitionT().setDeletedSuperstep(superstep);
-//			this.aggregate(REMOVEDVERTICIESINT, new LongWritable(1));
-//
-//			for (Long inEdge : vertex.getValue().getIncomingEdge()) {
-//			    this.sendMessage(new LongWritable(inEdge), vertex.getId());
-//			}
-//			this.aggregate(REMOVEDEDGESINT, new LongWritable(vertexOutDegreeT));
-//		    }
 		} else {
 		    //3,5,7 ..
 
@@ -158,16 +104,6 @@ public class DenseSubgraphDirect extends BasicComputation<LongWritable, DenseSub
 		    //aggiorno outDegree S-->T
 		    int edgeRemoved = vertex.getValue().getPartitionS().getEdgeRemoved();
 		    vertex.getValue().getPartitionS().setEdgeRemoved(edgeRemoved + edgeToRemove);
-
-		    //		    int edgeToRemove = 0;
-		    //		    for (LongWritable msg : messages) {
-		    //			edgeToRemove++;
-		    //		    }
-		    //		    vertex.getValue().getPartitionT().setEdgeRemoved(vertex.getValue().getPartitionT().getEdgeRemoved() - edgeToRemove);
-		    //		    this.aggregate(REMOVEDEDGESINT, new LongWritable(edgeToRemove));
-		    {
-
-		    }
 		}
 	    } else {
 		//Throw an error
