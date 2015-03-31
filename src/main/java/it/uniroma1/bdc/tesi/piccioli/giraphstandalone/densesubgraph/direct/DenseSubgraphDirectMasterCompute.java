@@ -74,8 +74,8 @@ public class DenseSubgraphDirectMasterCompute extends MasterCompute {
 	    LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
 
 	    LongWritable removedVertexInS = this.getAggregatedValue(REMOVEDVERTICIESINS);//superstep precedente	    
-	    LongWritable removedVertexInT = this.getAggregatedValue(REMOVEDVERTICIESINT);//superstep precedente	    
-
+	    LongWritable removedVertexInT = this.getAggregatedValue(REMOVEDVERTICIESINT);//superstep precedente
+	    
 	    if (isEven(superstep)) {//2,4....
 
 		Long edges = this.getTotalNumEdges() - removedEdges.get();
@@ -105,8 +105,8 @@ public class DenseSubgraphDirectMasterCompute extends MasterCompute {
 //		DENSITY DIRECT  ρ(S, T ) =  |E(S, T )| /  sqrt (|S||T |)
 		Double currDensity = EpSTp.doubleValue() / Math.sqrt(verticesInS.doubleValue() * verticesInT.doubleValue());
 		LOG.info("currDesity" + "\t" + verticesInS.doubleValue() + "\t" + verticesInT.doubleValue());
-
-		if (currDensity > bestlDensity) {
+		
+		if (currDensity > bestlDensity && superstep > 2) {
 		    bestlDensity = currDensity;
 		    bestDensitySuperstep = superstep - 2; //Densità calcolata sul supertep pari precedente
 		    this.getConf().setLong(OPTIMALSUPERSTEP, superstep);
@@ -119,6 +119,7 @@ public class DenseSubgraphDirectMasterCompute extends MasterCompute {
 		    LOG.info("partizione S");
 		    LOG.info(edges + "\t" + verticesInS);
 		    this.getContext().getConfiguration().setStrings(PARTITIONTOPROCESS, "S");
+		    this.setComputation(DenseSubgraphDirectPartitionS.class);
 		    
 		    // soglia = (1 + epsilon) * (|E(S, T)| / |S| )
 		    soglia = (1 + epsilon) * ((EpSTp.doubleValue()) / verticesInS.doubleValue());
@@ -128,6 +129,7 @@ public class DenseSubgraphDirectMasterCompute extends MasterCompute {
 		    LOG.info("partizione T");
 		    LOG.info(edges + "\t" + verticesInT);
 		    this.getContext().getConfiguration().setStrings(PARTITIONTOPROCESS, "T");
+		    this.setComputation(DenseSubgraphDirectPartitionT.class);
 		    
 		    // soglia = (1 + epsilon) * (|E(S, T)| / |T| )
 		    soglia = (1 + epsilon) * ((EpSTp.doubleValue()) / verticesInT.doubleValue());;
