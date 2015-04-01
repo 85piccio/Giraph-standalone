@@ -26,6 +26,7 @@ import org.apache.giraph.edge.Edge;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import java.util.Set;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 
 @SuppressWarnings("rawtypes")
@@ -39,55 +40,56 @@ public class TriangleCountPlusPlus extends BasicComputation<LongWritable, LongWr
     /* SOLO GRAFO NON DIRETTO  */
     @Override
     public void compute(Vertex<LongWritable, LongWritable, NullWritable> vertex,
-            Iterable<MessageLongIdLondValue> messages) throws IOException {
+	    Iterable<MessageLongIdLondValue> messages) throws IOException {
 
-        Iterable<Edge<LongWritable, NullWritable>> edges = vertex.getEdges();
+	Iterable<Edge<LongWritable, NullWritable>> edges = vertex.getEdges();
 
-        if (getSuperstep() == 0) {
-            //calcolo degree e invio a vertici vicini
-            LongWritable degree = new LongWritable(Iterables.size(edges));
-            vertex.setValue(degree);
+	if (getSuperstep() == 0) {
+	    //calcolo degree e invio a vertici vicini
+	    LongWritable degree = new LongWritable(Iterables.size(edges));
+	    vertex.setValue(degree);
 
-            for (Edge<LongWritable, NullWritable> edge : edges) {
-                this.sendMessage(edge.getTargetVertexId(), new MessageLongIdLondValue(vertex.getId(), degree));
-            }
+	    for (Edge<LongWritable, NullWritable> edge : edges) {
+		this.sendMessage(edge.getTargetVertexId(), new MessageLongIdLondValue(vertex.getId(), degree));
+	    }
 
-        } else if (getSuperstep() == 1) {
-            
-            //Ricevo Degree dai nodi vicini, elimino edge che collegano nodi "< degree minori"
-            for (MessageLongIdLondValue message : messages) {                
-                
-                LongWritable messageValue = message.getValue();
-                LongWritable vertexValue = vertex.getValue();
-                LongWritable messageId = message.getId();
-                LongWritable vertexId = vertex.getId();
-                
-                if ((messageValue.compareTo(vertexValue) < 0)
-                        || ((messageValue.compareTo(vertexValue) == 0) && (messageId.compareTo(vertexId) < 0))) {
-                    this.removeEdgesRequest(messageId, vertexId);
-                }                
-            }
-        } else if (getSuperstep() == 2) {
-            //triangle count 
-            for (Edge<LongWritable, NullWritable> edge : edges) {
-                this.sendMessageToAllEdges(vertex, new MessageLongIdLondValue(edge.getTargetVertexId(), new LongWritable(Long.MAX_VALUE)));
-            }
-        } else if (getSuperstep() == 3) {
-            Integer T = 0;
-            Set<Long> edgeMap = Sets.<Long>newHashSet();
+	} else if (getSuperstep() == 1) {
 
-            for (Edge<LongWritable, NullWritable> edge : edges) {
-                edgeMap.add(edge.getTargetVertexId().get());
-            }
+	    //Ricevo Degree dai nodi vicini, elimino edge che collegano nodi "< degree minori"
+	    for (MessageLongIdLondValue message : messages) {
 
-            for (MessageLongIdLondValue message : messages) {
-                if (edgeMap.contains(message.getId().get())) {
-                    T++;
-                }
-            }
-            vertex.setValue(new LongWritable(T));
-            vertex.voteToHalt();
-        }
+		LongWritable messageValue = message.getValue();
+		LongWritable vertexValue = vertex.getValue();
+		LongWritable messageId = message.getId();
+		LongWritable vertexId = vertex.getId();
+
+		if ((messageValue.compareTo(vertexValue) < 0)
+			|| ((messageValue.compareTo(vertexValue) == 0) && (messageId.compareTo(vertexId) < 0))) {
+		    this.removeEdgesRequest(messageId, vertexId);
+		}
+	    }
+	} else if (getSuperstep() == 2) {
+	    //triangle count 
+	    for (Edge<LongWritable, NullWritable> edge : edges) {
+		this.sendMessageToAllEdges(vertex, new MessageLongIdLondValue(edge.getTargetVertexId(), new LongWritable(Long.MAX_VALUE)));
+	    }
+	} else if (getSuperstep() == 3) {
+	    Integer T = 0;
+	    Set<Long> edgeMap = Sets.<Long>newHashSet();
+
+	    for (Edge<LongWritable, NullWritable> edge : edges) {
+		edgeMap.add(edge.getTargetVertexId().get());
+	    }
+
+	    for (MessageLongIdLondValue message : messages) {
+		if (edgeMap.contains(message.getId().get())) {
+		    T++;
+		}
+	    }
+	    vertex.setValue(new LongWritable(T));
+	    aggregate(SOMMA + getSuperstep(), new LongWritable(T));;
+	    vertex.voteToHalt();
+	}
 
     }
 

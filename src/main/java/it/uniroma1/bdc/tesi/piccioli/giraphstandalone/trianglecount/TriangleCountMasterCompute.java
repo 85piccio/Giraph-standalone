@@ -22,6 +22,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.logging.Level;
 import org.apache.giraph.aggregators.DoubleSumAggregator;
+import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.master.MasterCompute;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.log4j.Logger;
@@ -39,34 +40,30 @@ public class TriangleCountMasterCompute extends MasterCompute {
      * Somma aggregator name
      */
     private static String SOMMA = "somma";
-    
+
     @Override
     public void readFields(DataInput in) throws IOException {
     }
-    
+
     @Override
     public void write(DataOutput out) throws IOException {
     }
-    
+
     @Override
     public void compute() {
-        try {
-            //        LOG.info("SUPERSTEP: " + this.getSuperstep());
-
-            registerPersistentAggregator(SOMMA+getSuperstep(), DoubleSumAggregator.class);
-            
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(TriangleCountMasterCompute.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(TriangleCountMasterCompute.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        setAggregatedValue(SOMMA+getSuperstep(), new DoubleWritable(0));
+	try {
+	    registerPersistentAggregator(SOMMA + getSuperstep(), LongSumAggregator.class);
+	} catch (InstantiationException ex) {
+	    java.util.logging.Logger.getLogger(TriangleCountMasterCompute.class.getName()).log(Level.SEVERE, null, ex);
+	} catch (IllegalAccessException ex) {
+	    java.util.logging.Logger.getLogger(TriangleCountMasterCompute.class.getName()).log(Level.SEVERE, null, ex);
+	}
     }
-    
+
     @Override
     public void initialize() throws InstantiationException,
-            IllegalAccessException {
-//        System.out.println("MasterCompute initialize");
+	    IllegalAccessException {
+	registerPersistentAggregator(SOMMA + getSuperstep(), LongSumAggregator.class);
     }
-    
+
 }

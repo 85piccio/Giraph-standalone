@@ -112,7 +112,7 @@ public class DenseSubgraphDirectMasterCompute extends MasterCompute {
 		    this.getConf().setLong(OPTIMALSUPERSTEP, superstep);
 		}
 		
-		//soglia a seconda della partizione
+		//soglia dipende della partizione
 		Double soglia;
 		if (IsNextPartitionS) {
 		    //S                
