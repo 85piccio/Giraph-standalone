@@ -19,8 +19,8 @@ import org.apache.hadoop.io.Writable;
  */
 public class DenseSubgraphDirectVertexValue implements Writable {
 
-    DenseSubgraphUndirectVertexValue partitionS;
-    DenseSubgraphUndirectVertexValue partitionT;
+    private DenseSubgraphUndirectVertexValue partitionS;
+    private DenseSubgraphUndirectVertexValue partitionT;
 
     private Set<Long> IncomingEdge;
 

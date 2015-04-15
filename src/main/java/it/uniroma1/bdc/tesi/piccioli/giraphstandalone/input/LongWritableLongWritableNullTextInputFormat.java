@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.giraph.io.formats.TextVertexInputFormat;
-import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 
 /**

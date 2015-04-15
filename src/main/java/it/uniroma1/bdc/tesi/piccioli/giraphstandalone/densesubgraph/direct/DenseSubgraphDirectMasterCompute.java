@@ -38,8 +38,8 @@ public class DenseSubgraphDirectMasterCompute extends MasterCompute {
     private static final Logger LOG = Logger.getLogger(DenseSubgraphDirectMasterCompute.class);
     /**
      * Somma aggregator name
-     */    
-    private static final String REMOVEDEDGES = "removedEdges";    
+     */
+    private static final String REMOVEDEDGES = "removedEdges";
     private static final String REMOVEDVERTICIESINS = "removedVerticiesFromS";
     private static final String REMOVEDVERTICIESINT = "removedVerticiesFromT";
     /**
@@ -51,50 +51,46 @@ public class DenseSubgraphDirectMasterCompute extends MasterCompute {
 
     private static Long prevStepRemovedEdges = Long.MIN_VALUE;
     private static Boolean isPreviousPartitionS = Boolean.FALSE;
-    private static long bestDensitySuperstep = 0;
+    private static long bestDensitySuperstep = -2;
     private static Double bestlDensity = Double.NEGATIVE_INFINITY;
     private static final Double epsilon = 0.001;
     private static final Double c = 1.0;
 
     @Override
-    public void readFields(DataInput in) throws IOException {
-    }
-
-    @Override
-    public void write(DataOutput out) throws IOException {
-    }
-
-    @Override
     public void compute() {
 
 	long superstep = getSuperstep();
+	long totVertices = this.getTotalNumVertices();
 
-	if (superstep > 1) {
+	if (superstep > 3) {
 
 	    LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
 
 	    LongWritable removedVertexInS = this.getAggregatedValue(REMOVEDVERTICIESINS);//superstep precedente	    
 	    LongWritable removedVertexInT = this.getAggregatedValue(REMOVEDVERTICIESINT);//superstep precedente
-	    
+
 	    if (isEven(superstep)) {//2,4....
 
 		Long edges = this.getTotalNumEdges() - removedEdges.get();
-		Long verticesInS = this.getTotalNumVertices() - removedVertexInS.get();
-		Long verticesInT = this.getTotalNumVertices() - removedVertexInT.get();
+		Long verticesInS = totVertices - removedVertexInS.get();
+		Long verticesInT = totVertices - removedVertexInT.get();
 
 		Boolean IsNextPartitionS = (verticesInS.doubleValue() / verticesInT.doubleValue()) >= c;
 		Boolean SamePreviuosStepPartition = IsNextPartitionS.equals(isPreviousPartitionS);
-		
 
 		//con rimozione effettiva dei vertici ci vogliono 2 step per startup
-		if ((prevStepRemovedEdges.equals(removedEdges.get())) && (superstep > 2) && SamePreviuosStepPartition) {
-		    LOG.info("NO CHANGES - HALT COMPUTATION");
+		Boolean noChangePreviousStep = prevStepRemovedEdges.equals(removedEdges.get()) && SamePreviuosStepPartition;
+		if ((noChangePreviousStep && superstep > 4) || edges == 0) {
+		    LOG.info("edge rimasti\t" + edges);
+		    LOG.info("vertici in partizione S\t" + verticesInS);
+		    LOG.info("vertici in partizione T\t" + verticesInT);
+		    LOG.info("NO CHANGES or NO more Edges - HALT COMPUTATION");
 		    LOG.info("BEST DENSITY\t" + bestlDensity + " at " + bestDensitySuperstep);
 		    this.haltComputation();
 		    return;
 		}
 
-		//Aggiorno variabile vertici rimossi per check in step successivo
+		//Aggiorno variabile vertici rimossi per check nel step successivo
 		prevStepRemovedEdges = removedEdges.get();
 		isPreviousPartitionS = IsNextPartitionS;
 
@@ -102,16 +98,16 @@ public class DenseSubgraphDirectMasterCompute extends MasterCompute {
 		Long EpSTp = this.getTotalNumEdges() - removedEdges.get();
 		LOG.info("EpSTp\t" + this.getTotalNumEdges() + "\t" + removedEdges.get());
 
-//		DENSITY DIRECT  ρ(S, T ) =  |E(S, T )| /  sqrt (|S||T |)
+		//DENSITY DIRECT  ρ(S, T ) =  |E(S, T )| /  sqrt (|S||T |)
 		Double currDensity = EpSTp.doubleValue() / Math.sqrt(verticesInS.doubleValue() * verticesInT.doubleValue());
 		LOG.info("currDesity" + "\t" + verticesInS.doubleValue() + "\t" + verticesInT.doubleValue());
-		
+
 		if (currDensity > bestlDensity && superstep > 2) {
 		    bestlDensity = currDensity;
 		    bestDensitySuperstep = superstep - 2; //Densità calcolata sul supertep pari precedente
 		    this.getConf().setLong(OPTIMALSUPERSTEP, superstep);
 		}
-		
+
 		//soglia dipende della partizione
 		Double soglia;
 		if (IsNextPartitionS) {
@@ -120,7 +116,7 @@ public class DenseSubgraphDirectMasterCompute extends MasterCompute {
 		    LOG.info(edges + "\t" + verticesInS);
 		    this.getContext().getConfiguration().setStrings(PARTITIONTOPROCESS, "S");
 		    this.setComputation(DenseSubgraphDirectPartitionS.class);
-		    
+
 		    // soglia = (1 + epsilon) * (|E(S, T)| / |S| )
 		    soglia = (1 + epsilon) * ((EpSTp.doubleValue()) / verticesInS.doubleValue());
 
@@ -130,7 +126,7 @@ public class DenseSubgraphDirectMasterCompute extends MasterCompute {
 		    LOG.info(edges + "\t" + verticesInT);
 		    this.getContext().getConfiguration().setStrings(PARTITIONTOPROCESS, "T");
 		    this.setComputation(DenseSubgraphDirectPartitionT.class);
-		    
+
 		    // soglia = (1 + epsilon) * (|E(S, T)| / |T| )
 		    soglia = (1 + epsilon) * ((EpSTp.doubleValue()) / verticesInT.doubleValue());;
 		}
@@ -157,6 +153,16 @@ public class DenseSubgraphDirectMasterCompute extends MasterCompute {
 
     private boolean isEven(long a) {
 	return (a % 2 == 0);
+    }
+
+    @Override
+    public void write(DataOutput d) throws IOException {
+	throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void readFields(DataInput di) throws IOException {
+	throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

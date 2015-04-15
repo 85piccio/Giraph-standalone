@@ -50,7 +50,7 @@ public class DenseSubgraphUndirect extends BasicComputation<LongWritable, DenseS
                     this.aggregate(REMOVEDVERTICIES, new LongWritable(1));
 
                     //rimozione logica dei vertici
-                    vertex.getValue().deactive();
+                    vertex.getValue().deactivate();
                     vertex.getValue().setDeletedSuperstep(superstep);
 
                     //rimozione logica dei Edge (solo quelli verso vertici ancora attivi, non eliminati in superstep precedenti)

@@ -17,16 +17,12 @@
  */
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecount;
 
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.direct.DenseSubgraphDirectPartitionS;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.logging.Level;
-import org.apache.giraph.aggregators.DoubleSumAggregator;
 import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.master.MasterCompute;
-import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.log4j.Logger;
 
 /**

@@ -15,9 +15,8 @@ import org.apache.log4j.Logger;
 /**
  *
  * @author piccio
- * 
- * Vertex in partition S 
- * Classe che viene eseguita anche in fase di init (creazione incoming edge nei primi 2 supertep)
+ *
+ * Vertex in partition S Classe che viene eseguita anche in fase di init (creazione incoming edge nei primi 2 supertep)
  */
 public class DenseSubgraphDirectPartitionS extends BasicComputation<LongWritable, DenseSubgraphDirectVertexValue, NullWritable, LongWritable> {
 
@@ -37,10 +36,8 @@ public class DenseSubgraphDirectPartitionS extends BasicComputation<LongWritable
     @Override
     public void compute(Vertex<LongWritable, DenseSubgraphDirectVertexValue, NullWritable> vertex, Iterable<LongWritable> messages) throws IOException {
 	Long superstep = this.getSuperstep();
-//	System.out.println("S");
-	if (superstep > 1) {
 
-	    Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, Double.NEGATIVE_INFINITY);
+	if (superstep > 1) {
 
 	    //Partition S
 	    if (this.isEven(superstep)) {
@@ -48,10 +45,11 @@ public class DenseSubgraphDirectPartitionS extends BasicComputation<LongWritable
 		if (vertex.getValue().getPartitionS().IsActive()) {
 
 		    int outDegree = vertex.getNumEdges() - vertex.getValue().getPartitionS().getEdgeRemoved();
+		    Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, Double.NEGATIVE_INFINITY);
 
 		    if (outDegree <= soglia) {
 			//elimino vertice dalla partizione S
-			vertex.getValue().getPartitionS().deactive();
+			vertex.getValue().getPartitionS().deactivate();
 			vertex.getValue().getPartitionS().setDeletedSuperstep(superstep);
 
 			this.aggregate(REMOVEDVERTICIESINS, new LongWritable(1));
@@ -62,11 +60,10 @@ public class DenseSubgraphDirectPartitionS extends BasicComputation<LongWritable
 		    }
 		}
 	    } else {
-		    //3,5,7 ..
+		//3,5,7 ..
 		//vertici nella partizione T
 
 		//elimino da lista incoming edge
-//		    Set tmp = vertex.getValue().getIncomingEdge();
 		if (vertex.getValue().getPartitionT().IsActive()) {
 		    for (LongWritable msg : messages) {
 			vertex.getValue().getIncomingEdge().remove(msg.get());
@@ -75,7 +72,7 @@ public class DenseSubgraphDirectPartitionS extends BasicComputation<LongWritable
 	    }
 
 	} else {
-	    //Superstep 0 e 1 creano lista incoming edge
+	    //INIT - Superstep 0 e 1 creano lista incoming edge 
 	    if (superstep == 0) {
 		this.sendMessageToAllEdges(vertex, vertex.getId());
 	    }
