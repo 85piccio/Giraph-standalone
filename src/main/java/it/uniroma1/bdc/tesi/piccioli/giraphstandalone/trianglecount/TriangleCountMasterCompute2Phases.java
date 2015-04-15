@@ -32,12 +32,12 @@ import org.apache.log4j.Logger;
 /**
  * A dumb implementation of {@link MasterCompute}. This is the default implementation when no MasterCompute is defined by the user. It does nothing.
  */
-public class TriangleCountMasterCompute extends MasterCompute {
+public class TriangleCountMasterCompute2Phases extends MasterCompute {
 
     /**
      * Class logger
      */
-    private static final Logger LOG = Logger.getLogger(TriangleCountMasterCompute.class);
+    private static final Logger LOG = Logger.getLogger(TriangleCountMasterCompute2Phases.class);
     /**
      * Somma aggregator name
      */
@@ -53,13 +53,20 @@ public class TriangleCountMasterCompute extends MasterCompute {
 
     @Override
     public void compute() {
-	
+
 	//all'inizio del secondo superstep vario la classe computation per dimezzare lo spazio dei messaggi
+	if (this.getSuperstep() == 1) {
+	    this.setOutgoingMessage(LongWritable.class);
+	}
+	if (this.getSuperstep() == 2) {
+	    this.setComputation(TriangleCountPlusPlusPhase2.class);
+	    this.setIncomingMessage(LongWritable.class);
+	}
 	if (this.getSuperstep() == 3) {
 	    try {
 		registerPersistentAggregator(SOMMA + getSuperstep(), LongSumAggregator.class);
 	    } catch (InstantiationException | IllegalAccessException ex) {
-		java.util.logging.Logger.getLogger(TriangleCountMasterCompute.class.getName()).log(Level.SEVERE, null, ex);
+		java.util.logging.Logger.getLogger(TriangleCountMasterCompute2Phases.class.getName()).log(Level.SEVERE, null, ex);
 	    }
 	}
     }

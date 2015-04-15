@@ -17,18 +17,16 @@
  */
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecount;
 
-import com.google.common.collect.Sets;
 import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.message.MessageLongIdLongValue;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.NullWritable;
 import java.io.IOException;
-import java.util.Set;
 import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.LongWritable;
 
 @SuppressWarnings("rawtypes")
-public class TriangleCountPlusPlus extends BasicComputation<LongWritable, LongWritable, NullWritable, MessageLongIdLongValue> {
+public class TriangleCountPlusPlusPhase1 extends BasicComputation<LongWritable, LongWritable, NullWritable, MessageLongIdLongValue> {
 
     /**
      * Somma aggregator name
@@ -54,13 +52,12 @@ public class TriangleCountPlusPlus extends BasicComputation<LongWritable, LongWr
 	} else if (getSuperstep() == 1) {
 
 	    //Ricevo Degree dai nodi vicini, elimino edge che collegano nodi "< degree minori"
-	    
 	    LongWritable vertexId = vertex.getId();
 	    LongWritable vertexValue = vertex.getValue();
-	    
+
 	    LongWritable messageId;
 	    LongWritable messageValue;
-	    
+
 	    for (MessageLongIdLongValue message : messages) {
 
 		messageValue = message.getValue();
@@ -71,29 +68,7 @@ public class TriangleCountPlusPlus extends BasicComputation<LongWritable, LongWr
 		    this.removeEdgesRequest(messageId, vertexId);
 		}
 	    }
-	}else if (getSuperstep() == 2) {
-	    //triangle count
-	    for (Edge<LongWritable, NullWritable> edge : edges) {
-		this.sendMessageToAllEdges(vertex, new MessageLongIdLongValue(edge.getTargetVertexId(), new LongWritable()));
-	    }
-	} else if (getSuperstep() == 3) {
-	    Integer T = 0;
-	    Set<Long> edgeMap = Sets.<Long>newHashSet();
-
-	    for (Edge<LongWritable, NullWritable> edge : edges) {
-		edgeMap.add(edge.getTargetVertexId().get());
-	    }
-
-	    for (MessageLongIdLongValue message : messages) {
-		if (edgeMap.contains(message.getId().get())) {
-		    T++;
-		}
-	    }
-	    vertex.setValue(new LongWritable(T));
-	    aggregate(SOMMA + getSuperstep(), new LongWritable(T));
-	    vertex.voteToHalt();
 	}
-
     }
 
 }
