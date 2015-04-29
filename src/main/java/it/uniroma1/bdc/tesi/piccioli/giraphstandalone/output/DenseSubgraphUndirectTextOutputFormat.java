@@ -17,7 +17,7 @@
  */
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.output;
 
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.DenseSubgraphUndirectVertexValue;
+import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.longwritable.DenseSubgraphUndirectVertexValue;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.formats.TextVertexOutputFormat;
 import org.apache.hadoop.io.NullWritable;

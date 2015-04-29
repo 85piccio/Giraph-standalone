@@ -49,7 +49,8 @@ public class TriangleCountPlusPlus extends BasicComputation<LongWritable, LongWr
 
 	    for (Edge<LongWritable, NullWritable> edge : edges) {
 		this.sendMessage(edge.getTargetVertexId(), new MessageLongIdLongValue(vertex.getId(), degree));
-	    }
+	    }            
+//            this.sendMessageToAllEdges(vertex, new MessageLongIdLongValue(vertex.getId(), degree));
 
 	} else if (getSuperstep() == 1) {
 

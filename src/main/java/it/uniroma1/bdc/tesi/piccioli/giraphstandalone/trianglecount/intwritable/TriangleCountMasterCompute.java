@@ -21,6 +21,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.logging.Level;
+import org.apache.giraph.aggregators.DoubleSumAggregator;
 import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.master.MasterCompute;
 import org.apache.log4j.Logger;
@@ -42,7 +43,7 @@ public class TriangleCountMasterCompute extends MasterCompute {
 
     @Override
     public void readFields(DataInput in) throws IOException {
-    }
+    } 
 
     @Override
     public void write(DataOutput out) throws IOException {
@@ -52,6 +53,7 @@ public class TriangleCountMasterCompute extends MasterCompute {
     public void compute() {
 
         //all'inizio del secondo superstep vario la classe computation per dimezzare lo spazio dei messaggi
+        System.out.println("supertesp " + this.getSuperstep());
         if (this.getSuperstep() == 3) {
             try {
                 registerPersistentAggregator(SOMMA + getSuperstep(), LongSumAggregator.class);

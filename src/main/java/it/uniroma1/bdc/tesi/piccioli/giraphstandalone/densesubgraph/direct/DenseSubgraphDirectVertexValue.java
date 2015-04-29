@@ -5,7 +5,7 @@
  */
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.direct;
 
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.DenseSubgraphUndirectVertexValue;
+import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.longwritable.DenseSubgraphUndirectVertexValue;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
