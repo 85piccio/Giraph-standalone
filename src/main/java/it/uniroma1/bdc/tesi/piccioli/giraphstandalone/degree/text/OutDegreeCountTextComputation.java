@@ -1,4 +1,4 @@
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.degree;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.degree.text;
 
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;

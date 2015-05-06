@@ -7,7 +7,7 @@ import java.io.IOException;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 
-public class OutDegreeCountIntComputation extends BasicComputation<IntWritable, IntWritable, NullWritable, NullWritable> {
+public class OutDegreeCountComputation extends BasicComputation<IntWritable, IntWritable, NullWritable, NullWritable> {
 
     @Override
     public void compute(
