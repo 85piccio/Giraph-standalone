@@ -9,6 +9,7 @@ import java.io.IOException;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.log4j.Logger;
 
@@ -47,7 +48,7 @@ public class DenseSubgraphUndirect extends BasicComputation<IntWritable, DenseSu
                 if (vertexDegree <= soglia) {
                     //rimozione logica del vertice
 
-                    this.aggregate(REMOVEDVERTICIES, new IntWritable(1));
+                    this.aggregate(REMOVEDVERTICIES, new LongWritable(1));
 
                     //rimozione logica dei vertici
                     vertex.getValue().deactivate();
@@ -57,7 +58,7 @@ public class DenseSubgraphUndirect extends BasicComputation<IntWritable, DenseSu
                     this.sendMessageToAllEdges(vertex, vertex.getId());
 
                     //Sync edge rimossi con quelli eventualmente rimossi "indirettamente" step precedente
-                    this.aggregate(REMOVEDEDGES, new IntWritable(vertexDegree));
+                    this.aggregate(REMOVEDEDGES, new LongWritable(vertexDegree));
 
                     vertex.voteToHalt();
                 }
@@ -73,7 +74,7 @@ public class DenseSubgraphUndirect extends BasicComputation<IntWritable, DenseSu
 
                 vertex.getValue().setEdgeRemoved(vertex.getValue().getEdgeRemoved() + edgeToRemove);
 
-                this.aggregate(REMOVEDEDGES, new IntWritable(edgeToRemove));
+                this.aggregate(REMOVEDEDGES, new LongWritable(edgeToRemove));
             }
 
         } else {

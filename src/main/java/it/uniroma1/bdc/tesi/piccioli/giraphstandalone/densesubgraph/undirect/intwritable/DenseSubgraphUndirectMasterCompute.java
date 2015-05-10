@@ -20,9 +20,9 @@ package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.in
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import org.apache.giraph.aggregators.IntSumAggregator;
+import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.master.MasterCompute;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.log4j.Logger;
 
 /**
@@ -52,7 +52,7 @@ public class DenseSubgraphUndirectMasterCompute extends MasterCompute {
     
     
 //    private static final String PREVSTEPREMOVEDEDVERTEX = "prevStepRemovedVertex";
-    private static Integer prevStepRemovedVertex = Integer.MIN_VALUE;
+    private static Long prevStepRemovedVertex = Long.MIN_VALUE;
     private static long bestDensitySuperstep = 0;
     private static Double bestlDensity = Double.NEGATIVE_INFINITY;
     private static final Double epsilon = 0.001;
@@ -69,8 +69,8 @@ public class DenseSubgraphUndirectMasterCompute extends MasterCompute {
     public void compute() {
 
         long superstep = getSuperstep();
-        IntWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
-        IntWritable removedVertex = this.getAggregatedValue(REMOVEDVERTICIES);//superstep precedente
+        LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
+        LongWritable removedVertex = this.getAggregatedValue(REMOVEDVERTICIES);//superstep precedente
         
         if (isEven(superstep)) {//0,2,4....
 
@@ -117,8 +117,8 @@ public class DenseSubgraphUndirectMasterCompute extends MasterCompute {
     @Override
     public void initialize() throws InstantiationException,
             IllegalAccessException {
-        registerPersistentAggregator(REMOVEDEDGES, IntSumAggregator.class);
-        registerPersistentAggregator(REMOVEDVERTICIES, IntSumAggregator.class);
+        registerPersistentAggregator(REMOVEDEDGES, LongSumAggregator.class);
+        registerPersistentAggregator(REMOVEDVERTICIES, LongSumAggregator.class);
     }
 
     private boolean isEven(long a) {
