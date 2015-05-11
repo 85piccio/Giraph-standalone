@@ -18,30 +18,30 @@ import org.apache.hadoop.io.Writable;
  */
 public class VertexValue implements Writable {
 
-    private it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.longwritable.VertexValue partitionS;
-    private it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.longwritable.VertexValue partitionT;
+    private it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.VertexValue partitionS;
+    private it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.VertexValue partitionT;
 
     private Set<Long> IncomingEdge;
 
     public VertexValue() {
 	this.IncomingEdge = new HashSet();
-	this.partitionS = new it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.longwritable.VertexValue();
-	this.partitionT = new it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.longwritable.VertexValue();
+	this.partitionS = new it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.VertexValue();
+	this.partitionT = new it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.VertexValue();
     }
 
-    public it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.longwritable.VertexValue getPartitionS() {
+    public it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.VertexValue getPartitionS() {
 	return partitionS;
     }
 
-    public void setPartitionS(it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.longwritable.VertexValue partitionS) {
+    public void setPartitionS(it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.VertexValue partitionS) {
 	this.partitionS = partitionS;
     }
 
-    public it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.longwritable.VertexValue getPartitionT() {
+    public it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.VertexValue getPartitionT() {
 	return partitionT;
     }
 
-    public void setPartitionT(it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.longwritable.VertexValue partitionT) {
+    public void setPartitionT(it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.VertexValue partitionT) {
 	this.partitionT = partitionT;
     }
 
