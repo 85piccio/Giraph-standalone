@@ -15,23 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.output;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.direct.intwritable;
 
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.direct.longwritable.VertexValue;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.formats.TextVertexOutputFormat;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
-
+import org.apache.hadoop.io.IntWritable;
 import java.io.IOException;
-import org.apache.hadoop.io.LongWritable;
 
 /**
  * Output format for vertices with a long as id, a double as value and null edges
  */
-public class LongDenseSubgraphDirectTextOutputFormat extends
-	TextVertexOutputFormat<LongWritable, VertexValue, NullWritable> {
+public class Output extends
+	TextVertexOutputFormat<IntWritable, VertexValue, NullWritable> {
 
     private static final String OPTIMALSUPERSTEP = "optimalSuperstep";
 
@@ -48,7 +46,7 @@ public class LongDenseSubgraphDirectTextOutputFormat extends
 
 	@Override
 	public void writeVertex(
-		Vertex<LongWritable, VertexValue, NullWritable> vertex)
+		Vertex<IntWritable, VertexValue, NullWritable> vertex)
 		throws IOException, InterruptedException {
 	    StringBuilder output = new StringBuilder();
 

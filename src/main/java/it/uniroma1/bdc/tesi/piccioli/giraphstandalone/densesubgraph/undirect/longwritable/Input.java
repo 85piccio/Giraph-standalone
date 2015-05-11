@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.input;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.longwritable;
 
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.EdgeFactory;
@@ -25,13 +25,13 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import com.google.common.collect.Lists;
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.intwritable.VertexValue;
+import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.longwritable.VertexValue;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.giraph.io.formats.TextVertexInputFormat;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 
 /**
  * Simple text-based {@link org.apache.giraph.io.VertexInputFormat} for
@@ -39,8 +39,8 @@ import org.apache.hadoop.io.IntWritable;
  *
  * Each line consists of: vertex neighbor1 neighbor2 ...
  */
-public class IntDenseSubgraphUndirectVertexValueInputFormat extends
-    TextVertexInputFormat<IntWritable, VertexValue, NullWritable> {
+public class Input extends
+    TextVertexInputFormat<LongWritable, VertexValue, NullWritable> {
   /** Separator of the vertex and neighbors */
 //  private static final Pattern SEPARATOR = Pattern.compile("[\t ]");
     
@@ -59,19 +59,19 @@ public class IntDenseSubgraphUndirectVertexValueInputFormat extends
   public class TextTextNullVertexReader extends
       TextVertexReaderFromEachLineProcessed<String[]> {
     /** Cached vertex id for the current line */
-    private IntWritable id;
+    private LongWritable id;
     private VertexValue value;
 
     @Override
     protected String[] preprocessLine(Text line) throws IOException {
       String[] tokens = SEPARATOR.split(line.toString());
-      id = new IntWritable(Integer.parseInt(tokens[0]));
+      id = new LongWritable(Long.parseLong(tokens[0]));
       value = new VertexValue();
       return tokens;
     }
 
     @Override
-    protected IntWritable getId(String[] tokens) throws IOException {
+    protected LongWritable getId(String[] tokens) throws IOException {
       return id;
     }
 
@@ -81,13 +81,13 @@ public class IntDenseSubgraphUndirectVertexValueInputFormat extends
     }
 
     @Override
-    protected Iterable<Edge<IntWritable, NullWritable>> getEdges(
+    protected Iterable<Edge<LongWritable, NullWritable>> getEdges(
         String[] tokens) throws IOException {
-      List<Edge<IntWritable, NullWritable>> edges =
+      List<Edge<LongWritable, NullWritable>> edges =
           Lists.newArrayListWithCapacity(tokens.length - 1);
       for (int n = 1; n < tokens.length; n++) {
         edges.add(EdgeFactory.create(
-            new IntWritable(Integer.parseInt(tokens[n]))));
+            new LongWritable(Long.parseLong(tokens[n]))));
       }
       return edges;
     }

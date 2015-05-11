@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.output;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.longwritable;
 
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.undirect.longwritable.VertexValue;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.formats.TextVertexOutputFormat;
 import org.apache.hadoop.io.NullWritable;
@@ -31,7 +30,7 @@ import org.apache.hadoop.io.LongWritable;
  * Output format for vertices with a long as id, a double as value and null
  * edges
  */
-public class LongDenseSubgraphUndirectTextOutputFormat extends
+public class Output extends
         TextVertexOutputFormat<LongWritable, VertexValue, NullWritable> {
 
     private static final String OPTIMALSUPERSTEP = "optimalSuperstep";

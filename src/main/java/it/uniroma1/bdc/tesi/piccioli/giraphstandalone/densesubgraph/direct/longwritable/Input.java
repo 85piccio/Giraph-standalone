@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.input;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.direct.longwritable;
 
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.EdgeFactory;
@@ -39,7 +39,7 @@ import org.apache.hadoop.io.LongWritable;
  *
  * Each line consists of: vertex neighbor1 neighbor2 ...
  */
-public class LongDenseSubgraphDirectVertexValueInputFormat extends
+public class Input extends
     TextVertexInputFormat<LongWritable, VertexValue, NullWritable> {
   /** Separator of the vertex and neighbors */
 //  private static final Pattern SEPARATOR = Pattern.compile("[\t ]");
