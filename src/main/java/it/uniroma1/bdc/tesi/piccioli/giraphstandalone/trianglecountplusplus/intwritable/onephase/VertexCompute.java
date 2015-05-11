@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecountplusplus.intwritable;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecountplusplus.intwritable.onephase;
 
 import com.google.common.collect.Sets;
 import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.message.MessageIntIdIntValue;

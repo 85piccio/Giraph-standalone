@@ -15,33 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecountplusplus.longwritable;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecountplusplus.longwritable.onephase;
 
+import com.google.common.collect.Sets;
 import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.message.MessageLongIdLongValue;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.NullWritable;
 import java.io.IOException;
+import java.util.Set;
 import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.LongWritable;
 
 @SuppressWarnings("rawtypes")
-public class TriangleCountPlusPlusPhase1 extends BasicComputation<LongWritable, LongWritable, NullWritable, MessageLongIdLongValue> {
+public class VertexCpmpute extends BasicComputation<LongWritable, LongWritable, NullWritable, MessageLongIdLongValue> {
 
     /**
      * Somma aggregator name
      */
     private static final String SOMMA = "somma";
 
-    
-    /**	Prima fase composta da i primi 2 superstep
-     * 1 superstep - calcolo del degree di ogni nodo e invio info a nodi vicino
-     * 2 superstep - elimino archi fuori ordinamento 
-     * 
-     * @param vertex
-     * @param messages
-     * @throws java.io.IOException
-     **/
+    /* SOLO GRAFO NON DIRETTO  */
     @Override
     public void compute(Vertex<LongWritable, LongWritable, NullWritable> vertex,
 	    Iterable<MessageLongIdLongValue> messages) throws IOException {
@@ -55,17 +49,19 @@ public class TriangleCountPlusPlusPhase1 extends BasicComputation<LongWritable, 
 
 	    for (Edge<LongWritable, NullWritable> edge : edges) {
 		this.sendMessage(edge.getTargetVertexId(), new MessageLongIdLongValue(vertex.getId(), degree));
-	    }
+	    }            
+//            this.sendMessageToAllEdges(vertex, new MessageLongIdLongValue(vertex.getId(), degree));
 
 	} else if (getSuperstep() == 1) {
 
 	    //Ricevo Degree dai nodi vicini, elimino edge che collegano nodi "< degree minori"
+	    
 	    LongWritable vertexId = vertex.getId();
 	    LongWritable vertexValue = vertex.getValue();
-
+	    
 	    LongWritable messageId;
 	    LongWritable messageValue;
-
+	    
 	    for (MessageLongIdLongValue message : messages) {
 
 		messageValue = message.getValue();
@@ -76,7 +72,29 @@ public class TriangleCountPlusPlusPhase1 extends BasicComputation<LongWritable, 
 		    this.removeEdgesRequest(messageId, vertexId);
 		}
 	    }
+	}else if (getSuperstep() == 2) {
+	    //triangle count
+	    for (Edge<LongWritable, NullWritable> edge : edges) {
+		this.sendMessageToAllEdges(vertex, new MessageLongIdLongValue(edge.getTargetVertexId(), new LongWritable()));
+	    }
+	} else if (getSuperstep() == 3) {
+	    Integer T = 0;
+	    Set<Long> edgeMap = Sets.<Long>newHashSet();
+
+	    for (Edge<LongWritable, NullWritable> edge : edges) {
+		edgeMap.add(edge.getTargetVertexId().get());
+	    }
+
+	    for (MessageLongIdLongValue message : messages) {
+		if (edgeMap.contains(message.getId().get())) {
+		    T++;
+		}
+	    }
+	    vertex.setValue(new LongWritable(T));
+	    aggregate(SOMMA + getSuperstep(), new LongWritable(T));
+	    vertex.voteToHalt();
 	}
+
     }
 
 }

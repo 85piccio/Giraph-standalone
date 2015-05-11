@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecountplusplus.longwritable;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecountplusplus.intwritable.twophases;
 
 import com.google.common.collect.Sets;
 import org.apache.giraph.graph.BasicComputation;
@@ -24,10 +24,11 @@ import org.apache.hadoop.io.NullWritable;
 import java.io.IOException;
 import java.util.Set;
 import org.apache.giraph.edge.Edge;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 
 @SuppressWarnings("rawtypes")
-public class TriangleCountPlusPlusPhase2 extends BasicComputation<LongWritable, LongWritable, NullWritable, LongWritable> {
+public class VertexComputePhase2 extends BasicComputation<IntWritable, IntWritable, NullWritable, IntWritable> {
 
     /**
      * Somma aggregator name
@@ -36,31 +37,31 @@ public class TriangleCountPlusPlusPhase2 extends BasicComputation<LongWritable, 
 
     /* SOLO GRAFO NON DIRETTO  */
     @Override
-    public void compute(Vertex<LongWritable, LongWritable, NullWritable> vertex,
-	    Iterable<LongWritable> messages) throws IOException {
+    public void compute(Vertex<IntWritable, IntWritable, NullWritable> vertex,
+	    Iterable<IntWritable> messages) throws IOException {
 
-	Iterable<Edge<LongWritable, NullWritable>> edges = vertex.getEdges();
+	Iterable<Edge<IntWritable, NullWritable>> edges = vertex.getEdges();
 
 	if (getSuperstep() == 2) {
 	    //triangle count
-	    for (Edge<LongWritable, NullWritable> edge : edges) {
+	    for (Edge<IntWritable, NullWritable> edge : edges) {
 		this.sendMessageToAllEdges(vertex, edge.getTargetVertexId());
 	    }
 	}
 	if (getSuperstep() == 3) {
 	    Integer T = 0;
-	    Set<Long> edgeMap = Sets.<Long>newHashSet();
+	    Set<Integer> edgeMap = Sets.<Integer>newHashSet();
 
-	    for (Edge<LongWritable, NullWritable> edge : edges) {
+	    for (Edge<IntWritable, NullWritable> edge : edges) {
 		edgeMap.add(edge.getTargetVertexId().get());
 	    }
 
-	    for (LongWritable message : messages) {
+	    for (IntWritable message : messages) {
 		if (edgeMap.contains(message.get())) {
 		    T++;
 		}
 	    }
-	    vertex.setValue(new LongWritable(T));
+	    vertex.setValue(new IntWritable(T));
 	    aggregate(SOMMA + getSuperstep(), new LongWritable(T));
 	    vertex.voteToHalt();
 	}

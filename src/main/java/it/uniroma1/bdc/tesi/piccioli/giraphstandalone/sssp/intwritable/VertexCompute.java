@@ -27,6 +27,10 @@ import org.apache.giraph.conf.StrConfOption;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 
+/*
+ *  INPUT FORMAT - IntIntNullNullInputFormat.java 
+ *  OUTPUT FORMAT - VertexWithIntValueNullEdgeTextOutputFormat.java
+ */
 public class VertexCompute extends BasicComputation<IntWritable, IntWritable, NullWritable, IntWritable> {
 
     /**
@@ -67,7 +71,7 @@ public class VertexCompute extends BasicComputation<IntWritable, IntWritable, Nu
             System.out.println("Vertex " + vertex.getId() + " got minDist = " + minDist
                     + " vertex value = " + vertex.getValue());
         }
-        if (minDist < new Long(vertex.getValue().toString())) {
+        if (minDist < new Integer(vertex.getValue().toString())) {
             vertex.setValue(new IntWritable(minDist));
             for (Edge<IntWritable, NullWritable> edge : vertex.getEdges()) {
 

@@ -15,22 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecountplusplus.intwritable;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecountplusplus.longwritable.twophases;
 
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.message.MessageIntIdIntValue;
+import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.message.MessageLongIdLongValue;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.NullWritable;
 import java.io.IOException;
 import org.apache.giraph.edge.Edge;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 
 @SuppressWarnings("rawtypes")
-public class VertexXomputePhase1 extends BasicComputation<IntWritable, IntWritable, NullWritable, MessageIntIdIntValue> {
+public class VertexComputePhase1 extends BasicComputation<LongWritable, LongWritable, NullWritable, MessageLongIdLongValue> {
 
     /**
      * Somma aggregator name
      */
+    private static final String SOMMA = "somma";
 
     
     /**	Prima fase composta da i primi 2 superstep
@@ -42,30 +43,30 @@ public class VertexXomputePhase1 extends BasicComputation<IntWritable, IntWritab
      * @throws java.io.IOException
      **/
     @Override
-    public void compute(Vertex<IntWritable, IntWritable, NullWritable> vertex,
-	    Iterable<MessageIntIdIntValue> messages) throws IOException {
+    public void compute(Vertex<LongWritable, LongWritable, NullWritable> vertex,
+	    Iterable<MessageLongIdLongValue> messages) throws IOException {
 
-	Iterable<Edge<IntWritable, NullWritable>> edges = vertex.getEdges();
+	Iterable<Edge<LongWritable, NullWritable>> edges = vertex.getEdges();
 
 	if (getSuperstep() == 0) {
 	    //calcolo degree e invio a vertici vicini
-	    IntWritable degree = new IntWritable(vertex.getNumEdges());
+	    LongWritable degree = new LongWritable(vertex.getNumEdges());
 	    vertex.setValue(degree);
 
-	    for (Edge<IntWritable, NullWritable> edge : edges) {
-		this.sendMessage(edge.getTargetVertexId(), new MessageIntIdIntValue(vertex.getId(), degree));
+	    for (Edge<LongWritable, NullWritable> edge : edges) {
+		this.sendMessage(edge.getTargetVertexId(), new MessageLongIdLongValue(vertex.getId(), degree));
 	    }
 
 	} else if (getSuperstep() == 1) {
 
 	    //Ricevo Degree dai nodi vicini, elimino edge che collegano nodi "< degree minori"
-	    IntWritable vertexId = vertex.getId();
-	    IntWritable vertexValue = vertex.getValue();
+	    LongWritable vertexId = vertex.getId();
+	    LongWritable vertexValue = vertex.getValue();
 
-	    IntWritable messageId;
-	    IntWritable messageValue;
+	    LongWritable messageId;
+	    LongWritable messageValue;
 
-	    for (MessageIntIdIntValue message : messages) {
+	    for (MessageLongIdLongValue message : messages) {
 
 		messageValue = message.getValue();
 		messageId = message.getId();

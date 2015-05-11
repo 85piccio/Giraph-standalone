@@ -76,10 +76,11 @@ public class Master extends MasterCompute {
 		Long verticesInT = totVertices - removedVertexInT.get();
 
 		Boolean IsNextPartitionS = (verticesInS.doubleValue() / verticesInT.doubleValue()) >= c;
+                
+		//con rimozione effettiva dei vertici ci vogliono 2 step per startup                
 		Boolean SamePreviuosStepPartition = IsNextPartitionS.equals(isPreviousPartitionS);
-
-		//con rimozione effettiva dei vertici ci vogliono 2 step per startup
 		Boolean noChangePreviousStep = prevStepRemovedEdges.equals(removedEdges.get()) && SamePreviuosStepPartition;
+                
 		if ((noChangePreviousStep && superstep > 4) || edges == 0) {
 		    LOG.info("edge rimasti\t" + edges);
 		    LOG.info("vertici in partizione S\t" + verticesInS);
@@ -113,7 +114,8 @@ public class Master extends MasterCompute {
 		if (IsNextPartitionS) {
 		    //S                
 		    LOG.info("partizione S");
-		    LOG.info(edges + "\t" + verticesInS);
+		    LOG.info("vertici in S\t" + verticesInS);
+                    LOG.info("edge\t" + EpSTp);                    
 		    this.getContext().getConfiguration().setStrings(PARTITIONTOPROCESS, "S");
 		    this.setComputation(VertexComputePartitionS.class);
 
@@ -123,7 +125,8 @@ public class Master extends MasterCompute {
 		} else {
 		    //T
 		    LOG.info("partizione T");
-		    LOG.info(edges + "\t" + verticesInT);
+		    LOG.info("vertici in S\t"+ verticesInT);
+                    LOG.info("edge\t" + EpSTp);     
 		    this.getContext().getConfiguration().setStrings(PARTITIONTOPROCESS, "T");
 		    this.setComputation(VertexComputePartitionT.class);
 

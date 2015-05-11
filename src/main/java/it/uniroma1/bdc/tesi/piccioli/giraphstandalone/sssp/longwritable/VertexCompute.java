@@ -27,6 +27,10 @@ import org.apache.giraph.conf.StrConfOption;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 
+/*
+ *  INPUT FORMAT - LongWritableLongWritableNullTextInputFormat.java
+ *  OUTPUT FORMAT - VertexWithLongWritableValueAndKeyNullEdgeTextOutputFormat.java
+ */
 public class VertexCompute extends BasicComputation<LongWritable, LongWritable, NullWritable, LongWritable> {
 
     /**

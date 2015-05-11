@@ -15,10 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecountplusplus.longwritable;
+package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecountplusplus.longwritable.twophases;
 
 import com.google.common.collect.Sets;
-import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.message.MessageLongIdLongValue;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.NullWritable;
@@ -28,7 +27,7 @@ import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.LongWritable;
 
 @SuppressWarnings("rawtypes")
-public class TriangleCountPlusPlus extends BasicComputation<LongWritable, LongWritable, NullWritable, MessageLongIdLongValue> {
+public class VertexComputePhase2 extends BasicComputation<LongWritable, LongWritable, NullWritable, LongWritable> {
 
     /**
      * Somma aggregator name
@@ -38,46 +37,17 @@ public class TriangleCountPlusPlus extends BasicComputation<LongWritable, LongWr
     /* SOLO GRAFO NON DIRETTO  */
     @Override
     public void compute(Vertex<LongWritable, LongWritable, NullWritable> vertex,
-	    Iterable<MessageLongIdLongValue> messages) throws IOException {
+	    Iterable<LongWritable> messages) throws IOException {
 
 	Iterable<Edge<LongWritable, NullWritable>> edges = vertex.getEdges();
 
-	if (getSuperstep() == 0) {
-	    //calcolo degree e invio a vertici vicini
-	    LongWritable degree = new LongWritable(vertex.getNumEdges());
-	    vertex.setValue(degree);
-
-	    for (Edge<LongWritable, NullWritable> edge : edges) {
-		this.sendMessage(edge.getTargetVertexId(), new MessageLongIdLongValue(vertex.getId(), degree));
-	    }            
-//            this.sendMessageToAllEdges(vertex, new MessageLongIdLongValue(vertex.getId(), degree));
-
-	} else if (getSuperstep() == 1) {
-
-	    //Ricevo Degree dai nodi vicini, elimino edge che collegano nodi "< degree minori"
-	    
-	    LongWritable vertexId = vertex.getId();
-	    LongWritable vertexValue = vertex.getValue();
-	    
-	    LongWritable messageId;
-	    LongWritable messageValue;
-	    
-	    for (MessageLongIdLongValue message : messages) {
-
-		messageValue = message.getValue();
-		messageId = message.getId();
-
-		if ((messageValue.compareTo(vertexValue) < 0)
-			|| ((messageValue.compareTo(vertexValue) == 0) && (messageId.compareTo(vertexId) < 0))) {
-		    this.removeEdgesRequest(messageId, vertexId);
-		}
-	    }
-	}else if (getSuperstep() == 2) {
+	if (getSuperstep() == 2) {
 	    //triangle count
 	    for (Edge<LongWritable, NullWritable> edge : edges) {
-		this.sendMessageToAllEdges(vertex, new MessageLongIdLongValue(edge.getTargetVertexId(), new LongWritable()));
+		this.sendMessageToAllEdges(vertex, edge.getTargetVertexId());
 	    }
-	} else if (getSuperstep() == 3) {
+	}
+	if (getSuperstep() == 3) {
 	    Integer T = 0;
 	    Set<Long> edgeMap = Sets.<Long>newHashSet();
 
@@ -85,8 +55,8 @@ public class TriangleCountPlusPlus extends BasicComputation<LongWritable, LongWr
 		edgeMap.add(edge.getTargetVertexId().get());
 	    }
 
-	    for (MessageLongIdLongValue message : messages) {
-		if (edgeMap.contains(message.getId().get())) {
+	    for (LongWritable message : messages) {
+		if (edgeMap.contains(message.get())) {
 		    T++;
 		}
 	    }
@@ -94,7 +64,5 @@ public class TriangleCountPlusPlus extends BasicComputation<LongWritable, LongWr
 	    aggregate(SOMMA + getSuperstep(), new LongWritable(T));
 	    vertex.voteToHalt();
 	}
-
     }
-
 }
