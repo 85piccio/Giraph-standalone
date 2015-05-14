@@ -30,6 +30,13 @@ import org.apache.log4j.Logger;
  * workers are consistent with aggregator values from the master from the same superstep and aggregator used by the master are consistent with aggregator values from the workers from the previous
  * superstep.
  */
+
+/**
+ * Densest Subgraph in Streaming and MapReduce
+ * Bahman Bahmani, Ravi Kumar, Sergei, Vassilvitskii
+ */
+
+
 public class Master extends MasterCompute {
 
     /**

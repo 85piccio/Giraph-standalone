@@ -25,7 +25,10 @@ import java.io.IOException;
 import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.LongWritable;
 
-@SuppressWarnings("rawtypes")
+/*
+ *  INPUT FORMAT - LongWritableLongWritableNullTextInputFormat.java
+ *  OUTPUT FORMAT - VertexWithLongWritableValueAndKeyNullEdgeTextOutputFormat.java
+ */
 public class VertexComputePhase1 extends BasicComputation<LongWritable, LongWritable, NullWritable, MessageLongIdLongValue> {
 
     /**

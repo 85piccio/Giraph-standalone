@@ -33,6 +33,11 @@ import org.apache.log4j.Logger;
  * and aggregator used by the master are consistent with aggregator values from
  * the workers from the previous superstep.
  */
+
+/**
+ * Densest Subgraph in Streaming and MapReduce
+ * Bahman Bahmani, Ravi Kumar, Sergei, Vassilvitskii
+ */
 public class Master extends MasterCompute {
 
     /**
@@ -42,15 +47,14 @@ public class Master extends MasterCompute {
     /**
      * Somma aggregator name
      */
-    private static final String REMOVEDVERTICIES = "removedVerticies";  
+    private static final String REMOVEDVERTICIES = "removedVerticies";
     private static final String REMOVEDEDGES = "removedEdges";
     /**
      * variabili globali
      */
     private static final String OPTIMALSUPERSTEP = "optimalSuperstep";
     private static final String SOGLIA = "soglia";
-    
-    
+
 //    private static final String PREVSTEPREMOVEDEDVERTEX = "prevStepRemovedVertex";
     private static Long prevStepRemovedVertex = Long.MIN_VALUE;
     private static long bestDensitySuperstep = 0;
@@ -71,7 +75,7 @@ public class Master extends MasterCompute {
         long superstep = getSuperstep();
         LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
         LongWritable removedVertex = this.getAggregatedValue(REMOVEDVERTICIES);//superstep precedente
-        
+
         if (isEven(superstep)) {//0,2,4....
 
             LOG.info("confronto \t" + prevStepRemovedVertex + "\t" + removedEdges);
@@ -88,7 +92,7 @@ public class Master extends MasterCompute {
             prevStepRemovedVertex = removedEdges.get();
 
             //DENSITY UNDIRECT ρ(S) = (|E(S)| / 2 ) / |S|
-	    // |E(S)| / 2 perchè giraph rappresenta edge non diretto con 2 edge diretti
+            // |E(S)| / 2 perchè giraph rappresenta edge non diretto con 2 edge diretti
             Long edges = this.getTotalNumEdges() - removedEdges.get();
             Long vertices = this.getTotalNumVertices() - removedVertex.get();
             Double currDensity = (edges.doubleValue() / 2) / vertices.doubleValue();
@@ -97,7 +101,7 @@ public class Master extends MasterCompute {
 
             if (currDensity > bestlDensity) {
                 bestlDensity = currDensity;
-                bestDensitySuperstep = superstep - 2 ;//Densità calcolata sul supertep pari precedente
+                bestDensitySuperstep = superstep - 2;//Densità calcolata sul supertep pari precedente
                 this.getConf().setLong(OPTIMALSUPERSTEP, superstep);
             }
 
@@ -107,7 +111,7 @@ public class Master extends MasterCompute {
 
             this.getContext().getConfiguration().setDouble(SOGLIA, soglia);
 
-        } 
+        }
 //        else {//1,3,5...
 //
 //        }

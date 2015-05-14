@@ -25,6 +25,11 @@ import java.io.IOException;
 import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.IntWritable;
 
+/*
+ *  INPUT FORMAT - IntIntNullNullInputFormat.java 
+ *  OUTPUT FORMAT - VertexWithIntValueNullEdgeTextOutputFormat.java
+ */
+
 @SuppressWarnings("rawtypes")
 public class VertexComputePhase1 extends BasicComputation<IntWritable, IntWritable, NullWritable, MessageIntIdIntValue> {
 
