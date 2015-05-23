@@ -63,7 +63,8 @@ public class Remove1Loop extends BasicComputation<IntWritable, DoubleWritable, N
                     System.out.println(vertex.getId() + " " + edge.getTargetVertexId());
                 }
             }
-        }
+            
         vertex.voteToHalt();
+        }
     }
 }

@@ -67,7 +67,7 @@ public class Master extends MasterCompute {
 	long superstep = getSuperstep();
 	long totVertices = this.getTotalNumVertices();
 
-	if (superstep > 3) {
+	if (superstep > 2) {
 
 	    LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
 
@@ -86,7 +86,7 @@ public class Master extends MasterCompute {
 		Boolean SamePreviuosStepPartition = IsNextPartitionS.equals(isPreviousPartitionS);
 		Boolean noChangePreviousStep = prevStepRemovedEdges.equals(removedEdges.get()) && SamePreviuosStepPartition;
                 
-		if ((noChangePreviousStep && superstep > 4) || edges == 0) {
+		if ((noChangePreviousStep && superstep > 2) || edges == 0) {
 		    LOG.info("edge rimasti\t" + edges);
 		    LOG.info("vertici in partizione S\t" + verticesInS);
 		    LOG.info("vertici in partizione T\t" + verticesInT);

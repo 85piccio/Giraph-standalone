@@ -17,6 +17,7 @@
  */
 package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.tools.undirect;
 
+import it.uniroma1.bdc.tesi.piccioli.giraphstandalone.tools.direct.*;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.NullWritable;
@@ -28,7 +29,7 @@ import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 
 @SuppressWarnings("rawtypes")
-public class IntegrityCheck extends BasicComputation<IntWritable, DoubleWritable, NullWritable, IntWritable> {
+public class Remove1Loop extends BasicComputation<IntWritable, DoubleWritable, NullWritable, IntWritable> {
 
     /**
      * Somma aggregator name
@@ -52,41 +53,19 @@ public class IntegrityCheck extends BasicComputation<IntWritable, DoubleWritable
 
         if (superstep == 0) {
             //invio messaggi per controllo esistenza arco inverso
+//            this.sendMessageToAllEdges(vertex, vertex.getId());
 
             //controllo unicità edge
             Set<Integer> edgeSet = new HashSet<>();
             for (Edge<IntWritable, NullWritable> edge : edges) {
-                if (!edgeSet.contains(edge.getTargetVertexId().get())) {
+                //nn stampo edge doppi e non stampo edge su se stesso
+                if (!edgeSet.contains(edge.getTargetVertexId().get()) && edge.getTargetVertexId().get() != vertex.getId().get()) {
                     edgeSet.add(edge.getTargetVertexId().get());
-                    this.sendMessage(edge.getTargetVertexId(), vertex.getId());
-                } else {
-                    //Segnalo errore edge doppio
-                    System.out.println(vertex.getId() + "-->" + edge.getTargetVertexId() + " doppio");
-                }
-                
-                //controllo se sono presenti archi verso su stesso vertice
-                if(edge.getTargetVertexId().get() == vertex.getId().get()){
-                    System.out.println("su vertice " + vertex.getId() + " presente arco su se stesso");
+                    System.out.println(vertex.getId() + " " + edge.getTargetVertexId());
                 }
             }
-
+            
+        vertex.voteToHalt();
         }
-        if (superstep == 1) {
-            //controllo esistenza edge inverso
-            Set<Integer> edgeSet = new HashSet<>();
-            for (Edge<IntWritable, NullWritable> edge : edges) {
-                if (!edgeSet.contains(edge.getTargetVertexId().get())) {
-                    edgeSet.add(edge.getTargetVertexId().get());
-                }
-            }
-            for (IntWritable msg : messages) {
-                if (!edgeSet.contains(msg.get())) {
-                    //Segnalo errore mancanza edge inverso
-                    System.out.println("manca " + vertex.getId() + "-->" + msg);
-                }
-            }
-            vertex.voteToHalt();
-        }
-
     }
 }

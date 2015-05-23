@@ -36,48 +36,48 @@ public class VertexComputePartitionT extends BasicComputation<LongWritable, Vert
 
     @Override
     public void compute(Vertex<LongWritable, VertexValue, NullWritable> vertex, Iterable<LongWritable> messages) throws IOException {
-	Long superstep = this.getSuperstep();
+        Long superstep = this.getSuperstep();
 //	System.out.println("T");
 
-	if (superstep > 1) {
+        if (superstep > 1) {
 
-	    if (this.isEven(superstep)) {
-		//2, 4, 6 ..
+            if (this.isEven(superstep)) {
+                //2, 4, 6 ..
 //
-		if (vertex.getValue().getPartitionT().IsActive()) {
-		    int inDegree = vertex.getValue().getIncomingEdge().size();
-		    Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, Double.NEGATIVE_INFINITY);
+                if (vertex.getValue().getPartitionT().IsActive()) {
+                    int inDegree = vertex.getValue().getIncomingEdge().size();
+                    Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, 0.0);
 
-		    if (inDegree <= soglia) {
-			//rimuovo vertice da partizione T
-			vertex.getValue().getPartitionT().deactivate();
-			vertex.getValue().getPartitionT().setDeletedSuperstep(superstep);
-			this.aggregate(REMOVEDVERTICIESINT, new LongWritable(1));
-		    }
+                    if (inDegree <= soglia) {
+                        //rimuovo vertice da partizione T
+                        vertex.getValue().getPartitionT().deactivate();
+                        vertex.getValue().getPartitionT().setDeletedSuperstep(superstep);
+                        this.aggregate(REMOVEDVERTICIESINT, new LongWritable(1));
 
-		    for (Long inEdge : vertex.getValue().getIncomingEdge()) {
-			this.sendMessage(new LongWritable(inEdge), vertex.getId());
-		    }
-		    vertex.getValue().getIncomingEdge().clear();
-		}
-	    } else {
-		//3,5,7 ..
-		if (vertex.getValue().getPartitionS().IsActive()) {
+                        for (Long inEdge : vertex.getValue().getIncomingEdge()) {
+                            this.sendMessage(new LongWritable(inEdge), vertex.getId());
+                        }
+                        vertex.getValue().getIncomingEdge().clear();
+                    }
+                }
+            } else {
+                //3,5,7 ..
+                if (vertex.getValue().getPartitionS().IsActive()) {
 
-		    int edgeToRemove = Iterables.size(messages);
-		    this.aggregate(REMOVEDEDGES, new LongWritable(edgeToRemove));
+                    int edgeToRemove = Iterables.size(messages);
+                    this.aggregate(REMOVEDEDGES, new LongWritable(edgeToRemove));
 
-		    //aggiorno outDegree S-->T
-		    int edgeRemoved = vertex.getValue().getPartitionS().getEdgeRemoved();
-		    vertex.getValue().getPartitionS().setEdgeRemoved(edgeRemoved + edgeToRemove);
-		}
-	    }
+                    //aggiorno outDegree S-->T
+                    int edgeRemoved = vertex.getValue().getPartitionS().getEdgeRemoved();
+                    vertex.getValue().getPartitionS().setEdgeRemoved(edgeRemoved + edgeToRemove);
+                }
+            }
 
-	}
+        }
 
     }
 
     private boolean isEven(long a) {
-	return (a % 2 == 0);
+        return (a % 2 == 0);
     }
 }

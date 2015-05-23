@@ -26,17 +26,17 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.log4j.Logger;
 
 /**
- * The values of the aggregators are broadcast to the workers before vertex.compute() is called and collected by the master before master.compute() is called. This means aggregator values used by the
- * workers are consistent with aggregator values from the master from the same superstep and aggregator used by the master are consistent with aggregator values from the workers from the previous
- * superstep.
+ * The values of the aggregators are broadcast to the workers before
+ * vertex.compute() is called and collected by the master before
+ * master.compute() is called. This means aggregator values used by the workers
+ * are consistent with aggregator values from the master from the same superstep
+ * and aggregator used by the master are consistent with aggregator values from
+ * the workers from the previous superstep.
  */
-
 /**
- * Densest Subgraph in Streaming and MapReduce
- * Bahman Bahmani, Ravi Kumar, Sergei, Vassilvitskii
+ * Densest Subgraph in Streaming and MapReduce Bahman Bahmani, Ravi Kumar,
+ * Sergei, Vassilvitskii
  */
-
-
 public class Master extends MasterCompute {
 
     /**
@@ -61,118 +61,120 @@ public class Master extends MasterCompute {
     private static long bestDensitySuperstep = -2;
     private static Double bestlDensity = Double.NEGATIVE_INFINITY;
     private static final Double epsilon = 0.001;
+//    private static final Double epsilon = 1.0;
     private static final Double c = 1.0;
+//    private static final Double c = 0.486;
 
     @Override
     public void compute() {
 
-	long superstep = getSuperstep();
-	long totVertices = this.getTotalNumVertices();
+        long superstep = getSuperstep();
+        long totVertices = this.getTotalNumVertices();
 
-	if (superstep > 3) {
+        if (superstep > 2) {
 
-	    LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
+            LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
 
-	    LongWritable removedVertexInS = this.getAggregatedValue(REMOVEDVERTICIESINS);//superstep precedente	    
-	    LongWritable removedVertexInT = this.getAggregatedValue(REMOVEDVERTICIESINT);//superstep precedente
+            LongWritable removedVertexInS = this.getAggregatedValue(REMOVEDVERTICIESINS);//superstep precedente	    
+            LongWritable removedVertexInT = this.getAggregatedValue(REMOVEDVERTICIESINT);//superstep precedente
 
-	    if (isEven(superstep)) {//2,4....
+            if (isEven(superstep)) {//2,4....
 
-		Long edges = this.getTotalNumEdges() - removedEdges.get();
-		Long verticesInS = totVertices - removedVertexInS.get();
-		Long verticesInT = totVertices - removedVertexInT.get();
+                Long edges = this.getTotalNumEdges() - removedEdges.get();
+                Long verticesInS = totVertices - removedVertexInS.get();
+                Long verticesInT = totVertices - removedVertexInT.get();
 
-		Boolean IsNextPartitionS = (verticesInS.doubleValue() / verticesInT.doubleValue()) >= c;
-                
-		//con rimozione effettiva dei vertici ci vogliono 2 step per startup                
-		Boolean SamePreviuosStepPartition = IsNextPartitionS.equals(isPreviousPartitionS);
-		Boolean noChangePreviousStep = prevStepRemovedEdges.equals(removedEdges.get()) && SamePreviuosStepPartition;
-                
-		if ((noChangePreviousStep && superstep > 4) || edges == 0) {
-		    LOG.info("edge rimasti\t" + edges);
-		    LOG.info("vertici in partizione S\t" + verticesInS);
-		    LOG.info("vertici in partizione T\t" + verticesInT);
-		    LOG.info("NO CHANGES or NO more Edges - HALT COMPUTATION");
-		    LOG.info("BEST DENSITY\t" + bestlDensity + " at " + bestDensitySuperstep);
-		    this.haltComputation();
-		    return;
-		}
+                Boolean IsNextPartitionS = (verticesInS.doubleValue() / verticesInT.doubleValue()) >= c;
 
-		//Aggiorno variabile vertici rimossi per check nel step successivo
-		prevStepRemovedEdges = removedEdges.get();
-		isPreviousPartitionS = IsNextPartitionS;
+                //con rimozione effettiva dei vertici ci vogliono 2 step per startup                
+                Boolean SamePreviuosStepPartition = IsNextPartitionS.equals(isPreviousPartitionS);
+                Boolean noChangePreviousStep = prevStepRemovedEdges.equals(removedEdges.get()) && SamePreviuosStepPartition;
 
-		//EpSpSPp --> |E(S, T )| = |E ∩ (S×T)|
-		Long EpSTp = this.getTotalNumEdges() - removedEdges.get();
-		LOG.info("EpSTp\t" + this.getTotalNumEdges() + "\t" + removedEdges.get());
+                if ((noChangePreviousStep && superstep > 2) || edges == 0) {
+                    LOG.info("edge rimasti\t" + edges);
+                    LOG.info("vertici in partizione S\t" + verticesInS);
+                    LOG.info("vertici in partizione T\t" + verticesInT);
+                    LOG.info("NO CHANGES or NO more Edges - HALT COMPUTATION");
+                    LOG.info("BEST DENSITY\t" + bestlDensity + " at " + bestDensitySuperstep);
+                    this.haltComputation();
+                    return;
+                }
 
-		//DENSITY DIRECT  ρ(S, T ) =  |E(S, T )| /  sqrt (|S||T |)
-		Double currDensity = EpSTp.doubleValue() / Math.sqrt(verticesInS.doubleValue() * verticesInT.doubleValue());
-		LOG.info("currDesity" + "\t" + verticesInS.doubleValue() + "\t" + verticesInT.doubleValue());
+                //Aggiorno variabile vertici rimossi per check nel step successivo
+                prevStepRemovedEdges = removedEdges.get();
+                isPreviousPartitionS = IsNextPartitionS;
 
-		if (currDensity > bestlDensity && superstep > 2) {
-		    bestlDensity = currDensity;
-		    bestDensitySuperstep = superstep - 2; //Densità calcolata sul supertep pari precedente
-		    this.getConf().setLong(OPTIMALSUPERSTEP, superstep);
-		}
+                //EpSpSPp --> |E(S, T )| = |E ∩ (S×T)|
+                Long EpSTp = this.getTotalNumEdges() - removedEdges.get();
+                LOG.info("EpSTp\t" + this.getTotalNumEdges() + "\t" + removedEdges.get());
 
-		//soglia dipende della partizione
-		Double soglia;
-		if (IsNextPartitionS) {
-		    //S                
-		    LOG.info("partizione S");
-		    LOG.info("vertici in S\t" + verticesInS);
-                    LOG.info("edge\t" + EpSTp);                    
-		    this.getContext().getConfiguration().setStrings(PARTITIONTOPROCESS, "S");
-		    this.setComputation(VertexComputePartitionS.class);
+                //DENSITY DIRECT  ρ(S, T ) =  |E(S, T )| /  sqrt (|S||T |)
+                Double currDensity = EpSTp.doubleValue() / Math.sqrt(verticesInS.doubleValue() * verticesInT.doubleValue());
+                LOG.info("currDesity" + "\t" + verticesInS.doubleValue() + "\t" + verticesInT.doubleValue());
 
-		    // soglia = (1 + epsilon) * (|E(S, T)| / |S| )
-		    soglia = (1 + epsilon) * ((EpSTp.doubleValue()) / verticesInS.doubleValue());
+                if (currDensity > bestlDensity && superstep > 2) {
+                    bestlDensity = currDensity;
+                    bestDensitySuperstep = superstep - 2; //Densità calcolata sul supertep pari precedente
+                    this.getConf().setLong(OPTIMALSUPERSTEP, superstep);
+                }
 
-		} else {
-		    //T
-		    LOG.info("partizione T");
-		    LOG.info("vertici in S\t"+ verticesInT);
-                    LOG.info("edge\t" + EpSTp);     
-		    this.getContext().getConfiguration().setStrings(PARTITIONTOPROCESS, "T");
-		    this.setComputation(VertexComputePartitionT.class);
+                //soglia dipende della partizione
+                Double soglia;
+                if (IsNextPartitionS) {
+                    //S                
+                    LOG.info("partizione S");
+                    LOG.info("vertici in S\t" + verticesInS);
+                    LOG.info("edge\t" + EpSTp);
+                    this.getContext().getConfiguration().setStrings(PARTITIONTOPROCESS, "S");
+                    this.setComputation(VertexComputePartitionS.class);
 
-		    // soglia = (1 + epsilon) * (|E(S, T)| / |T| )
-		    soglia = (1 + epsilon) * ((EpSTp.doubleValue()) / verticesInT.doubleValue());;
-		}
+                    // soglia = (1 + epsilon) * (|E(S, T)| / |S| )
+                    soglia = (1 + epsilon) * ((EpSTp.doubleValue()) / verticesInS.doubleValue());
 
-		LOG.info("superstep\t" + superstep + "\t\tdensity\t" + currDensity);
-		LOG.info("soglia = " + soglia);
+                } else {
+                    //T
+                    LOG.info("partizione T");
+                    LOG.info("vertici in S\t" + verticesInT);
+                    LOG.info("edge\t" + EpSTp);
+                    this.getContext().getConfiguration().setStrings(PARTITIONTOPROCESS, "T");
+                    this.setComputation(VertexComputePartitionT.class);
 
-		this.getContext().getConfiguration().setDouble(SOGLIA, soglia);
+                    // soglia = (1 + epsilon) * (|E(S, T)| / |T| )
+                    soglia = (1 + epsilon) * ((EpSTp.doubleValue()) / verticesInT.doubleValue());;
+                }
 
-	    }
+                LOG.info("superstep\t" + superstep + "\t\tdensity\t" + currDensity);
+                LOG.info("soglia = " + soglia);
+
+                this.getContext().getConfiguration().setDouble(SOGLIA, soglia);
+
+            }
 //	     else {//3,5...
 //
 //        }
-	}
+        }
     }
 
     @Override
     public void initialize() throws InstantiationException,
-	    IllegalAccessException {
-	registerPersistentAggregator(REMOVEDEDGES, LongSumAggregator.class);
-	registerPersistentAggregator(REMOVEDVERTICIESINS, LongSumAggregator.class);
-	registerPersistentAggregator(REMOVEDVERTICIESINT, LongSumAggregator.class);
+            IllegalAccessException {
+        registerPersistentAggregator(REMOVEDEDGES, LongSumAggregator.class);
+        registerPersistentAggregator(REMOVEDVERTICIESINS, LongSumAggregator.class);
+        registerPersistentAggregator(REMOVEDVERTICIESINT, LongSumAggregator.class);
     }
 
     private boolean isEven(long a) {
-	return (a % 2 == 0);
+        return (a % 2 == 0);
     }
 
     @Override
     public void write(DataOutput d) throws IOException {
-	throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void readFields(DataInput di) throws IOException {
-	throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

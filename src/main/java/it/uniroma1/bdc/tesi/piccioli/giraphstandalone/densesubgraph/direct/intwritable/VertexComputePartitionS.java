@@ -47,7 +47,7 @@ public class VertexComputePartitionS extends BasicComputation<IntWritable, Verte
 		if (vertex.getValue().getPartitionS().IsActive()) {
 
 		    int outDegree = vertex.getNumEdges() - vertex.getValue().getPartitionS().getEdgeRemoved();
-		    Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, Double.NEGATIVE_INFINITY);
+		    Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA,  0.0);
 
 		    if (outDegree <= soglia) {
 			//elimino vertice dalla partizione S
