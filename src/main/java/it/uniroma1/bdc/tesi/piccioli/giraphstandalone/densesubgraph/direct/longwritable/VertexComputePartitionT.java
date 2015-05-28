@@ -31,6 +31,7 @@ public class VertexComputePartitionT extends BasicComputation<LongWritable, Vert
      */
     private static final String REMOVEDEDGES = "removedEdges";
     private static final String REMOVEDVERTICIESINT = "removedVerticiesFromT";
+    private static final String REMOVEDVERTICIESINS = "removedVerticiesFromS";
 
     private static final String SOGLIA = "soglia";
 
@@ -38,6 +39,11 @@ public class VertexComputePartitionT extends BasicComputation<LongWritable, Vert
     public void compute(Vertex<LongWritable, VertexValue, NullWritable> vertex, Iterable<LongWritable> messages) throws IOException {
         Long superstep = this.getSuperstep();
 //	System.out.println("T");
+
+        //check vertex status
+        if (!vertex.getValue().getPartitionS().IsActive() && !vertex.getValue().getPartitionT().IsActive()) {
+            vertex.voteToHalt();
+        }
 
         if (superstep > 1) {
 
@@ -68,13 +74,19 @@ public class VertexComputePartitionT extends BasicComputation<LongWritable, Vert
                     this.aggregate(REMOVEDEDGES, new LongWritable(edgeToRemove));
 
                     //aggiorno outDegree S-->T
-                    int edgeRemoved = vertex.getValue().getPartitionS().getEdgeRemoved();
-                    vertex.getValue().getPartitionS().setEdgeRemoved(edgeRemoved + edgeToRemove);
+                    int edgeYetRemoved = vertex.getValue().getPartitionS().getEdgeRemoved();
+                    vertex.getValue().getPartitionS().setEdgeRemoved(edgeYetRemoved + edgeToRemove);
+
+                    //Caso vertice rimane senza edge uscenti -> da eliminare
+                    if ((edgeYetRemoved + edgeToRemove) == vertex.getNumEdges()) {
+                        vertex.getValue().getPartitionS().deactivate();
+                        vertex.getValue().getPartitionS().setDeletedSuperstep(superstep-1);                        
+                        this.aggregate(REMOVEDVERTICIESINS, new LongWritable(1));
+                    }
+
                 }
             }
-
         }
-
     }
 
     private boolean isEven(long a) {

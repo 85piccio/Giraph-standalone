@@ -134,7 +134,7 @@ public class Master extends MasterCompute {
                 } else {
                     //T
                     LOG.info("partizione T");
-                    LOG.info("vertici in S\t" + verticesInT);
+                    LOG.info("vertici in T\t" + verticesInT);
                     LOG.info("edge\t" + EpSTp);
                     this.getContext().getConfiguration().setStrings(PARTITIONTOPROCESS, "T");
                     this.setComputation(VertexComputePartitionT.class);

@@ -32,6 +32,7 @@ public class VertexComputePartitionT extends BasicComputation<IntWritable, Verte
      */
     private static final String REMOVEDEDGES = "removedEdges";
     private static final String REMOVEDVERTICIESINT = "removedVerticiesFromT";
+    private static final String REMOVEDVERTICIESINS = "removedVerticiesFromS";
 
     private static final String SOGLIA = "soglia";
 
@@ -40,8 +41,12 @@ public class VertexComputePartitionT extends BasicComputation<IntWritable, Verte
         Long superstep = this.getSuperstep();
 //	System.out.println("T");
 
-        if (superstep > 1) {
+        //check vertex status
+        if (!vertex.getValue().getPartitionS().IsActive() && !vertex.getValue().getPartitionT().IsActive()) {
+            vertex.voteToHalt();
+        }
 
+        if (superstep > 1) {
             if (this.isEven(superstep)) {
                 //2, 4, 6 ..
 //
@@ -69,13 +74,19 @@ public class VertexComputePartitionT extends BasicComputation<IntWritable, Verte
                     this.aggregate(REMOVEDEDGES, new LongWritable(edgeToRemove));
 
                     //aggiorno outDegree S-->T
-                    int edgeRemoved = vertex.getValue().getPartitionS().getEdgeRemoved();
-                    vertex.getValue().getPartitionS().setEdgeRemoved(edgeRemoved + edgeToRemove);
+                    int edgeYetRemoved = vertex.getValue().getPartitionS().getEdgeRemoved();
+                    vertex.getValue().getPartitionS().setEdgeRemoved(edgeYetRemoved + edgeToRemove);
+
+                    //Caso vertice rimane senza edge uscenti -> da eliminare
+                    if ((edgeYetRemoved + edgeToRemove) == vertex.getNumEdges()) {
+                        vertex.getValue().getPartitionS().deactivate();
+                        vertex.getValue().getPartitionS().setDeletedSuperstep(superstep-1);                        
+                        this.aggregate(REMOVEDVERTICIESINS, new LongWritable(1));
+                    }
+
                 }
             }
-
         }
-
     }
 
     private boolean isEven(long a) {

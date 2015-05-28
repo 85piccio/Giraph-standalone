@@ -21,14 +21,12 @@ import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.NullWritable;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 
 @SuppressWarnings("rawtypes")
-public class Remove1Loop extends BasicComputation<IntWritable, DoubleWritable, NullWritable, IntWritable> {
+public class Undirect2EdgeToUndirect1Edge extends BasicComputation<IntWritable, DoubleWritable, NullWritable, IntWritable> {
 
     /**
      * Somma aggregator name
@@ -54,17 +52,31 @@ public class Remove1Loop extends BasicComputation<IntWritable, DoubleWritable, N
             //invio messaggi per controllo esistenza arco inverso
 //            this.sendMessageToAllEdges(vertex, vertex.getId());
 
-            //controllo unicità edge
-            Set<Integer> edgeSet = new HashSet<>();
+            this.sendMessageToAllEdges(vertex, vertex.getId());
+        }
+        if (superstep == 1) {
+            boolean arcodoppio = false;
             for (Edge<IntWritable, NullWritable> edge : edges) {
-                //nn stampo edge doppi e non stampo edge su se stesso
-                if (!edgeSet.contains(edge.getTargetVertexId().get()) && edge.getTargetVertexId().get() != vertex.getId().get()) {
-                    edgeSet.add(edge.getTargetVertexId().get());
-                    System.out.println(vertex.getId() + " " + edge.getTargetVertexId());
+                //controllo se è un arco doppio
+                for (IntWritable msg : messages) {
+                    if (msg.equals(edge.getTargetVertexId())) {
+                        arcodoppio = true;
+                    }
+                }
+
+                //caso doppio stampo solo se vertex precede in ordine basato su n ID
+                if (arcodoppio) {
+                    if (vertex.getId().get() > edge.getTargetVertexId().get()) {
+                        //stampo arco 
+                        System.out.println(vertex.getId() + "\t" + edge.getTargetVertexId());
+                    }
+                } else {
+                    System.out.println(vertex.getId() + "\t" + edge.getTargetVertexId());
                 }
             }
-            
-        vertex.voteToHalt();
+            vertex.voteToHalt();
+
         }
+
     }
 }
