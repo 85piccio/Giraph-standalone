@@ -20,7 +20,6 @@ package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecountplusplus.int
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.logging.Level;
 import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.master.MasterCompute;
 import org.apache.hadoop.io.LongWritable;

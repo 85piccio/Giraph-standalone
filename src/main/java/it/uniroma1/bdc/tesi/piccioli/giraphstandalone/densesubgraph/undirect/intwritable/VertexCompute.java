@@ -49,7 +49,7 @@ public class VertexCompute extends BasicComputation<IntWritable, VertexValue, Nu
                 if (vertexDegree <= soglia) {
                     //rimozione logica del vertice
 
-                    this.aggregate(REMOVEDVERTICIES, new LongWritable(1));
+                    aggregate(REMOVEDVERTICIES, new LongWritable(1));
 
                     //rimozione logica dei vertici
                     vertex.getValue().deactivate();
@@ -59,7 +59,7 @@ public class VertexCompute extends BasicComputation<IntWritable, VertexValue, Nu
                     this.sendMessageToAllEdges(vertex, vertex.getId());
 
                     //Sync edge rimossi con quelli eventualmente rimossi "indirettamente" step precedente
-                    this.aggregate(REMOVEDEDGES, new LongWritable(vertexDegree));
+                    aggregate(REMOVEDEDGES, new LongWritable(vertexDegree));
 
                     vertex.voteToHalt();
                 }
@@ -75,7 +75,7 @@ public class VertexCompute extends BasicComputation<IntWritable, VertexValue, Nu
 
                 vertex.getValue().setEdgeRemoved(vertex.getValue().getEdgeRemoved() + edgeToRemove);
 
-                this.aggregate(REMOVEDEDGES, new LongWritable(edgeToRemove));
+                aggregate(REMOVEDEDGES, new LongWritable(edgeToRemove));
             }
 
         } else {

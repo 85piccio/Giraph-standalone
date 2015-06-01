@@ -46,8 +46,8 @@ public class Master extends MasterCompute {
     /**
      * Somma aggregator name
      */
-    private static final String REMOVEDVERTICIES = "removedVerticies";
-    private static final String REMOVEDEDGES = "removedEdges";
+    private static String REMOVEDVERTICIES = "removedVerticies";
+    private static String REMOVEDEDGES = "removedEdges";
     /**
      * variabili globali
      */
@@ -135,8 +135,8 @@ public class Master extends MasterCompute {
     @Override
     public void initialize() throws InstantiationException,
             IllegalAccessException {
-        registerAggregator(REMOVEDEDGES, LongSumAggregator.class);
-        registerAggregator(REMOVEDVERTICIES, LongSumAggregator.class);
+        registerPersistentAggregator(REMOVEDEDGES, LongSumAggregator.class);
+        registerPersistentAggregator(REMOVEDVERTICIES, LongSumAggregator.class);
     }
 
     private boolean isEven(long a) {
