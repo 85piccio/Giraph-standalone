@@ -38,7 +38,6 @@ public class VertexCompute extends BasicComputation<IntWritable, VertexValue, Nu
             long superstep = this.getSuperstep();
 
 //          TEST any case aggregato--da togliere
-            aggregate(REMOVEDEDGES, new LongWritable(1));
 
             if (isEven(superstep)) {//superstep = 0,2,4....
 

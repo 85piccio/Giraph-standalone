@@ -120,10 +120,10 @@ public class Master extends MasterCompute {
             }
 
             //soglia = 2(1 + epsilon) ρ(S)
-            Double soglia = 2 * (1 + epsilon) * currDensity;
-            LOG.info("soglia = " + soglia);
+//            Double soglia = 2 * (1 + epsilon) * currDensity;
+//            LOG.info("soglia = " + soglia);
 
-            this.getContext().getConfiguration().setDouble(SOGLIA, soglia);
+//            this.getContext().getConfiguration().setDouble(SOGLIA, soglia);
 
         }
 //        else {//1,3,5...
