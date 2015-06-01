@@ -61,7 +61,8 @@ public class Master extends MasterCompute {
 //            }        
         }
         LongWritable a = this.getAggregatedValue(SOMMA + "3");//superstep precedente
-        System.out.println("DEBUG\t " + a);
+        LongWritable b = this.getAggregatedValue(SOMMA + "2");//superstep precedente
+        System.out.println("DEBUG\t " + a + " " + b);
     }
 
     @Override
