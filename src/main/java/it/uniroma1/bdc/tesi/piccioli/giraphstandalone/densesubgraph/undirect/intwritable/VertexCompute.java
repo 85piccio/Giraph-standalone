@@ -41,17 +41,14 @@ public class VertexCompute extends BasicComputation<IntWritable, VertexValue, Nu
 //          TEST any case aggregato--da togliere
             if (isEven(superstep)) {//superstep = 0,2,4....
 
-                //eventuale fix
+                //Calcolo soglia
                 LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
                 LongWritable removedVertex = this.getAggregatedValue(REMOVEDVERTICIES);//superstep precedente 
-                Long vertices = this.getTotalNumVertices() - removedEdges.get();
-                Long edges = this.getTotalNumEdges() - removedVertex.get();
+                Long vertices = this.getTotalNumVertices() - removedVertex.get();
+                Long edges = this.getTotalNumEdges() - removedEdges.get();
                 Double currDensity = (edges.doubleValue() / 2) / vertices.doubleValue();
                 Double soglia = 2.0 * (1.0 + epsilon) * currDensity;
-
-//                Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, 0.0);
-                System.out.println("DB "+vertices+" "+edges+" "+currDensity+" "+soglia);
-                
+                                
 
                 Integer removedPreviousSteps = vertex.getValue().getEdgeRemoved();
                 //degree del nodo effettivi (copresi edge rimossi )

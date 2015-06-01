@@ -20,9 +20,9 @@ package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.trianglecountplusplus.int
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.logging.Level;
 import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.master.MasterCompute;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.log4j.Logger;
 
 /**
@@ -52,23 +52,20 @@ public class Master extends MasterCompute {
     public void compute() {
 
         //all'inizio del secondo superstep vario la classe computation per dimezzare lo spazio dei messaggi
-//        if (this.getSuperstep() == 3) {
-//            try {
-//                registerPersistentAggregator(SOMMA + getSuperstep(), LongSumAggregator.class);
-//            } catch (InstantiationException | IllegalAccessException ex) {
-//                java.util.logging.Logger.getLogger(Master.class.getName()).log(Level.SEVERE, null, ex);
-//            }        
-//        }
-        LongWritable a = this.getAggregatedValue(SOMMA + "3");//superstep precedente
-        LongWritable b = this.getAggregatedValue(SOMMA + "2");//superstep precedente
-        System.out.println("DEBUG\t " + a + " " + b);
+        System.out.println("supertesp " + this.getSuperstep());
+        if (this.getSuperstep() == 3) {
+            try {
+                registerPersistentAggregator(SOMMA + getSuperstep(), LongSumAggregator.class);
+            } catch (InstantiationException | IllegalAccessException ex) {
+                java.util.logging.Logger.getLogger(Master.class.getName()).log(Level.SEVERE, null, ex);
+            }        
+        }
     }
 
     @Override
     public void initialize() throws InstantiationException,
             IllegalAccessException {
-        registerPersistentAggregator(SOMMA + "3", LongSumAggregator.class);
-        registerPersistentAggregator(SOMMA + "2", LongSumAggregator.class);
+//	registerPersistentAggregator(SOMMA + getSuperstep(), LongSumAggregator.class);
     }
 
 }

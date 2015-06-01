@@ -22,7 +22,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.logging.Level;
 import org.apache.giraph.aggregators.DoubleSumAggregator;
-import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.master.MasterCompute;
 import org.apache.log4j.Logger;
 
@@ -56,7 +55,7 @@ public class Master extends MasterCompute {
         System.out.println("supertesp " + this.getSuperstep());
         if (this.getSuperstep() == 3) {
             try {
-                registerPersistentAggregator(SOMMA + getSuperstep(), LongSumAggregator.class);
+                registerPersistentAggregator(SOMMA + getSuperstep(), DoubleSumAggregator.class);
             } catch (InstantiationException | IllegalAccessException ex) {
                 java.util.logging.Logger.getLogger(Master.class.getName()).log(Level.SEVERE, null, ex);
             }

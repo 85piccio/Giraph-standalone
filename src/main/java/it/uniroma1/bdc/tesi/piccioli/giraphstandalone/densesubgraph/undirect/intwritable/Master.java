@@ -76,11 +76,12 @@ public class Master extends MasterCompute {
         LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
         LongWritable removedVertex = this.getAggregatedValue(REMOVEDVERTICIES);//superstep precedente        
 
+        Long counterRemovedEdges = removedEdges.get();
+        Long counterRemovedVertecies = removedVertex.get();
+        
         //DeBug valori aggregators
         System.out.println("Vertex: \t"+removedVertex + "\tEdges: \t" + removedEdges);
 
-        Long counterRemovedEdges = removedEdges.get();
-        Long counterRemovedVertecies = removedVertex.get();
 
         System.out.println("DEBUG " + counterRemovedEdges + "\t" + counterRemovedVertecies);
 

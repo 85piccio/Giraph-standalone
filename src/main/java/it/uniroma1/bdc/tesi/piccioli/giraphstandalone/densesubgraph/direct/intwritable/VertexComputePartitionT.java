@@ -34,7 +34,7 @@ public class VertexComputePartitionT extends BasicComputation<IntWritable, Verte
     private static final String REMOVEDVERTICIESINT = "removedVerticiesFromT";
     private static final String REMOVEDVERTICIESINS = "removedVerticiesFromS";
 
-    private static final String SOGLIA = "soglia";
+    private static final Double epsilon = 0.001;
 
     @Override
     public void compute(Vertex<IntWritable, VertexValue, NullWritable> vertex, Iterable<IntWritable> messages) throws IOException {
@@ -51,9 +51,22 @@ public class VertexComputePartitionT extends BasicComputation<IntWritable, Verte
                 //2, 4, 6 ..
 //
                 if (vertex.getValue().getPartitionT().IsActive()) {
-                    int inDegree = vertex.getValue().getIncomingEdge().size();
-                    Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, 0.0);
 
+                    Double soglia = 0.0;
+                    if (superstep > 2) {
+                        //CALCOLO SOGLIA T
+                        LongWritable removedVertexInT = this.getAggregatedValue(REMOVEDVERTICIESINT);//superstep precedente	
+                        LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
+
+                        Long verticesInT = this.getTotalNumVertices() - removedVertexInT.get();
+                        //EpSpSPp --> |E(S, T )| = |E ∩ (S×T)|
+                        Long EpSTp = this.getTotalNumEdges() - removedEdges.get();
+
+                        // soglia = (1 + epsilon) * (|E(S, T)| / |T| )
+                        soglia = (1 + epsilon) * ((EpSTp.doubleValue()) / verticesInT.doubleValue());
+                    }
+
+                    int inDegree = vertex.getValue().getIncomingEdge().size();
                     if (inDegree <= soglia) {
                         //rimuovo vertice da partizione T
                         vertex.getValue().getPartitionT().deactivate();
@@ -80,7 +93,7 @@ public class VertexComputePartitionT extends BasicComputation<IntWritable, Verte
                     //Caso vertice rimane senza edge uscenti -> da eliminare
                     if ((edgeYetRemoved + edgeToRemove) == vertex.getNumEdges()) {
                         vertex.getValue().getPartitionS().deactivate();
-                        vertex.getValue().getPartitionS().setDeletedSuperstep(superstep-1);                        
+                        vertex.getValue().getPartitionS().setDeletedSuperstep(superstep - 1);
                         this.aggregate(REMOVEDVERTICIESINS, new LongWritable(1));
                     }
 

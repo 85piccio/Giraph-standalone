@@ -34,16 +34,16 @@ public class VertexComputePartitionS extends BasicComputation<IntWritable, Verte
     private static final String REMOVEDVERTICIESINT = "removedVerticiesFromT";
     private static final String REMOVEDEDGES = "removedEdges";
 
-    private static final String SOGLIA = "soglia";
+    private static final Double epsilon = 0.001;
 
     @Override
     public void compute(Vertex<IntWritable, VertexValue, NullWritable> vertex, Iterable<IntWritable> messages) throws IOException {
         Long superstep = this.getSuperstep();
-        
+
         //check vertex status
         if (!vertex.getValue().getPartitionS().IsActive() && !vertex.getValue().getPartitionT().IsActive()) {
             vertex.voteToHalt();
-        }        
+        }
 
         if (superstep > 1) {
 
@@ -51,10 +51,21 @@ public class VertexComputePartitionS extends BasicComputation<IntWritable, Verte
             if (this.isEven(superstep)) {
                 //2, 4, 6 ..
                 if (vertex.getValue().getPartitionS().IsActive()) {
+                    Double soglia = 0.0;
+                    if (superstep > 2) {
+                        //CALCOLO SOGLIA S
+                        LongWritable removedVertexInS = this.getAggregatedValue(REMOVEDVERTICIESINS);//superstep precedente	
+                        LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
+
+                        Long verticesInS = this.getTotalNumVertices() - removedVertexInS.get();
+                        //EpSpSPp --> |E(S, T )| = |E ∩ (S×T)|
+                        Long EpSTp = this.getTotalNumEdges() - removedEdges.get();
+
+                        // soglia = (1 + epsilon) * (|E(S, T)| / |S| )
+                        soglia = (1 + epsilon) * ((EpSTp.doubleValue()) / verticesInS.doubleValue());
+                    }
 
                     int outDegree = vertex.getNumEdges() - vertex.getValue().getPartitionS().getEdgeRemoved();
-                    Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, 0.0);
-
                     if (outDegree <= soglia) {
                         //elimino vertice dalla partizione S
                         vertex.getValue().getPartitionS().deactivate();
@@ -66,7 +77,7 @@ public class VertexComputePartitionS extends BasicComputation<IntWritable, Verte
                         this.sendMessageToAllEdges(vertex, vertex.getId());
                         this.aggregate(REMOVEDEDGES, new LongWritable(outDegree));
                     }
-                } 
+                }
             } else {
 		//3,5,7 ..
                 //vertici nella partizione T
@@ -76,14 +87,14 @@ public class VertexComputePartitionS extends BasicComputation<IntWritable, Verte
                     for (IntWritable msg : messages) {
                         vertex.getValue().getIncomingEdge().remove(msg.get());
                     }
-                    
+
                     //caso vertice rimane senza nodi entranti --> da eliminare
-                    if(vertex.getValue().getIncomingEdge().isEmpty()){
-                        vertex.getValue().getPartitionT().deactivate();                        
-                        vertex.getValue().getPartitionT().setDeletedSuperstep(superstep-1);
+                    if (vertex.getValue().getIncomingEdge().isEmpty()) {
+                        vertex.getValue().getPartitionT().deactivate();
+                        vertex.getValue().getPartitionT().setDeletedSuperstep(superstep - 1);
                         this.aggregate(REMOVEDVERTICIESINT, new LongWritable(1));
                     }
-                    
+
                 }
             }
 

@@ -60,9 +60,7 @@ public class VertexCompute extends BasicComputation<IntWritable, IntWritable, Nu
 
             IntWritable messageId;
             IntWritable messageValue;
-            aggregate(SOMMA + "2", new LongWritable(2));
-            aggregate(SOMMA + "3", new LongWritable(1));
-
+            
             for (MessageIntIdIntValue message : messages) {
 
                 messageValue = message.getValue();
@@ -75,9 +73,6 @@ public class VertexCompute extends BasicComputation<IntWritable, IntWritable, Nu
             }
         } else if (getSuperstep() == 2) {
             //triangle count
-            
-            aggregate(SOMMA + "2", new LongWritable(2));
-            aggregate(SOMMA + "3", new LongWritable(1));
             for (Edge<IntWritable, NullWritable> edge : edges) {
                 this.sendMessageToAllEdges(vertex, new MessageIntIdIntValue(edge.getTargetVertexId(), new IntWritable()));
             }

@@ -20,7 +20,6 @@ package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.direct.intw
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.logging.Level;
 import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.master.MasterCompute;
 import org.apache.hadoop.io.LongWritable;
@@ -54,47 +53,43 @@ public class Master extends MasterCompute {
      * variabili globali
      */
     private static final String OPTIMALSUPERSTEP = "optimalSuperstep";
-    private static final String SOGLIA = "soglia";
     private static final String PARTITIONTOPROCESS = "partitionToProcess";
 
 //    private static Long prevStepRemovedEdges = Long.MIN_VALUE;
 //    private static Boolean isPreviousPartitionS = Boolean.FALSE;
     private static long bestDensitySuperstep = -2;
     private static Double bestlDensity = Double.NEGATIVE_INFINITY;
-    private static final Double epsilon = 0.001;
-//    private static final Double epsilon = 1.0;
     private static final Double c = 1.0;
-//    private static final Double c = 0.486;
 
     @Override
     public void compute() {
 
         long superstep = getSuperstep();
 
-        long totVertices = this.getTotalNumVertices();
-
         if (superstep > 2) {
 
-            LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
-
-            LongWritable removedVertexInS = this.getAggregatedValue(REMOVEDVERTICIESINS);//superstep precedente	    
-            LongWritable removedVertexInT = this.getAggregatedValue(REMOVEDVERTICIESINT);//superstep precedente
-
             if (isEven(superstep)) {//2,4....
+                LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
+                LongWritable removedVertexInS = this.getAggregatedValue(REMOVEDVERTICIESINS);//superstep precedente	    
+                LongWritable removedVertexInT = this.getAggregatedValue(REMOVEDVERTICIESINT);//superstep precedente
 
-                Long edges = this.getTotalNumEdges() - removedEdges.get();
+                Long totVertices = this.getTotalNumVertices();
                 Long verticesInS = totVertices - removedVertexInS.get();
                 Long verticesInT = totVertices - removedVertexInT.get();
 
                 Boolean IsNextPartitionS = (verticesInS.doubleValue() / verticesInT.doubleValue()) >= c;
+                
+                
+                //EpSpSPp --> |E(S, T )| = |E ∩ (S×T)|
+                Long EpSTp = this.getTotalNumEdges() - removedEdges.get();
+                LOG.info("EpSTp\t" + this.getTotalNumEdges() + "\t" + removedEdges.get());
 
                 //con rimozione effettiva dei vertici ci vogliono 2 step per startup                
 //                Boolean SamePreviuosStepPartition = IsNextPartitionS.equals(isPreviousPartitionS);
 //                Boolean noChangePreviousStep = prevStepRemovedEdges.equals(removedEdges.get()) && SamePreviuosStepPartition;
-
 //                if ((noChangePreviousStep && superstep > 2) || edges == 0) {
                 if ((verticesInS == 0 && verticesInT == 0 && superstep > 2)) {
-                    LOG.info("edge rimasti\t" + edges);
+                    LOG.info("edge rimasti\t" + EpSTp);
                     LOG.info("vertici in partizione S\t" + verticesInS);
                     LOG.info("vertici in partizione T\t" + verticesInT);
                     LOG.info("NO CHANGES or NO more Edges - HALT COMPUTATION");
@@ -107,10 +102,6 @@ public class Master extends MasterCompute {
 //                prevStepRemovedEdges = removedEdges.get();
 //                isPreviousPartitionS = IsNextPartitionS;
 
-                //EpSpSPp --> |E(S, T )| = |E ∩ (S×T)|
-                Long EpSTp = this.getTotalNumEdges() - removedEdges.get();
-                LOG.info("EpSTp\t" + this.getTotalNumEdges() + "\t" + removedEdges.get());
-
                 //DENSITY DIRECT  ρ(S, T ) =  |E(S, T )| /  sqrt (|S||T |)
                 Double currDensity = EpSTp.doubleValue() / Math.sqrt(verticesInS.doubleValue() * verticesInT.doubleValue());
                 LOG.info("currDesity" + "\t" + verticesInS.doubleValue() + "\t" + verticesInT.doubleValue());
@@ -121,8 +112,6 @@ public class Master extends MasterCompute {
                     this.getConf().setLong(OPTIMALSUPERSTEP, superstep);
                 }
 
-                //soglia dipende della partizione
-                Double soglia;
                 if (IsNextPartitionS) {
                     //S                
                     LOG.info("partizione S");
@@ -130,9 +119,6 @@ public class Master extends MasterCompute {
                     LOG.info("edge\t" + EpSTp);
                     this.getContext().getConfiguration().setStrings(PARTITIONTOPROCESS, "S");
                     this.setComputation(VertexComputePartitionS.class);
-
-                    // soglia = (1 + epsilon) * (|E(S, T)| / |S| )
-                    soglia = (1 + epsilon) * ((EpSTp.doubleValue()) / verticesInS.doubleValue());
 
                 } else {
                     //T
@@ -142,14 +128,9 @@ public class Master extends MasterCompute {
                     this.getContext().getConfiguration().setStrings(PARTITIONTOPROCESS, "T");
                     this.setComputation(VertexComputePartitionT.class);
 
-                    // soglia = (1 + epsilon) * (|E(S, T)| / |T| )
-                    soglia = (1 + epsilon) * ((EpSTp.doubleValue()) / verticesInT.doubleValue());;
                 }
 
                 LOG.info("superstep\t" + superstep + "\t\tdensity\t" + currDensity);
-                LOG.info("soglia = " + soglia);
-
-                this.getContext().getConfiguration().setDouble(SOGLIA, soglia);
 
             }
 //	     else {//3,5...
