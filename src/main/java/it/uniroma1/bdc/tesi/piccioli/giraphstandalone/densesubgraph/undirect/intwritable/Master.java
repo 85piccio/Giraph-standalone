@@ -80,8 +80,8 @@ public class Master extends MasterCompute {
         //DeBug valori aggregators
         System.out.println("Vertex: \t"+removedVertex + "\tEdges: \t" + removedEdges);
 
-        counterRemovedEdges += removedEdges.get();
-        counterRemovedVertecies += removedVertex.get();
+        counterRemovedEdges = removedEdges.get();
+        counterRemovedVertecies = removedVertex.get();
 
         System.out.println("DEBUG " + counterRemovedEdges + "\t" + counterRemovedVertecies);
 
