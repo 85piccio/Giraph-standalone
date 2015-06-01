@@ -50,6 +50,7 @@ public class VertexCompute extends BasicComputation<IntWritable, VertexValue, Nu
                 Double soglia = 2.0 * (1.0 + epsilon) * currDensity;
 
 //                Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, 0.0);
+                System.out.println("DB "+vertices+" "+edges+" "+currDensity+" "+soglia);
                 
 
                 Integer removedPreviousSteps = vertex.getValue().getEdgeRemoved();
