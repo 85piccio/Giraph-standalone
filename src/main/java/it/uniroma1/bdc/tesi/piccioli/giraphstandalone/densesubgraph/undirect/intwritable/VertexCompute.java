@@ -27,8 +27,8 @@ public class VertexCompute extends BasicComputation<IntWritable, VertexValue, Nu
     /**
      * Somma aggregator name
      */
-    private static final String REMOVEDVERTICIES = "removedVerticies";
-    private static final String REMOVEDEDGES = "removedEdges";
+    private static final String REMOVEDVERTICIES = "removedverticies";
+    private static final String REMOVEDEDGES = "removededges";
 
     private static final String SOGLIA = "soglia";
 
@@ -37,17 +37,31 @@ public class VertexCompute extends BasicComputation<IntWritable, VertexValue, Nu
         if (vertex.getValue().IsActive()) {
             long superstep = this.getSuperstep();
 
-            Integer removedPreviousSteps = vertex.getValue().getEdgeRemoved();
+            //eventuale fix
+//            LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
+//            LongWritable removedVertex = this.getAggregatedValue(REMOVEDVERTICIES);//superstep precedente 
+//            Long vertices = this.getTotalNumVertices() - removedEdges.get();
+//            Long edges = this.getTotalNumEdges() - removedVertex.get();            
+//            Double currDensity = (edges.doubleValue() / 2) / vertices.doubleValue();            
+//            Double soglia = 2 * (1 + epsilon) * currDensity;
+            
+            //TEST any case aggregato--da togliere
+            aggregate(REMOVEDEDGES, new LongWritable(1));
 
             if (isEven(superstep)) {//superstep = 0,2,4....
 
                 Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, 0.0);
 
+                System.out.println("DEBUG-soglia: " + soglia);
+
+                Integer removedPreviousSteps = vertex.getValue().getEdgeRemoved();
                 //degree del nodo effettivi (copresi edge rimossi )
                 Integer vertexDegree = vertex.getNumEdges() - removedPreviousSteps;
 
                 if (vertexDegree <= soglia) {
                     //rimozione logica del vertice
+
+                    System.out.println("DEBUG: reach if < soglia");
 
                     aggregate(REMOVEDVERTICIES, new LongWritable(1));
 

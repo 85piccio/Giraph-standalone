@@ -46,8 +46,8 @@ public class Master extends MasterCompute {
     /**
      * Somma aggregator name
      */
-    private static String REMOVEDVERTICIES = "removedVerticies";
-    private static String REMOVEDEDGES = "removedEdges";
+    private static String REMOVEDVERTICIES = "removedverticies";
+    private static String REMOVEDEDGES = "removededges";
     /**
      * variabili globali
      */
