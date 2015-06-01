@@ -52,15 +52,14 @@ public class Master extends MasterCompute {
      * variabili globali
      */
     private static final String OPTIMALSUPERSTEP = "optimalSuperstep";
-    private static final String SOGLIA = "soglia";
+//    private static final String SOGLIA = "soglia";
 
 //    private static final String PREVSTEPREMOVEDEDVERTEX = "prevStepRemovedVertex";
     private static Long prevStepRemovedVertex = Long.MIN_VALUE;
     private static long bestDensitySuperstep = 0;
     private static Double bestlDensity = Double.NEGATIVE_INFINITY;
-    private static final Double epsilon = 0.001;
+//    private static final Double epsilon = 0.001;
 
-    long counterRemovedEdges = 0, counterRemovedVertecies = 0;
 
     @Override
     public void readFields(DataInput in) throws IOException {
@@ -80,8 +79,8 @@ public class Master extends MasterCompute {
         //DeBug valori aggregators
         System.out.println("Vertex: \t"+removedVertex + "\tEdges: \t" + removedEdges);
 
-        counterRemovedEdges = removedEdges.get();
-        counterRemovedVertecies = removedVertex.get();
+        Long counterRemovedEdges = removedEdges.get();
+        Long counterRemovedVertecies = removedVertex.get();
 
         System.out.println("DEBUG " + counterRemovedEdges + "\t" + counterRemovedVertecies);
 

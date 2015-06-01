@@ -30,7 +30,8 @@ public class VertexCompute extends BasicComputation<IntWritable, VertexValue, Nu
     private static final String REMOVEDVERTICIES = "removedverticies";
     private static final String REMOVEDEDGES = "removededges";
 
-    private static final String SOGLIA = "soglia";
+//    private static final String SOGLIA = "soglia";
+    private static final Double epsilon = 0.001;
 
     @Override
     public void compute(Vertex<IntWritable, VertexValue, NullWritable> vertex, Iterable<IntWritable> messages) throws IOException {
@@ -38,7 +39,6 @@ public class VertexCompute extends BasicComputation<IntWritable, VertexValue, Nu
             long superstep = this.getSuperstep();
 
 //          TEST any case aggregato--da togliere
-
             if (isEven(superstep)) {//superstep = 0,2,4....
 
                 //eventuale fix
@@ -47,10 +47,10 @@ public class VertexCompute extends BasicComputation<IntWritable, VertexValue, Nu
                 Long vertices = this.getTotalNumVertices() - removedEdges.get();
                 Long edges = this.getTotalNumEdges() - removedVertex.get();
                 Double currDensity = (edges.doubleValue() / 2) / vertices.doubleValue();
-                Double soglia = 2 * (1 + 0.001) * currDensity;
+                Double soglia = 2.0 * (1.0 + epsilon) * currDensity;
 
 //                Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, 0.0);
-                System.out.println("DEBUG-soglia: " + soglia);
+                
 
                 Integer removedPreviousSteps = vertex.getValue().getEdgeRemoved();
                 //degree del nodo effettivi (copresi edge rimossi )
@@ -58,8 +58,6 @@ public class VertexCompute extends BasicComputation<IntWritable, VertexValue, Nu
 
                 if (vertexDegree <= soglia) {
                     //rimozione logica del vertice
-
-                    System.out.println("DEBUG: reach if < soglia");
 
                     aggregate(REMOVEDVERTICIES, new LongWritable(1));
 
