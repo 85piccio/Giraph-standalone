@@ -20,6 +20,7 @@ package it.uniroma1.bdc.tesi.piccioli.giraphstandalone.densesubgraph.direct.intw
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.logging.Level;
 import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.master.MasterCompute;
 import org.apache.hadoop.io.LongWritable;
@@ -56,8 +57,8 @@ public class Master extends MasterCompute {
     private static final String SOGLIA = "soglia";
     private static final String PARTITIONTOPROCESS = "partitionToProcess";
 
-    private static Long prevStepRemovedEdges = Long.MIN_VALUE;
-    private static Boolean isPreviousPartitionS = Boolean.FALSE;
+//    private static Long prevStepRemovedEdges = Long.MIN_VALUE;
+//    private static Boolean isPreviousPartitionS = Boolean.FALSE;
     private static long bestDensitySuperstep = -2;
     private static Double bestlDensity = Double.NEGATIVE_INFINITY;
     private static final Double epsilon = 0.001;
@@ -69,6 +70,7 @@ public class Master extends MasterCompute {
     public void compute() {
 
         long superstep = getSuperstep();
+
         long totVertices = this.getTotalNumVertices();
 
         if (superstep > 2) {
@@ -87,10 +89,11 @@ public class Master extends MasterCompute {
                 Boolean IsNextPartitionS = (verticesInS.doubleValue() / verticesInT.doubleValue()) >= c;
 
                 //con rimozione effettiva dei vertici ci vogliono 2 step per startup                
-                Boolean SamePreviuosStepPartition = IsNextPartitionS.equals(isPreviousPartitionS);
-                Boolean noChangePreviousStep = prevStepRemovedEdges.equals(removedEdges.get()) && SamePreviuosStepPartition;
+//                Boolean SamePreviuosStepPartition = IsNextPartitionS.equals(isPreviousPartitionS);
+//                Boolean noChangePreviousStep = prevStepRemovedEdges.equals(removedEdges.get()) && SamePreviuosStepPartition;
 
-                if ((noChangePreviousStep && superstep > 2) || edges == 0) {
+//                if ((noChangePreviousStep && superstep > 2) || edges == 0) {
+                if ((verticesInS == 0 && verticesInT == 0 && superstep > 2)) {
                     LOG.info("edge rimasti\t" + edges);
                     LOG.info("vertici in partizione S\t" + verticesInS);
                     LOG.info("vertici in partizione T\t" + verticesInT);
@@ -101,8 +104,8 @@ public class Master extends MasterCompute {
                 }
 
                 //Aggiorno variabile vertici rimossi per check nel step successivo
-                prevStepRemovedEdges = removedEdges.get();
-                isPreviousPartitionS = IsNextPartitionS;
+//                prevStepRemovedEdges = removedEdges.get();
+//                isPreviousPartitionS = IsNextPartitionS;
 
                 //EpSpSPp --> |E(S, T )| = |E ∩ (S×T)|
                 Long EpSTp = this.getTotalNumEdges() - removedEdges.get();

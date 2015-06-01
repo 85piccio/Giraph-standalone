@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.master.MasterCompute;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.log4j.Logger;
 
 /**
@@ -42,7 +43,7 @@ public class Master extends MasterCompute {
 
     @Override
     public void readFields(DataInput in) throws IOException {
-    } 
+    }
 
     @Override
     public void write(DataOutput out) throws IOException {
@@ -52,20 +53,21 @@ public class Master extends MasterCompute {
     public void compute() {
 
         //all'inizio del secondo superstep vario la classe computation per dimezzare lo spazio dei messaggi
-        System.out.println("supertesp " + this.getSuperstep());
         if (this.getSuperstep() == 3) {
             try {
                 registerPersistentAggregator(SOMMA + getSuperstep(), LongSumAggregator.class);
             } catch (InstantiationException | IllegalAccessException ex) {
                 java.util.logging.Logger.getLogger(Master.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            }        
         }
+//        LongWritable a = this.getAggregatedValue(SOMMA + "3");//superstep precedente
+//        System.out.println("DEBUG\t " + a);
     }
 
     @Override
     public void initialize() throws InstantiationException,
             IllegalAccessException {
-//	registerPersistentAggregator(SOMMA + getSuperstep(), LongSumAggregator.class);
+//        registerPersistentAggregator(SOMMA + "3", LongSumAggregator.class);
     }
 
 }

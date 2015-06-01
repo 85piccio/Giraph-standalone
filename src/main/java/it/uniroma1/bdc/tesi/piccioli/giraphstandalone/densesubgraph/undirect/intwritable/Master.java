@@ -60,6 +60,8 @@ public class Master extends MasterCompute {
     private static Double bestlDensity = Double.NEGATIVE_INFINITY;
     private static final Double epsilon = 0.001;
 
+    long counterRemovedEdges = 0, counterRemovedVertecies = 0;
+
     @Override
     public void readFields(DataInput in) throws IOException {
     }
@@ -73,14 +75,25 @@ public class Master extends MasterCompute {
 
         long superstep = getSuperstep();
         LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
-        LongWritable removedVertex = this.getAggregatedValue(REMOVEDVERTICIES);//superstep precedente
+        LongWritable removedVertex = this.getAggregatedValue(REMOVEDVERTICIES);//superstep precedente        
+
+        //DeBug valori aggregators
+        System.out.println("Vertex: \t"+removedVertex + "\tEdges: \t" + removedEdges);
+
+        counterRemovedEdges += removedEdges.get();
+        counterRemovedVertecies += removedVertex.get();
+
+        System.out.println("DEBUG " + counterRemovedEdges + "\t" + counterRemovedVertecies);
 
         if (isEven(superstep)) {//0,2,4....
 
-            LOG.info("confronto \t" + prevStepRemovedVertex + "\t" + removedEdges);
+//            LOG.info("confronto \t" + prevStepRemovedVertex + "\t" + removedEdges);
+            LOG.info("confronto \t" + prevStepRemovedVertex + "\t" + counterRemovedEdges);
 
+//            Long vertices = this.getTotalNumVertices() - removedVertex.get();
+            Long vertices = this.getTotalNumVertices() - counterRemovedVertecies;
             //con rimozione effettiva dei vertici ci vogliono 2 step per startup
-            if ((prevStepRemovedVertex.equals(removedEdges.get())) && superstep > 2) {
+            if (vertices == 0 && superstep > 2) {
                 LOG.info("NO CHANGES - HALT COMPUTATION");
                 LOG.info("BEST DENSITY\t" + bestlDensity + " at " + bestDensitySuperstep);
                 this.haltComputation();
@@ -88,12 +101,14 @@ public class Master extends MasterCompute {
             }
 
             //Aggiorno variabile vertici rimossi per step successivo
-            prevStepRemovedVertex = removedEdges.get();
+//            prevStepRemovedVertex = removedEdges.get();
+            prevStepRemovedVertex = counterRemovedEdges;
 
             //DENSITY UNDIRECT ρ(S) = (|E(S)| / 2 ) / |S|
             // |E(S)| / 2 perchè giraph rappresenta edge non diretto con 2 edge diretti
-            Long edges = this.getTotalNumEdges() - removedEdges.get();
-            Long vertices = this.getTotalNumVertices() - removedVertex.get();
+//            Long edges = this.getTotalNumEdges() - removedEdges.get();
+            Long edges = this.getTotalNumEdges() - counterRemovedEdges;
+
             Double currDensity = (edges.doubleValue() / 2) / vertices.doubleValue();
 
             LOG.info("superstep\t" + superstep + "\tedge\t" + edges + "\tvertices\t" + vertices + "\tdensity\t" + currDensity);
@@ -120,8 +135,8 @@ public class Master extends MasterCompute {
     @Override
     public void initialize() throws InstantiationException,
             IllegalAccessException {
-        registerPersistentAggregator(REMOVEDEDGES, LongSumAggregator.class);
-        registerPersistentAggregator(REMOVEDVERTICIES, LongSumAggregator.class);
+        registerAggregator(REMOVEDEDGES, LongSumAggregator.class);
+        registerAggregator(REMOVEDVERTICIES, LongSumAggregator.class);
     }
 
     private boolean isEven(long a) {
