@@ -54,20 +54,21 @@ public class Master extends MasterCompute {
 
         //all'inizio del secondo superstep vario la classe computation per dimezzare lo spazio dei messaggi
         if (this.getSuperstep() == 3) {
-            try {
-                registerPersistentAggregator(SOMMA + getSuperstep(), LongSumAggregator.class);
-            } catch (InstantiationException | IllegalAccessException ex) {
-                java.util.logging.Logger.getLogger(Master.class.getName()).log(Level.SEVERE, null, ex);
-            }        
+//            try {
+//                registerPersistentAggregator(SOMMA + getSuperstep(), LongSumAggregator.class);
+//            } catch (InstantiationException | IllegalAccessException ex) {
+//                java.util.logging.Logger.getLogger(Master.class.getName()).log(Level.SEVERE, null, ex);
+//            }        
         }
-//        LongWritable a = this.getAggregatedValue(SOMMA + "3");//superstep precedente
-//        System.out.println("DEBUG\t " + a);
+        LongWritable a = this.getAggregatedValue(SOMMA + "3");//superstep precedente
+        System.out.println("DEBUG\t " + a);
     }
 
     @Override
     public void initialize() throws InstantiationException,
             IllegalAccessException {
-//        registerPersistentAggregator(SOMMA + "3", LongSumAggregator.class);
+        registerPersistentAggregator(SOMMA + "3", LongSumAggregator.class);
+        registerPersistentAggregator(SOMMA + "2", LongSumAggregator.class);
     }
 
 }
