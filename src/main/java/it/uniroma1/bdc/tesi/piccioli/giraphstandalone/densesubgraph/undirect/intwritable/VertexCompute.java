@@ -37,21 +37,20 @@ public class VertexCompute extends BasicComputation<IntWritable, VertexValue, Nu
         if (vertex.getValue().IsActive()) {
             long superstep = this.getSuperstep();
 
-            //eventuale fix
-//            LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
-//            LongWritable removedVertex = this.getAggregatedValue(REMOVEDVERTICIES);//superstep precedente 
-//            Long vertices = this.getTotalNumVertices() - removedEdges.get();
-//            Long edges = this.getTotalNumEdges() - removedVertex.get();            
-//            Double currDensity = (edges.doubleValue() / 2) / vertices.doubleValue();            
-//            Double soglia = 2 * (1 + epsilon) * currDensity;
-            
-            //TEST any case aggregato--da togliere
+//          TEST any case aggregato--da togliere
             aggregate(REMOVEDEDGES, new LongWritable(1));
 
             if (isEven(superstep)) {//superstep = 0,2,4....
 
-                Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, 0.0);
+                //eventuale fix
+                LongWritable removedEdges = this.getAggregatedValue(REMOVEDEDGES);//superstep precedente
+                LongWritable removedVertex = this.getAggregatedValue(REMOVEDVERTICIES);//superstep precedente 
+                Long vertices = this.getTotalNumVertices() - removedEdges.get();
+                Long edges = this.getTotalNumEdges() - removedVertex.get();
+                Double currDensity = (edges.doubleValue() / 2) / vertices.doubleValue();
+                Double soglia = 2 * (1 + 0.001) * currDensity;
 
+//                Double soglia = this.getContext().getConfiguration().getDouble(SOGLIA, 0.0);
                 System.out.println("DEBUG-soglia: " + soglia);
 
                 Integer removedPreviousSteps = vertex.getValue().getEdgeRemoved();
