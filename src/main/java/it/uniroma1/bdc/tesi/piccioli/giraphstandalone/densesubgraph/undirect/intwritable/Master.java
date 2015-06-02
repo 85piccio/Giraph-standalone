@@ -52,13 +52,8 @@ public class Master extends MasterCompute {
      * variabili globali
      */
     private static final String OPTIMALSUPERSTEP = "optimalSuperstep";
-//    private static final String SOGLIA = "soglia";
-
-//    private static final String PREVSTEPREMOVEDEDVERTEX = "prevStepRemovedVertex";
-    private static Long prevStepRemovedVertex = Long.MIN_VALUE;
     private static long bestDensitySuperstep = 0;
     private static Double bestlDensity = Double.NEGATIVE_INFINITY;
-//    private static final Double epsilon = 0.001;
 
 
     @Override
@@ -79,36 +74,20 @@ public class Master extends MasterCompute {
         Long counterRemovedEdges = removedEdges.get();
         Long counterRemovedVertecies = removedVertex.get();
         
-        //DeBug valori aggregators
-        System.out.println("Vertex: \t"+removedVertex + "\tEdges: \t" + removedEdges);
-
-
-        System.out.println("DEBUG " + counterRemovedEdges + "\t" + counterRemovedVertecies);
-
         if (isEven(superstep)) {//0,2,4....
-
-//            LOG.info("confronto \t" + prevStepRemovedVertex + "\t" + removedEdges);
-            LOG.info("confronto \t" + prevStepRemovedVertex + "\t" + counterRemovedEdges);
 
 //            Long vertices = this.getTotalNumVertices() - removedVertex.get();
             Long vertices = this.getTotalNumVertices() - counterRemovedVertecies;
             //con rimozione effettiva dei vertici ci vogliono 2 step per startup
             if (vertices == 0 && superstep > 2) {
-                LOG.info("NO CHANGES - HALT COMPUTATION");
                 LOG.info("BEST DENSITY\t" + bestlDensity + " at " + bestDensitySuperstep);
                 this.haltComputation();
                 return;
             }
 
-            //Aggiorno variabile vertici rimossi per step successivo
-//            prevStepRemovedVertex = removedEdges.get();
-            prevStepRemovedVertex = counterRemovedEdges;
-
             //DENSITY UNDIRECT ρ(S) = (|E(S)| / 2 ) / |S|
             // |E(S)| / 2 perchè giraph rappresenta edge non diretto con 2 edge diretti
-//            Long edges = this.getTotalNumEdges() - removedEdges.get();
             Long edges = this.getTotalNumEdges() - counterRemovedEdges;
-
             Double currDensity = (edges.doubleValue() / 2) / vertices.doubleValue();
 
             LOG.info("superstep\t" + superstep + "\tedge\t" + edges + "\tvertices\t" + vertices + "\tdensity\t" + currDensity);
@@ -117,15 +96,7 @@ public class Master extends MasterCompute {
                 bestlDensity = currDensity;
                 bestDensitySuperstep = superstep - 2;//Densità calcolata sul supertep pari precedente
                 this.getConf().setLong(OPTIMALSUPERSTEP, superstep);
-            }
-
-            //soglia = 2(1 + epsilon) ρ(S)
-//            Double soglia = 2 * (1 + epsilon) * currDensity;
-//            LOG.info("soglia = " + soglia);
-
-//            this.getContext().getConfiguration().setDouble(SOGLIA, soglia);
-
-        }
+            }}
 //        else {//1,3,5...
 //
 //        }

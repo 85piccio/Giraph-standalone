@@ -53,10 +53,7 @@ public class Master extends MasterCompute {
      * variabili globali
      */
     private static final String OPTIMALSUPERSTEP = "optimalSuperstep";
-    private static final String PARTITIONTOPROCESS = "partitionToProcess";
-
-//    private static Long prevStepRemovedEdges = Long.MIN_VALUE;
-//    private static Boolean isPreviousPartitionS = Boolean.FALSE;
+    
     private static long bestDensitySuperstep = -2;
     private static Double bestlDensity = Double.NEGATIVE_INFINITY;
     private static final Double c = 1.0;
@@ -88,11 +85,10 @@ public class Master extends MasterCompute {
 //                Boolean SamePreviuosStepPartition = IsNextPartitionS.equals(isPreviousPartitionS);
 //                Boolean noChangePreviousStep = prevStepRemovedEdges.equals(removedEdges.get()) && SamePreviuosStepPartition;
 //                if ((noChangePreviousStep && superstep > 2) || edges == 0) {
-                if ((verticesInS == 0 && verticesInT == 0 && superstep > 2)) {
+                if ((verticesInS == 0 && verticesInT == 0)) {
                     LOG.info("edge rimasti\t" + EpSTp);
                     LOG.info("vertici in partizione S\t" + verticesInS);
                     LOG.info("vertici in partizione T\t" + verticesInT);
-                    LOG.info("NO CHANGES or NO more Edges - HALT COMPUTATION");
                     LOG.info("BEST DENSITY\t" + bestlDensity + " at " + bestDensitySuperstep);
                     this.haltComputation();
                     return;
@@ -115,17 +111,11 @@ public class Master extends MasterCompute {
                 if (IsNextPartitionS) {
                     //S                
                     LOG.info("partizione S");
-                    LOG.info("vertici in S\t" + verticesInS);
-                    LOG.info("edge\t" + EpSTp);
-                    this.getContext().getConfiguration().setStrings(PARTITIONTOPROCESS, "S");
                     this.setComputation(VertexComputePartitionS.class);
 
                 } else {
                     //T
                     LOG.info("partizione T");
-                    LOG.info("vertici in T\t" + verticesInT);
-                    LOG.info("edge\t" + EpSTp);
-                    this.getContext().getConfiguration().setStrings(PARTITIONTOPROCESS, "T");
                     this.setComputation(VertexComputePartitionT.class);
 
                 }
