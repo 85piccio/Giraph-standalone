@@ -28,7 +28,7 @@ import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.LongWritable;
 
 @SuppressWarnings("rawtypes")
-public class VertexCpmpute extends BasicComputation<LongWritable, LongWritable, NullWritable, MessageLongIdLongValue> {
+public class VertexCompute extends BasicComputation<LongWritable, LongWritable, NullWritable, MessageLongIdLongValue> {
 
     /**
      * Somma aggregator name

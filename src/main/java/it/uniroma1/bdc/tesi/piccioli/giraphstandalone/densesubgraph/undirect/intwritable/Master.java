@@ -55,7 +55,6 @@ public class Master extends MasterCompute {
     private static long bestDensitySuperstep = 0;
     private static Double bestlDensity = Double.NEGATIVE_INFINITY;
 
-
     @Override
     public void readFields(DataInput in) throws IOException {
     }
@@ -73,7 +72,7 @@ public class Master extends MasterCompute {
 
         Long counterRemovedEdges = removedEdges.get();
         Long counterRemovedVertecies = removedVertex.get();
-        
+
         if (isEven(superstep)) {//0,2,4....
 
 //            Long vertices = this.getTotalNumVertices() - removedVertex.get();
@@ -96,7 +95,8 @@ public class Master extends MasterCompute {
                 bestlDensity = currDensity;
                 bestDensitySuperstep = superstep - 2;//Densità calcolata sul supertep pari precedente
                 this.getConf().setLong(OPTIMALSUPERSTEP, superstep);
-            }}
+            }
+        }
 //        else {//1,3,5...
 //
 //        }

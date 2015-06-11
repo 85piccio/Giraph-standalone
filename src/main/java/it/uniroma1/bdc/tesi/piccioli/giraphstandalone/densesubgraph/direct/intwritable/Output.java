@@ -50,7 +50,8 @@ public class Output extends
 		throws IOException, InterruptedException {
 	    StringBuilder output = new StringBuilder();
 
-	    Long optimalSuperstep = this.getConf().getLong(OPTIMALSUPERSTEP, Long.MAX_VALUE);
+//	    Long optimalSuperstep = this.getConf().getLong(OPTIMALSUPERSTEP, Long.MAX_VALUE);
+	    Long optimalSuperstep = this.getConf().getLong(OPTIMALSUPERSTEP, 0L);//se fallisce stampo tutti
 
 	    //output soltanto vertici appartengono alla partizione con densità maggiore
 	    if (vertex.getValue().getPartitionS().getDeletedSuperstep().compareTo(optimalSuperstep) >= 0) {

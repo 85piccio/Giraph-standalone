@@ -28,7 +28,7 @@ import org.apache.hadoop.io.IntWritable;
 /**
  * A dumb implementation of {@link MasterCompute}. This is the default implementation when no MasterCompute is defined by the user. It does nothing.
  */
-public class TriangleCountMasterComputeMessageCount extends MasterCompute {
+public class Master extends MasterCompute {
 
     /**
      * Class logger
@@ -55,14 +55,14 @@ public class TriangleCountMasterComputeMessageCount extends MasterCompute {
 	    this.setOutgoingMessage(IntWritable.class);
 	}
 	if (this.getSuperstep() == 2) {
-	    this.setComputation(TriangleCountPlusPlusMessageCountPhase2.class);
+	    this.setComputation(VertexComputePhase2.class);
 	    this.setIncomingMessage(IntWritable.class);
 	}
 	if (this.getSuperstep() == 3) {
 	    try {
 		registerPersistentAggregator(SOMMA + getSuperstep(), LongSumAggregator.class);
 	    } catch (InstantiationException | IllegalAccessException ex) {
-		java.util.logging.Logger.getLogger(TriangleCountMasterComputeMessageCount.class.getName()).log(Level.SEVERE, null, ex);
+		java.util.logging.Logger.getLogger(Master.class.getName()).log(Level.SEVERE, null, ex);
 	    }
 	}
     }

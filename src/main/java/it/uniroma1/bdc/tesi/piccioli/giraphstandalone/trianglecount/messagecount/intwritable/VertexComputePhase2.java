@@ -25,7 +25,7 @@ import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.IntWritable;
 
 @SuppressWarnings("rawtypes")
-public class TriangleCountPlusPlusMessageCountPhase2 extends BasicComputation<IntWritable, IntWritable, NullWritable, IntWritable> {
+public class VertexComputePhase2 extends BasicComputation<IntWritable, IntWritable, NullWritable, IntWritable> {
 
     /**
      * Somma aggregator name
@@ -40,12 +40,8 @@ public class TriangleCountPlusPlusMessageCountPhase2 extends BasicComputation<In
 	Iterable<Edge<IntWritable, NullWritable>> edges = vertex.getEdges();
 
 	if (getSuperstep() == 2) {
-	    //triangle count
-            int nMsg = 0;
-	    for (Edge<IntWritable, NullWritable> edge : edges) {
-                nMsg += vertex.getNumEdges();
-	    }
-            vertex.setValue(new IntWritable(nMsg));
+//	    //triangle count
+            vertex.setValue(new IntWritable(vertex.getNumEdges() * vertex.getNumEdges()));
 	    vertex.voteToHalt();
 	}
     }
