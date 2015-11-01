@@ -1,0 +1,30 @@
+\select@language {italian}
+\select@language {italian}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Esempio MapReduce - Calcolo del grado dei nodi di un grafo orientato\relax }}{4}{figure.caption.2}
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Archiettetura MapReduce - Flusso di un programma\relax }}{6}{figure.caption.3}
+\contentsline {figure}{\numberline {2.3}{\ignorespaces MapReduce - Iterazioni a cascata\relax }}{8}{figure.caption.4}
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Apache Hadoop\relax }}{10}{figure.caption.5}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Bulk Synchronous Parallel (BSP)\relax }}{12}{figure.caption.6}
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Macchina degli stati di un Vertice in Pregel\relax }}{13}{figure.caption.7}
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Partizionamento vertici in Pregel\relax }}{15}{figure.caption.8}
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Aggregatore MAX\relax }}{17}{figure.caption.9}
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Checkpoint Pregel\relax }}{17}{figure.caption.10}
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Apache Giraph\relax }}{19}{figure.caption.11}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Esempio iterazione \textit {MapReduce DegreeCalculator}\relax }}{23}{figure.caption.12}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Esempio \textit {Superstep} per DegreeCalculator in \textit {Pregel}\relax }}{23}{figure.caption.13}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Esempio iterazioni SSSP\relax }}{24}{figure.caption.14}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Esempio delle 2 iterazioni \textit {MapReduce} che implementano un interazione \textit {SSSP}\relax }}{25}{figure.caption.15}
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Esempio SSSP in Pregel\relax }}{28}{figure.caption.16}
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Esempio calcolo \textit {NodeIterator++} in \textit {MapReduce}\relax }}{32}{figure.caption.17}
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Esempio calcolo NodeIterator++ in Pregel\relax }}{34}{figure.caption.18}
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Esempio calcolo Densest Subgraph per grafi non orientati in MapReduce con soglia indicativa\relax }}{37}{figure.caption.19}
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Esempio iterazione Densest Subgraph per grafi non orientati in Pregel\relax }}{39}{figure.caption.20}
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Esempio ripartizione vertici di \textit {G} sugli insiemi\textit { S} e \textit {T} \relax }}{40}{figure.caption.21}
+\contentsline {figure}{\numberline {4.11}{\ignorespaces Esempio calcolo Densest Subgraph per grafi orientati in MapReduce\relax }}{43}{figure.caption.22}
+\contentsline {figure}{\numberline {4.12}{\ignorespaces Esempio calcolo Densest Subgraph per grafi orientati in Pregel\relax }}{45}{figure.caption.23}
+\addvspace {10\p@ }
+\addvspace {10\p@ }

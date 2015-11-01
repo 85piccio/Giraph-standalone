@@ -1,0 +1,53 @@
+\select@language {italian}
+\select@language {italian}
+\contentsline {chapter}{\numberline {1}Introduzione}{1}{chapter.1}
+\contentsline {chapter}{\numberline {2}MapReduce}{3}{chapter.2}
+\contentsline {section}{\numberline {2.1}MAP e REDUCE}{3}{section.2.1}
+\contentsline {subsection}{\numberline {2.1.1}Esempio MapReduce}{4}{subsection.2.1.1}
+\contentsline {section}{\numberline {2.2}Architettura MapReduce}{5}{section.2.2}
+\contentsline {subsection}{\numberline {2.2.1}Flusso di un programma MapReduce}{5}{subsection.2.2.1}
+\contentsline {subsection}{\numberline {2.2.2}Funzione di Partizione}{6}{subsection.2.2.2}
+\contentsline {subsection}{\numberline {2.2.3}Master}{6}{subsection.2.2.3}
+\contentsline {subsection}{\numberline {2.2.4}Controllo e gestione degli errori}{7}{subsection.2.2.4}
+\contentsline {section}{\numberline {2.3}MapReduce - Iterazioni a cascata}{7}{section.2.3}
+\contentsline {section}{\numberline {2.4}Implementazioni di MapReduce}{9}{section.2.4}
+\contentsline {chapter}{\numberline {3}Pregel}{11}{chapter.3}
+\contentsline {section}{\numberline {3.1}Bulk Synchronous Parallel (BSP)}{11}{section.3.1}
+\contentsline {section}{\numberline {3.2}Pregel}{13}{section.3.2}
+\contentsline {subsection}{\numberline {3.2.1}Esempio Pregel}{13}{subsection.3.2.1}
+\contentsline {section}{\numberline {3.3}Architettura Pregel}{14}{section.3.3}
+\contentsline {subsection}{\numberline {3.3.1}Flusso di un programma Pregel}{14}{subsection.3.3.1}
+\contentsline {subsection}{\numberline {3.3.2}Master}{15}{subsection.3.3.2}
+\contentsline {subsection}{\numberline {3.3.3}Worker}{16}{subsection.3.3.3}
+\contentsline {subsection}{\numberline {3.3.4}Aggregatori}{16}{subsection.3.3.4}
+\contentsline {subsection}{\numberline {3.3.5}Gestione e recupero degli errori}{16}{subsection.3.3.5}
+\contentsline {section}{\numberline {3.4}Giraph - Numero di iterazioni}{17}{section.3.4}
+\contentsline {section}{\numberline {3.5}Implementazioni Pregel}{18}{section.3.5}
+\contentsline {chapter}{\numberline {4}Algoritmi implementati}{21}{chapter.4}
+\contentsline {section}{\numberline {4.1}DegreeCalculator}{22}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}MapReduce}{22}{subsection.4.1.1}
+\contentsline {subsection}{\numberline {4.1.2}Pregel}{22}{subsection.4.1.2}
+\contentsline {section}{\numberline {4.2}SSSP, Cammini minimi da singola sorgente}{24}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}MapReduce}{24}{subsection.4.2.1}
+\contentsline {subsection}{\numberline {4.2.2}Pregel}{28}{subsection.4.2.2}
+\contentsline {section}{\numberline {4.3}NodeIterator++, Calcolo del numero di triangoli del grafo}{29}{section.4.3}
+\contentsline {subsection}{\numberline {4.3.1}MapReduce}{30}{subsection.4.3.1}
+\contentsline {subsection}{\numberline {4.3.2}Pregel}{33}{subsection.4.3.2}
+\contentsline {section}{\numberline {4.4}Densest Subgraph , Ricerca del sottografo pi\IeC {\`u} denso in grafi non orientati}{34}{section.4.4}
+\contentsline {subsection}{\numberline {4.4.1}MapReduce}{35}{subsection.4.4.1}
+\contentsline {subsection}{\numberline {4.4.2}Pregel}{36}{subsection.4.4.2}
+\contentsline {section}{\numberline {4.5}Densest Subgraph, Ricerca del sottografo pi\IeC {\`u} denso in grafi orientati}{38}{section.4.5}
+\contentsline {subsection}{\numberline {4.5.1}MapReduce}{41}{subsection.4.5.1}
+\contentsline {subsection}{\numberline {4.5.2}Pregel}{42}{subsection.4.5.2}
+\contentsline {chapter}{\numberline {5}Test}{47}{chapter.5}
+\contentsline {section}{\numberline {5.1}Ambiente testing}{47}{section.5.1}
+\contentsline {section}{\numberline {5.2}Dataset}{47}{section.5.2}
+\contentsline {section}{\numberline {5.3}Analisi Performance}{47}{section.5.3}
+\contentsline {subsection}{\numberline {5.3.1}CPU time}{47}{subsection.5.3.1}
+\contentsline {subsubsection}{DegreeComputation}{47}{section*.24}
+\contentsline {subsubsection}{SSSP}{48}{section*.27}
+\contentsline {subsubsection}{NodeIterator++}{48}{section*.30}
+\contentsline {subsubsection}{Denesest Subgraph su grafi non orientati}{48}{section*.33}
+\contentsline {subsubsection}{Denesest Subgraph su grafi orientati}{48}{section*.36}
+\contentsline {subsection}{\numberline {5.3.2}Utilizzo Memoria}{48}{subsection.5.3.2}
+\contentsline {chapter}{\numberline {6}Conclusioni}{51}{chapter.6}

@@ -1,0 +1,195 @@
+
+@article{Dean:2008:MSD:1327452.1327492,
+ author = {Dean, Jeffrey and Ghemawat, Sanjay},
+ title = {MapReduce: Simplified Data Processing on Large Clusters},
+ journal = {Commun. ACM},
+ issue_date = {January 2008},
+ volume = {51},	
+ number = {1},
+ month = jan,
+ year = {2008},
+ issn = {0001-0782},
+ pages = {107--113},
+ numpages = {7},
+ url = {http://doi.acm.org/10.1145/1327452.1327492},
+ doi = {10.1145/1327452.1327492},
+ acmid = {1327492},
+ publisher = {ACM},
+ address = {New York, NY, USA}
+} 
+
+@inproceedings{Karloff:2010:MCM:1873601.1873677,
+ author = {Karloff, Howard and Suri, Siddharth and Vassilvitskii, Sergei},
+ title = {A Model of Computation for MapReduce},
+ booktitle = {Proceedings of the Twenty-first Annual ACM-SIAM Symposium on Discrete Algorithms},
+ series = {SODA '10},
+ year = {2010},
+ isbn = {978-0-898716-98-6},
+ location = {Austin, Texas},
+ pages = {938--948},
+ numpages = {11},
+ url = {http://dl.acm.org/citation.cfm?id=1873601.1873677},
+ acmid = {1873677},
+ publisher = {Society for Industrial and Applied Mathematics},
+ address = {Philadelphia, PA, USA}
+} 
+
+@misc{1_hadoop.apache.org_2015,
+author={Hadoop.apache.org,},
+title={Welcome to Apache Hadoop!},
+url={https://hadoop.apache.org/},
+year={2015}
+}
+
+@misc{2_mongodb.org_2015,
+author={Mongodb.org,},
+title={MongoDB},
+url={https://www.mongodb.org/},
+year={2015}
+}
+
+@misc{3_it.teradata.com_2015,
+author={It.teradata.com,},
+url={http://it.teradata.com/products/Aster_MapReduce_Appliance},
+year={2015}
+}
+
+@misc{4_giraph.apache.org_2015,
+author={Giraph.apache.org,},
+title={Giraph - Welcome To Apache Giraph!},
+url={http://giraph.apache.org/},
+year={2015}
+}
+
+@inproceedings{Malewicz:2010:PSL:1807167.1807184,
+ author = {Malewicz, Grzegorz and Austern, Matthew H. and Bik, Aart J.C and Dehnert, James C. and Horn, Ilan and Leiser, Naty and Czajkowski, Grzegorz},
+ title = {Pregel: A System for Large-scale Graph Processing},
+ booktitle = {Proceedings of the 2010 ACM SIGMOD International Conference on Management of Data},
+ series = {SIGMOD '10},
+ year = {2010},
+ isbn = {978-1-4503-0032-2},
+ location = {Indianapolis, Indiana, USA},
+ pages = {135--146},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/1807167.1807184},
+ doi = {10.1145/1807167.1807184},
+ acmid = {1807184},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {distributed computing, graph algorigthms}
+} 
+
+@article{Valiant:1990:BMP:79173.79181,
+ author = {Valiant, Leslie G.},
+ title = {A Bridging Model for Parallel Computation},
+ journal = {Commun. ACM},
+ issue_date = {Aug. 1990},
+ volume = {33},
+ number = {8},
+ month = aug,
+ year = {1990},
+ issn = {0001-0782},
+ pages = {103--111},
+ numpages = {9},
+ url = {http://doi.acm.org/10.1145/79173.79181},
+ doi = {10.1145/79173.79181},
+ acmid = {79181},
+ publisher = {ACM},
+ address = {New York, NY, USA}
+} 
+
+@article{Han:2014:ECP:2732977.2732980,
+ author = {Han, Minyang and Daudjee, Khuzaima and Ammar, Khaled and \"{O}zsu, M. Tamer and Wang, Xingfang and Jin, Tianqi},
+ title = {An Experimental Comparison of Pregel-like Graph Processing Systems},
+ journal = {Proc. VLDB Endow.},
+ issue_date = {August 2014},
+ volume = {7},
+ number = {12},
+ month = aug,
+ year = {2014},
+ issn = {2150-8097},
+ pages = {1047--1058},
+ numpages = {12},
+ url = {http://dx.doi.org/10.14778/2732977.2732980},
+ doi = {10.14778/2732977.2732980},
+ acmid = {2732980},
+ publisher = {VLDB Endowment}
+} 
+
+@misc{5_infolab.stanford.edu_2015,
+author={Infolab.stanford.edu,},
+title={GPS: A Graph Processing System},
+url={http://infolab.stanford.edu/gps/},
+year={2015}
+}
+
+@misc{6_dato_2015,
+author={Dato,},
+title={Dato Core Open Source},
+url={https://dato.com/products/create/open_source.html},
+year={2015}
+}
+
+@article{DBLP:journals/corr/abs-1201-6567,
+  author    = {Bahman Bahmani and
+               Ravi Kumar and
+               Sergei Vassilvitskii},
+  title     = {Densest Subgraph in Streaming and MapReduce},
+  journal   = {CoRR},
+  volume    = {abs/1201.6567},
+  year      = {2012},
+  url       = {http://arxiv.org/abs/1201.6567},
+  timestamp = {Wed, 10 Oct 2012 21:28:47 +0200},
+  biburl    = {http://dblp.uni-trier.de/rec/bib/journals/corr/abs-1201-6567},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
+}
+
+@inproceedings{Suri:2011:CTC:1963405.1963491,
+ author = {Suri, Siddharth and Vassilvitskii, Sergei},
+ title = {Counting Triangles and the Curse of the Last Reducer},
+ booktitle = {Proceedings of the 20th International Conference on World Wide Web},
+ series = {WWW '11},
+ year = {2011},
+ isbn = {978-1-4503-0632-4},
+ location = {Hyderabad, India},
+ pages = {607--614},
+ numpages = {8},
+ url = {http://doi.acm.org/10.1145/1963405.1963491},
+ doi = {10.1145/1963405.1963491},
+ acmid = {1963491},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {clustering coefficient, mapreduce}
+} 
+
+@article{DBLP:journals/corr/FinocchiFF14,
+  author    = {Irene Finocchi and
+               Marco Finocchi and
+               Emanuele G. Fusco},
+  title     = {Counting small cliques in MapReduce},
+  journal   = {CoRR},
+  volume    = {abs/1403.0734},
+  year      = {2014},
+  url       = {http://arxiv.org/abs/1403.0734},
+  timestamp = {Tue, 01 Apr 2014 11:56:46 +0200},
+  biburl    = {http://dblp.uni-trier.de/rec/bib/journals/corr/FinocchiFF14},
+  bibsource = {dblp computer science bibliography, http://dblp.org}  
+}
+
+@article{Bahmani:2012:DSS:2140436.2140442,
+ author = {Bahmani, Bahman and Kumar, Ravi and Vassilvitskii, Sergei},
+ title = {Densest Subgraph in Streaming and MapReduce},
+ journal = {Proc. VLDB Endow.},
+ issue_date = {January 2012},
+ volume = {5},
+ number = {5},
+ month = jan,
+ year = {2012},
+ issn = {2150-8097},
+ pages = {454--465},
+ numpages = {12},
+ url = {http://dx.doi.org/10.14778/2140436.2140442},
+ doi = {10.14778/2140436.2140442},
+ acmid = {2140442},
+ publisher = {VLDB Endowment},
+} 
