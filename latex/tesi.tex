@@ -521,8 +521,8 @@ Un altro fattore  che ha inciso sulla decisione di scegliere Apache Giraph come 
 
 \chapter{Algoritmi implementati}
 
-Il confronto tra i Modelli \textit{MapReduce} \cite{Dean:2008:MSD:1327452.1327492} e Pregel \cite{Malewicz:2010:PSL:1807167.1807184} è stato effettuato mettendo a confrono le loro implementazioni più utilizzate, rispettivemente \textit{Apache Hadoop} \cite{1_hadoop.apache.org_2015}  per quanto riguarda \textit{MapReduce} e \textit{Apache Giraph} \cite{4_giraph.apache.org_2015} per quanto riguarda \textit{Pregel}.
-Sono stati selezionati 5 algoritmi su grafi su cui sono stati effettuati i test sulle implementazioni sui 2 framework. Sono stati scelti 4 algoritmi su grafi non orientati e 1 algoritmo su grafo orientato. Gli algoritmi per grafi non orientati sono:
+Il confronto tra i Modelli \textit{MapReduce} \cite{Dean:2008:MSD:1327452.1327492} e Pregel \cite{Malewicz:2010:PSL:1807167.1807184} è stato effettuato mettendo a confrono le loro implementazioni più utilizzate, rispettivemente \textit{Apache Hadoop} \cite{1_hadoop.apache.org_2015}e \textit{Apache Giraph} \cite{4_giraph.apache.org_2015}.
+Per questo lavoro di tesi sono stati selezionati cinque algoritmi su grafi e messe a confronto le rispettive implementazioni sui due modelli studiati. Degli algoritmi selezionati, quattro algoritmi sono applicati a grafi non orientati e un algoritmo su grafi orientati. Gli algoritmi per grafi non orientati sono:
 \begin{enumerate}
 \item \textbf{DegreeCalculator}, Calcolo del grado dei vertici.
 \item \textbf{SSSP}, Cammini minimi da sorgente singola.
@@ -530,18 +530,17 @@ Sono stati selezionati 5 algoritmi su grafi su cui sono stati effettuati i test 
 \item \textbf{Densest Subgraph} \cite{DBLP:journals/corr/abs-1201-6567}, Algoritmo per la ricerca del sottografo più denso del grafo, nella sua versione per grafi non orientati.
 \end{enumerate}
 
-Per i grafi orientati invece è stata sviluppata la versione dell'algoritmo Densest Subgraph \cite{DBLP:journals/corr/abs-1201-6567} nella sua versione per gradi diretti.
+Per i grafi orientati invece è stata sviluppata la versione dell'algoritmo \textbf{Densest Subgraph} \cite{DBLP:journals/corr/abs-1201-6567} nella versione per grafi diretti.
 
-In modello \textit{Pregel}, come visto nel capitolo precedente, è sviluppato su grafi orientati, dove ogni arco è associato alla struttura dati del vertice sorgente. Ogni arco di un grafo non orientato, viene rappresentato da una coppia di archi, uno per ogni direzione. Quindi un arco non orientato \textit{(u,v)} è rappresentato dalla coppia di archi orientati \textit{(u,v) }e \textit{(v,u)}, la prima coppia associata al vertice \textit{v} mentre la seconda al vertice \textit{u}.
-Per questo motivo, gli algoritmi su grafi non orientati sono stati sviluppati partendo da un input composto da entrambe le coppie orientate che formano il grafo non oriento.
+In modello \textit{Pregel}, come visto nel terzo capitolo, è sviluppato a partire da grafi orientati, dove ogni arco del grafo è associato alla struttura dati del vertice sorgente. Per la rappresentazione di grafi non orientati, in Pregel, e necessario rappresentare gli archi del grafo non orientato da coppie di archi, uno per ogni direzione. Quindi un arco non orientato \textit{(u,v)} è rappresentato dalla coppia di archi orientati \textit{(u,v) }e \textit{(v,u)}, la prima coppia associata al vertice \textit{v} mentre la seconda al vertice \textit{u}.
+Per questo motivo, le implementazioni degli algoritmi su grafi non orientati sono stati sviluppati partendo da un input composto da entrambe le coppie orientate che formano il grafo non oriento.
 
-Per i test è stata necessaria l'implementazione di quasi tutti gli algoritmi scelti. Non è stata necessaria l'implementazione dell'algoritmo \textit{SSSP} per \textit{Pregel}. E' stato possibile sfruttare l'implementazione \textit{SSSP} per grafi pesati presente nel package \textit{giraph-examples} all'interno della disribuzione del framework \textit{Apache Giraph} \cite{4_giraph.apache.org_2015}.
-Inoltre è stata utilizzata l'implementazione di NodeIterator++ in MapReduce per \textit{Apache Hadoop} \cite{1_hadoop.apache.org_2015} implementata da Irene Finocchi, Marco Finocchi, Emanuele G Fusco  \cite{DBLP:journals/corr/FinocchiFF14}.
+Per i test è stata necessaria l'implementazione di quasi tutti gli algoritmi scelti. Per l'algoritmo \textit{SSSP} è stata utilizzata l'implementazione per grafi orientati presente nel package \textit{giraph-examples} all'interno della disribuzione del framework \textit{Apache Giraph} \cite{4_giraph.apache.org_2015}.
+Inoltre è stata utilizzata l'implementazione dell'algoritmo NodeIterator++ in MapReduce per \textit{Apache Hadoop} \cite{1_hadoop.apache.org_2015} implementata in \cite{DBLP:journals/corr/FinocchiFF14}.
  
-In questo capitolo, per ogni algoritmo che si è deciso di utilizzare come base per i test, verrà fornita una descrizione generale dei passi dell'algoritmo e una descrizione dell'implementazione realizzata per lo sviluppo secondo i modelli \textit{MapReduce} e \textit{Pregel}.
+In questo capitolo, per ognuno dei cinque algoritmi verrà fornita una descrizione generale dei passi dell'algoritmo ed una descrizione dell'implementazione per i modelli \textit{MapReduce} e \textit{Pregel}.
 
 %Le prestazioni ottenute dalle verranno poi descritte e confrontate nel capitolo successivo.
-
 
 
 \section{DegreeCalculator}
