@@ -164,7 +164,7 @@ La funzione \textbf{REDUCE} riceve in input la coppia di valori \textit{<V\ped{a
   stringstyle=\color{orange},
 }
 \begin{minipage}{\linewidth}
-\lstinputlisting[style=customc,caption={Pseudocode funzione \textbf{MAP}}]{code/esempioMap.c}
+\lstinputlisting[style=customc,caption={Pseudocodice funzione \textbf{MAP}}]{code/esempioMap.c}
 \end{minipage}
 
 \begin{minipage}{\linewidth}
@@ -536,7 +536,7 @@ Il modello \textit{Pregel}, come visto nel terzo capitolo, è sviluppato a parti
 Per questo motivo, le implementazioni degli algoritmi su grafi non orientati sono stati sviluppati partendo da un input composto da entrambe le coppie orientate che formano il grafo non oriento.
 
 Per i test è stata necessaria l'implementazione di quasi tutti gli algoritmi scelti. Per l'algoritmo \textit{SSSP} è stata utilizzata l'implementazione per grafi orientati presente nel package \textit{giraph-examples} all'interno della disribuzione del framework \textit{Apache Giraph} \cite{4_giraph.apache.org_2015}.
-Inoltre è stata utilizzata l'implementazione dell'algoritmo NodeIterator++ in MapReduce per \textit{Apache Hadoop} \cite{1_hadoop.apache.org_2015} implementata in \cite{DBLP:journals/corr/FinocchiFF14}.
+Per  NodeIterator++ è stata utilizzata l'implementazione dell'algoritmo in MapReduce in \textit{Apache Hadoop} \cite{1_hadoop.apache.org_2015} implementata in \cite{DBLP:journals/corr/FinocchiFF14}.
  
 In questo capitolo, per ognuno dei cinque algoritmi verrà fornita una descrizione generale dei passi dell'algoritmo ed una descrizione dell'implementazione per i modelli \textit{MapReduce} e \textit{Pregel}.
 
@@ -545,102 +545,102 @@ In questo capitolo, per ognuno dei cinque algoritmi verrà fornita una descrizio
 
 \section{DegreeCalculator}
 
-L'algoritmo per il calcolo del grado dei nodi, prende in input un Grafo non orientato \textit{G = (V,E)} dove\textit {V} sono i vertici del grafo \textit{G} ed \textit{E} sono gli archi del grafo \textit{G}. Per ogni nodo \textit{$v \epsilon V$} l'algoritmo calcola il grado del vertice \textit{v}, \textit{deg(v)}, \textit{deg(v)=|\{(v,u)|$(v,u) \epsilon E$\}|}.
+L'algoritmo per il calcolo del grado dei nodi, prende in input un Grafo non orientato \textit{G = (V,E)} dove\textit {V} sono i vertici del grafo \textit{G} ed \textit{E} sono gli archi del grafo \textit{G}. Per ogni nodo \textit{$v \epsilon V$} l'algoritmo calcola il grado del vertice \textit{deg(v)}, con  \textit{deg(v)=|\{(v,u)|$(v,u) \epsilon E$\}|}.
 
 \subsection{MapReduce}
 
-L'algoritmo \textit{DegreeCalculator} è stato implementato in una singola iterazione \textit{MapReduce}.
+L'algoritmo \textit{DegreeCalculator} è stato implementato in una iterazione \textit{MapReduce}, rappresentata in Figura \ref{fig:MRDEGREE}.
 
-La funzione \textit{Map} prende in input la coppia di valori \textit{<v,u>} che rappresenta un arco del grafo e restituisce in output la coppia \textit{<v,u>}.
+La funzione \textit{Map}, come mostrato nello pseudocodice \ref{lst:esMap} , è la funzione identità, prende in input la coppia di valori \textit{<v,u>} che rappresenta un arco del grafo e restituisce in output la coppia \textit{<v,u>}.
 
-La funzione \textit{Reduce} riceve in input la coppia di valori \textit{<v, list(u)>} dove \textit{list(u)} è la lista  di vertici collegati da un arco a \textit{v}. La funzione \textit{Reduce} restituisce in output la coppia di valori \textit{<v,degree(v)>} dove \textit{degree(v)} è il grado del nodo \textit{v} dato dal numero di vertici presenti in \textit{list(u)}.
+La funzione \textit{Reduce} riceve in input la coppia di valori \textit{<v, list(u)>} dove \textit{list(u)} è la lista  di vertici adiacenti al vertice \textit{v}. La funzione \textit{Reduce} restituisce in output la coppia di valori \textit{<v,degree(v)>} dove \textit{degree(v)} è il grado del nodo \textit{v} dato dal numero di vertici presenti in \textit{list(u)}. In \ref{lst:esReduce} è mostrato lo pseudocodice della funzione \textit{Reduce}.
 
 \begin{minipage}{\linewidth}
-\lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Map}}]{code/esempioMap.c}
+\lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Map},label={lst:esMap}}]{code/esempioMap.c}
 \end{minipage}
 \begin{minipage}{\linewidth}
-\lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Reduce}}]{code/esempioReduce.c}
+\lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Reduce},label={lst:esReduce}}]{code/esempioReduce.c}
 \end{minipage}
 
 \begin{figure}
 \centering
 \includegraphics[width=1\textwidth]{MR-DegreeCalculator}
 \caption{Esempio iterazione \textit{MapReduce DegreeCalculator}}
-\label{fig:giraph}
+\label{fig:MRDEGREE}
 \end{figure}
 
 \subsection{Pregel}
 
-L'implementazione \textit{Pregel}  di \textit{DegreeCalculator} implementata è composta da un solo \textit{Superstep}. Il valore associato ad ogni vertice rappresenta il grado del vertice. 
+L'implementazione \textit{Pregel}  di è \textit{DegreeCalculator} è composta da un solo \textit{Superstep}, rappresentata nella Figura \ref{fig:GIRAPHDEGREE}. Il valore associato ad ogni vertice né rappresenta il grado, \textit{deg(V)}).
 
-Nel \textit{Superstep} la funzione \textit{Compute} conta gli archi associati alla struttra dati del vertice e lo associa al valore associato al vertice. Finito il primo Superstep tutti i vertici passano allo stato \textit{Vote to Halt}.
+Nel \textit{Superstep} la funzione \textit{Compute} conta gli archi associati alla struttura dati del vertice e assegna il valore calcolato a \textit{deg(V)}). Finito il primo Superstep tutti i vertici passano allo stato \textit{Vote to Halt}.
 
 \begin{figure}
 \centering
 \includegraphics[width=0.8\textwidth]{Pregel-DegreeCalculator}
 \caption{Esempio  \textit{Superstep} per  DegreeCalculator in \textit{Pregel}}
-\label{fig:giraph}
+\label{fig:GIRAPHDEGREE}
 \end{figure}
 
-\begin{minipage}{\linewidth}
+\begin{minipage}{\linewidth}[hb]
 \lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Compute} in \textit{DegreeCalculator}}]{code/esempioPregele.c}
 \end{minipage}
 
-\section{SSSP, Cammini minimi da singola sorgente}
+	\section{SSSP, Cammini minimi da sorgente singola}
 
-\textit{Single Source Shortest Path (SSSP)} è l'implementazione per grafi non pesati dell'algoritmo per il calcolo di cammini minimi di Bellman-Ford. Ad ogni vertice del grafo \textit{v} è associato un valore \textit{distanza\ped{v}} inizializzato a $\infty$ tranne per il nodo sorgente il cui valore è inizializzato a 0.
+\textit{Single Source Shortest Path (SSSP)} è l'implementazione per grafi non pesati dell'algoritmo per il calcolo di cammini minimi di Bellman-Ford. Ad ogni vertice del grafo \textit{v} è associato un valore \textit{dist\ped{v}} inizializzato a $\infty$ tranne il nodo sorgente il cui valore è inizializzato a 0.
 
 In Figura \ref{fig:SSSP} è rappresentato un esempio di iterazione del algoritmo SSSP su di un grafo. 
-Ad ogni iterazione di \textit{SSSP} ogni nodo \textit{v} confronta \textit{distanza\ped{v}} con i valori \textit{distanza\ped{u}} dei nodi \textit{u} vicini del nodo \textit{v}.
-Il valore del nodo \textit{v} viene aggiornato nel corso dell'iterazione se \textit{distanza\ped{v}} < \textit{min(distanza\ped{u}) + 1}, con \textit{min(distanza\ped{u})} valore più piccolo tra i valori \textit{distanza\ped{u}}. .
+Ad ogni iterazione di \textit{SSSP} ogni nodo \textit{v} confronta \textit{dist\ped{v}} con i valori \textit{dist\ped{u}} dei nodi \textit{u} adiacenti.
+Il valore del nodo \textit{v} viene aggiornato nel corso dell'iterazione nel caso in cui \textit{dist\ped{v}} < \textit{min(dist\ped{u}) + 1}, con \textit{min(dist\ped{u})} valore minore tra i valori \textit{dist\ped{u}}. 
 
-L'algoritmo termina dopo \textit{|V|} iterazioni di \textit{SSSP} oppure, se nel corso di un iterazione, nessun vertice del grafo aggiorna il valore \textit{distanza} associato.
+L'algoritmo termina dopo |V| iterazioni di \textit{SSSP} oppure se, nel corso di un iterazione, nessun vertice del grafo aggiorna il proprio valore \textit{dist}. 
 
 
-\begin{figure}
+\begin{figure}[hb]
 \centering
 \includegraphics[width=1\textwidth]{SSSP}
-\caption{Esempio iterazioni SSSP}
+\caption{Esempio iterazioni algoritmo SSSP}
 \label{fig:SSSP}
 \end{figure}
 
 
 \subsection{MapReduce}
 
-Per implementare SSSP nel modello \textit{MapReduce}, ogni vertice \textit{v} del grafo viene rappresentato nel formato \textit{ID\ped{v}:distanza\ped{v}}. I valori dei vertici \textit{u} del grafo  sono inizializzati a \textit{ID\ped{u}:$\infty$} tranne il nodo \textit{s} sorgente inizializzato a \textit{ID\ped{s}:0 }.
+Per implementare SSSP nel modello \textit{MapReduce}, ogni vertice \textit{v} del grafo viene rappresentato nel formato \textit{ID\ped{v}:distanza\ped{v}}. I valori dei vertici \textit{u} del grafo  sono inizializzati a \textit{ID\ped{u}:$\infty$} tranne il nodo sorgente \textit{s} inizializzato a \textit{ID\ped{s}:0 }.
 
-Ogni iterazione di \textit{SSSP} è implementata attraverso 2 iterazioni \textit{MapReduce}. L'algoritmo termina quando non vengono più modificati i valori \textit{distanza} dei nodi, si esce dall'iterazione SSSP e si passa ad un ultima iterazione \textit{MapReduce} che produce in output il risultato finale dell'algoritmo. Il risultato prodotto è nel formato \textit{<ID\_nodo, distanza\ped{minS}>}, dove \textit{distanza\ped{minS}} è la distanza minima dal nodo sorgente.
+Ogni iterazione di \textit{SSSP} è implementata attraverso due iterazioni \textit{MapReduce}. L'algoritmo termina quando non vengono più modificati i valori \textit{dist} dei nodi, si esce dall'iterazione SSSP e si passa ad un ultima iterazione \textit{MapReduce} che produce in output il risultato finale dell'algoritmo. Il risultato prodotto è nel formato \textit{<ID\_nodo, dist\ped{minS}>}, dove \textit{dist\ped{minS}} è la distanza minima dal nodo sorgente.
 
 
 
 \begin{figure}
 \centering
 \includegraphics[width=1\textwidth]{MR-SSSP}
-\caption{Esempio delle 2 iterazioni \textit{MapReduce} che implementano un interazione \textit{SSSP}}
+\caption{Esempio delle due iterazioni \textit{MapReduce} per l'esecuzione di un iterazione di \textit{SSSP}}
 \label{fig:MRSSSP}
 \end{figure}
 
 In Figura \ref{fig:MRSSSP} è rappresentato un esempio di un iterazione di \textit{SSSP} in \textit{MapReduce}.
-La prima iterazione \textit{MapReduce} si occupa di "propagare" il valore \textit{distanza} sugli archi del grafo.
-La funzione \textit{Map} prende in input la coppia di valori \textit{<v:distanza\ped{v},u:distanza\ped{u}>} e produce in output la coppia \textit{<v:distanza\ped{v},u:distanza\ped{u}>}.
-La funzione \textit{Reduce} riceve in input la coppia di valori \textit{<v:distanza\ped{v}, list(u:distanza\ped{u})}, dove \textit{list(u:distanza\ped{u})} è la lista di nodi \textit{u} raggiungibili dal nodo \textit{v}. \textit{Reduce} produce in output, per ogni elemento $\textit{w} \epsilon \textit{list(u:distanza\ped{u})}$ la coppia di valori <v:distanza\ped{v},u:distanza\ped{min}>, dove il valore \textit{distanza\ped{min}} è calcolato come il valore minore tra  \textit{distanza\ped{i}} ed il minimo tra valori \textit{distanza\ped{u} + 1} presenti in \textit{list(u:distanza\ped{u})}. 
+La prima iterazione \textit{MapReduce} si occupa della propagazione dei valori \textit{dist} sugli archi del grafo.
+La funzione \textit{Map} è la funzione identità, prende in input la coppia di valori \textit{<v:dist\ped{v},u:dist\ped{u}>} e restituisce in output la coppia \textit{<v:dist\ped{v},u:dist\ped{u}>}.
+La funzione \textit{Reduce} riceve in input la coppia di valori \textit{<v:distanza\ped{v}, list(u:distanza\ped{u})}, dove \textit{list(u:distanza\ped{u})} rappresenta la lista di nodi \textit{u} raggiungibili dal nodo \textit{v}. La funzione restituisce in output, per ogni elemento $\textit{w} \epsilon \textit{list(u:dist\ped{u})}$ la coppia di valori <v:dist\ped{v},u:dist\ped{min}>, dove il valore \textit{dist\ped{min}} è calcolato come il valore minore tra  \textit{dist\ped{i}} ed il minimo tra valori \textit{dist\ped{u} + 1} presenti in \textit{list(u:dist\ped{u})}. 
 
 \begin{minipage}{\linewidth}
-\lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Map} prima itarzione \textit{MapReduce} di \textit{SSSP}}]{code/esempioMapSSP1fase.c}		
+\lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Map} prima iterazione \textit{MapReduce} di \textit{SSSP}}]{code/esempioMapSSP1fase.c}		
 \end{minipage}
 
 \begin{minipage}{\linewidth}
-\lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Reduce}prima itarzione \textit{MapReduce} di \textit{SSSP}} ]{code/esempioReduceSSP1fase.c}		
+\lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Reduce}prima iterazione \textit{MapReduce} di \textit{SSSP}} ]{code/esempioReduceSSP1fase.c}		
 \end{minipage}
 
-La seconda iterazione \textit{MapReduce} è necessaria per permettere di aggiornare i valori \textit{distanza} relativi ai  nodi sorgenti degli archi, dopo la prima iterazione sono aggiornati soltanto i nodi destinazione. 
+La seconda iterazione \textit{MapReduce} si occupa di aggiornare i valori \textit{dist} relativi ai  nodi sorgenti degli archi, in quanto dopo la prima iterazione sono aggiornati soltanto i nodi destinazione. 
 
-La funzione \textit{Map} della seconda  iterazione prende in input gli archi nel formato \textit{<v:distanza\ped{v},u:distanza\ped{u}>} e produce il doppio output formato dalle coppie \textit{<v, u:distanza\ped{u}:distanza\ped{v}:S>} e \textit{<u ,v:distanza\ped{v}:distanza\ped{u}:D>}, \textit{S} e \textit{D} sono dei valori segnaposto, \textit{S} segnala che il nodo v è un nodo sorgente e \textit{D} che \textit{v} è invece nodo destinazione. I valori sentinella vengono utilizzati nella funzione \textit{Reduce} per ricostruire il corretto verso degli archi del grafo. 
+La funzione \textit{Map} della seconda  iterazione prende in input gli archi nel formato \textit{<v:dist\ped{v},u:dist\ped{u}>} e produce il doppio output formato dalle coppie \textit{<v, u:dist\ped{u}:dist\ped{v}:S>} e \textit{<u ,v:dist\ped{v}:dist\ped{u}:D>}, \textit{S} e \textit{D} sono dei valori segnaposto predefiniti, \textit{S} serve a segnalare che il nodo v è il nodo di partenza dell'arco e \textit{D} che è il nodo destinazione. I valori sentinella vengono utilizzati nella funzione \textit{Reduce} per garantire che gli archi vengano ricostruiti con la direzione corretta.
 
 La funzione \textit{Reduce} della seconda fase prende in input la coppia di valori \textit{<v, list(u:distanza\ped{u}:distanza\ped{v}:\$)} con \textit{$\$ \epsilon [S,D]$}. 
-Per ogni valore presente nella lista  \textit{<v, list(u:distanza\ped{u}:distanza\ped{v}:\$)} con \$ = \textit{S}, la funzione \textit{Reduce} produce in output la coppia di valori \textit{<v:distanza\_minima\ped{i}: u:distanza\ped{u}>}, dove \textit{distanza\_minima\ped{i}} è il minore dei valori \textit{distanza\ped{i}} in \textit{list(v\ped{j}:distanza\ped{j}:distanza\ped{i}:\$) con \$ = \textit{D}}.
+Per ogni valore presente nella lista  \textit{<v, list(u:distanza\ped{u}:distanza\ped{v}:\$)} con \$ = \textit{S}, la funzione \textit{Reduce} produce in output la coppia di valori \textit{<v:dist\_min\ped{i}: u:dist\ped{u}>}, dove \textit{dist\_min\ped{i}} è il minore dei valori \textit{dist\ped{i}} in \textit{list(v\ped{j}:dist\ped{j}:dist\ped{i}:\$) con \$ = \textit{D}}.
 
-Le iterazioni \textit{SSSP} terminano quando non vengono aggiornati i valori \textit{distanza} nella corso della prima it\textit{MapReduce}.
+Le iterazioni \textit{SSSP} terminano quando non si verificano aggiornamenti di valori \textit{dist} durante la  prima it\textit{MapReduce}.
 
 \begin{minipage}{\linewidth}
 \lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Map} SSSP}]{code/esempioMapSSP2fase.c}		
@@ -650,10 +650,10 @@ Le iterazioni \textit{SSSP} terminano quando non vengono aggiornati i valori \te
 \lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Reduce} SSSP}]{code/esempioReduceSSP2fase.c}		
 \end{minipage}
 
-L'ultima iterazionne \textit{MapReduce}, che salva i risultati in output, viene eseguita quando sono terminate le iterazioni \textit{SSSP}.
-La funzione \textit{Map} prende in input la coppia di valori \textit{<v:distanza\ped{v}, u:distanza\ped{u}>}  e produce in output la coppia \textit{<v:distanza\ped{v}, $\varepsilon$>}, dove $\varepsilon$ è stringa vuota.
+L'ultima iterazione \textit{MapReduce}, in cui vengono salvati i risultati prodotti, viene eseguita a l termine  delle iterazioni \textit{SSSP}.
+La funzione \textit{Map} prende in input la coppia di valori \textit{<v:dist\ped{v}, u:dist\ped{u}>}  e produce in output la coppia \textit{<v:dist\ped{v}, $\varepsilon$>}, dove $\varepsilon$ è la stringa vuota.
 
-La funzione \textit{Reduce} prende in input la coppia di valori \textit{<v:distanza\ped{v},list($\varepsilon$)>} e produce in output la coppia \textit{<v, distanza\ped{v}>} con \textit{distanza\ped{v}} valore del cammino minimo dal nodo sorgente al nodo \textit{v}.
+La funzione \textit{Reduce} prende in input la coppia di valori \textit{<v:dist\ped{v},list($\varepsilon$)>} e produce in output la coppia \textit{<v, dist\ped{v}>} con \textit{dist\ped{v}} valore del cammino minimo dal nodo sorgente al nodo \textit{v}.
 
 
 \begin{minipage}{\linewidth}
@@ -665,14 +665,17 @@ La funzione \textit{Reduce} prende in input la coppia di valori \textit{<v:dista
 
 \subsection{Pregel}
 
-L'implementazione in \textit{Pregel} sviluppata per realizzare l'algoritmo \textit{SSSP} è costituita da un primo \textit{Superstep} dove il valore associato al vertex \textit{v},  che rappresenta il valore \textit{distanza\ped{v}} associato a \textit{v}, viene inizializzato a $\infty$ tranne per il vertice sorgente il cui valore è inizializzato a 0.
+L'implementazione in \textit{Pregel} per l'algoritmo \textit{SSSP}, rappresentata in Figura \ref{fig:PREGELSSSP}, è costituita da un primo \textit{Superstep} dove il valore associato al vertex \textit{v},  che rappresenta il valore \textit{dist\ped{v}} associato a \textit{v}, viene inizializzato a $\infty$ tranne per il vertice sorgente il cui valore è inizializzato a 0.
 
-Nella Figura \ref{fig:PREGELSSSP} è rappresentato un esempio di computazione in \textit{Pregel} di \textit{SSSP}.
 
-Ad ogni \textit{Superstep S} è eseguita un'iterazioni \textit{SSSP} in cui un vertice \textit{v} riceve i messaggi, inviati nel \textit{Superstep S-1}, messaggi che contengono il valore \textit{distanza\ped{u}} dei vertici \textit{u} vicini di \textit{v}.
-Il vertice \textit{v} confronta i messaggi ricevuti con il proprio valore \textit{distanza\ped{v}}. Nel caso che almeno uno dei messaggi contiene un valore \textit{distanza\ped{u}} che risulta minore di \textit{distanza\ped{v}}, il valore di \textit{distanza\ped{v}} viene aggiornato con il valore minore contenuto nei messaggi.
-Nel caso il vertice \textit{v} viene aggiornati nel \textit{Superstep S}, viene inviato un messaggio contenente il nuovo valore \textit{distanza\ped{v} + 1} ai vertici vicini di \textit{v}, che verrà recapitato nel \textit{Superstep} successivo \textit{S+1}. Tutti i vertici passano allo stato \textit{Vote to Halt} e solo i vertici a cui è stato inviato un messaggio in S+1 saranno nello stato \textit{Active} in \textit{S+1}.
+Ad ogni \textit{Superstep S} è eseguita un'iterazione \textit{SSSP} in cui un vertice \textit{v} riceve i messaggi, inviati durante il \textit{Superstep S-1}, messaggi che contengono il valore \textit{distanza\ped{u}} dei vertici \textit{u} a cui \textit{v} è adiacente.
+Il vertice \textit{v} confronta i messaggi ricevuti con il proprio valore \textit{dist\ped{v}}. Nel caso che almeno uno dei messaggi contiene un valore \textit{dist\ped{u}} minore, il valore di \textit{dist\ped{v}} viene aggiornato con il minore tra i valori contenuti nei messaggi.
+Nel caso il vertice \textit{v} viene aggiornati nel \textit{Superstep S}, nel corso della stessa iterazione, viene inviato un messaggio contenente il nuovo valore \textit{dist\ped{v} + 1} ai vertici vicini di \textit{v}, che verrà ricevuto nel \textit{Superstep S+1}. Tutti i vertici passano allo stato \textit{Vote to Halt} e solo i vertici a cui è stato inviato un messaggio in S+1 passeranno nuovamente ad uno stato \textit{Active} nel  \textit{Superstep S+1}.
 La computazione di \textit{SSSP} termina quando nessun vertice invia messaggi nel corso del \textit{Superstep} e quindi nessuno dei vertici del grafo ha aggiornato il valore \textit{distanza}.
+
+In \ref{lst:psudoSSSPGiraph} è mostrato lo pseudocodice della funzione \textit{compute} per il calcolo in Pregel di SSSP.
+
+
 
 \begin{figure}
 \centering
@@ -683,9 +686,10 @@ La computazione di \textit{SSSP} termina quando nessun vertice invia messaggi ne
 
 
 \begin{minipage}{\linewidth}
-\lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Compute} SSSP}]{code/esempioPregeleSSSP2.c}	
+\lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Compute} SSSP} label={lst:psudoSSSPGiraph}	]{code/esempioPregeleSSSP2.c}	
 \end{minipage}
-	
+
+
 \section{NodeIterator++, Calcolo del numero di triangoli del grafo}
 
 NodeIterator++ \cite{Suri:2011:CTC:1963405.1963491} è un algoritmo per il calcolo del numero di triangoli in un grafo in modo efficiente nel modello MapReduce \cite{Dean:2008:MSD:1327452.1327492}.
