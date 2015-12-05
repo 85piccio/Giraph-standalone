@@ -640,7 +640,7 @@ La funzione \textit{Map} della seconda  iterazione prende in input gli archi nel
 La funzione \textit{Reduce} della seconda fase prende in input la coppia di valori \textit{<v, list(u:distanza\ped{u}:distanza\ped{v}:\$)} con \textit{$\$ \epsilon [S,D]$}. 
 Per ogni valore presente nella lista  \textit{<v, list(u:distanza\ped{u}:distanza\ped{v}:\$)} con \$ = \textit{S}, la funzione \textit{Reduce} produce in output la coppia di valori \textit{<v:dist\_min\ped{i}: u:dist\ped{u}>}, dove \textit{dist\_min\ped{i}} è il minore dei valori \textit{dist\ped{i}} in \textit{list(v\ped{j}:dist\ped{j}:dist\ped{i}:\$) con \$ = \textit{D}}.
 
-Le iterazioni \textit{SSSP} terminano quando non si verificano aggiornamenti di valori \textit{dist} durante la  prima it\textit{MapReduce}.
+Le iterazioni \textit{SSSP} terminano quando non si verificano aggiornamenti di valori \textit{dist} durante la  prima iterazione \textit{MapReduce}.
 
 \begin{minipage}{\linewidth}
 \lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Map} SSSP}]{code/esempioMapSSP2fase.c}		
@@ -686,57 +686,61 @@ In \ref{lst:psudoSSSPGiraph} è mostrato lo pseudocodice della funzione \textit{
 
 
 \begin{minipage}{\linewidth}
-\lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Compute} SSSP} label={lst:psudoSSSPGiraph}	]{code/esempioPregeleSSSP2.c}	
+\lstinputlisting[style=customc,caption={Pseudocodice funzione \textit{Compute} SSSP},label={lst:psudoSSSPGiraph}	]{code/esempioPregeleSSSP2.c}	
 \end{minipage}
 
 
 \section{NodeIterator++, Calcolo del numero di triangoli del grafo}
 
 NodeIterator++ \cite{Suri:2011:CTC:1963405.1963491} è un algoritmo per il calcolo del numero di triangoli in un grafo in modo efficiente nel modello MapReduce \cite{Dean:2008:MSD:1327452.1327492}.
-L'idea di base dell'algoritmo è di costruire per ogni nodo \textit{v} del grafo, una lista di tutte le possibili coppie \textit{(u,w)} di nodi vicini a \textit{v}. Per ogni coppia di nodi \textit{(u,w)}, se \textit{(u,w)$\in$ E}, con \textit{E} insieme degli archi del grafo, allora esiste il triangolo \textit{(v,u,w)}.
+L'idea di base dell'algoritmo è di costruire, per ogni nodo \textit{v} del grafo, una lista di tutte le possibili coppie \textit{(u,w)} di nodi adiacenti a \textit{v}. Per ogni coppia di nodi \textit{(u,w)}, se \textit{(u,w)$\in$ E}, con \textit{E} insieme degli archi del grafo, allora i nodi \textit{ v, u e w } formano un triangolo del grafo.
  
-Nella versione base dell'algoritmo, \textit{NodeIterator}, vengono prese in esame tutte le coppie possibili di nodi vicine di un nodo \textit{v}, questo portava a contare, in modo molto inefficiente, ogni triangolo 6 volte. 
-Per migliorare l'efficienza e contare ogni triangolo 1 volta, la versione \textit{NodeIterator++} dell'algoritmo, introduce un relazione di ordine totale sui vertici del grafo, \textit{prec} ($\prec$). Per una coppia di nodi del grafo \textit{u} e \textit{w} del grafo, si ha che \textit{u $\prec$ w} se \textit{deg(u) < deg(w)}, dove \textit{deg(v)} è il grado del nodo \textit{v}. In caso di nodi con lo stesso grado si sceglie in modo arbitrario e consistente l'ordine di precedenza tra i nodi, come per esempio l'ordine sul valore numerico corrispondente all'ID del vertice.
+Nella versione base dell'algoritmo, \textit{NodeIterator}, vengono prese in esame tutte le coppie possibili di nodi vicine di un nodo \textit{v}, questo portava a contare ogni triangolo sei volte in quanto, per ogni nodo appartenente ad un triangolo, esistono due coppie di nodi vicini appartenenti all'insieme di archi del grafo.
+
+Per migliorare l'efficienza di \textit{NodeIterator} contando ogni triangolo una volta, nella versione \textit{NodeIterator++} dell'algoritmo, viene utilizzato una relazione di ordine totale sui vertici del grafo, \textit{prec} ($\prec$). Per una coppia di nodi del grafo \textit{u} e \textit{w} del grafo, si ha che \textit{u $\prec$ w} se \textit{deg(u) < deg(w)}, dove \textit{deg(v)} è il grado del nodo \textit{v}. In caso di nodi con lo stesso grado si sceglie in modo arbitrario e consistente l'ordine di precedenza tra i nodi, come per esempio l'ordine sul valore numerico corrispondente all'identificativo del nodo. Lo pseudocodice  relativo a \textit{NodeIterator++} è mostrato in \ref{lst:pseudoNodepp}.
 
 \begin{minipage}{\linewidth}
-\lstinputlisting[style=customc,caption={Pseudocodice NodeIterator++}]{code/nodeiterator.c}	
+\lstinputlisting[style=customc,caption={Pseudocodice algortimo NodeIterator++},label={lst:pseudoNodepp}]{code/nodeiterator.c}	
 \end{minipage}
 
 
 \subsection{MapReduce}
 
-Per testare l'algoritmo \textit{NodeIterator++} in \textit{MapReduce} ho utilizzato l'implementazione realizzata da Irene Finocchi, Marco Finocchi, Emanuele G Fusco per  \cite{DBLP:journals/corr/FinocchiFF14}.
+Per testare l'algoritmo \textit{NodeIterator++} in \textit{MapReduce} ho utilizzato l'implementazione realizzata da Irene Finocchi, Marco Finocchi, Emanuele G. Fusco in \cite{DBLP:journals/corr/FinocchiFF14}.
 
-Per sviluppare \textit{NodeIterator++ } sono necessari due iterazione \textit{MapReduce}. Nella prima iterazione vengono generate tutte le coppie di vicini di un nodo \textit{v}, \textit{(u,v)}.
+Per implementare \textit{NodeIterator++ } sono necessari due iterazione \textit{MapReduce}. Nella prima iterazione vengono generate tutte le coppie di vicini di un nodo \textit{v}, \textit{(u,v)}.
 
-La funzione \textit{Map} riceve in input un arco del grado nella forma \textit{<v, u>} e produce in output la coppia di vertici \textit{<v, u>} soltanto se \textit{v $\prec$ u}.
+La funzione \textit{Map}, il cui pseudocodice è mostrato in \ref{lst:nodeiteratorMRMapfase1}, riceve in input un arco del grado nella forma \textit{<v, u>} e produce in output la coppia di vertici \textit{<v, u>} soltanto se \textit{v $\prec$ u}.
 
-La funzione \textit{Reduce} riceve in input la coppia \textit{<v,list{u}>}, con \textit{list(u)} lista di nodi vicini di \textit{v} per cui \textit{v $\prec$ u}. Per ogni coppia di elementi  di \textit{list(u)}, \textit{(u,w)} produce in output la coppia di valori \textit{<v, (u,w)>}.
+La funzione \textit{Reduce} riceve in input la coppia \textit{<v,list(u)>}, con \textit{list(u)} lista di nodi vicini di \textit{v} per cui \textit{v $\prec$ u}. Per ogni coppia di elementi  di \textit{list(u)}, \textit{(u,w)} produce in output la coppia di valori \textit{<v, (u,w)>}. Lo pseudocodice della funzione \textit{Reduce} è mostrato in \ref{lst:nodeiteratorMRReducefase1}.
 
-\begin{minipage}{\linewidth}
-\lstinputlisting[style=customc,caption={Pseudocodice Map Fase 1 NodeIterator++}]{code/nodeiteratorMRMapfase1.c}	
-\end{minipage}
-\begin{minipage}{\linewidth}
-\lstinputlisting[style=customc,caption={Pseudocodice Reduce Fase 1  NodeIterator++}]{code/nodeiteratorMRReducefase1.c}	
+\begin{minipage}{\linewidth}	
+\lstinputlisting[style=customc,caption={Pseudocodice Map Fase 1 NodeIterator++},label={lst:nodeiteratorMRMapfase1}]{code/nodeiteratorMRMapfase1.c}	
 \end{minipage}
 
-Nella seconda fase MapReduce vengono verificate quali tra le coppie di nodi, generate dalla prima iterazione \textit{MapReduce}, hanno un arco che collega tra loro i 2 vertici e che quindi costituiscono un triangolo del grafo. 
+\begin{minipage}{\linewidth}
+\lstinputlisting[style=customc,caption={Pseudocodice Reduce Fase 1  NodeIterator++},label={lst:nodeiteratorMRReducefase1}]{code/nodeiteratorMRReducefase1.c}	
+\end{minipage}
+
+Nella seconda fase MapReduce vengono verificate quali tra le coppie di nodi, generate dalla prima iterazione \textit{MapReduce}, hanno un arco che collega i due vertici e che quindi costituiscono un triangolo del grafo. 
 
 La funzione \textit{Map} prende in input i valori da due differenti sorgenti: l'output del round precedente, \textit{<v,(u,w)>} e la lista di archi \textit{<v,u>} dall'input iniziale del iterazione \textit{SSSP}. Per il primo tipo di input è prodotto in output la coppia di valori \textit{<(u,w),v>}, per il secondo tipo di input, invece, è prodotto in output la coppia di valori \textit{<(v,u), \$>}, dove \$ è un simbolo segnaposto. Il simbolo \$ è utilizzato poi nella funzione di \textit{Reduce} come simbolo che segnala che la coppia di nodi \textit{(v,u)} è collegata da un arco del grafo.
 
 La funzione \textit{Reduce} prende in input la coppia \textit{<(u,v), list(w)>}, dove \textit{(u,v)} è un arco del grafo e \textit{list(w)} è una lista di elementi \textit{w}, dove  l'elemento \textit{w} o è un vertice del grafo o è il valore segnaposto \$.
 Se nella lista \textit{list(w)} è presente il valore \$ allora l'arco \textit{$(u,v) \in E$}, con \textit{E} insieme degli archi del grafo. In questo caso ogni valore elemento \textit{list(w)}, \textit{w} diverso da \$, rappresenta un nodo del grafo che ha come vicino sia il nodo \textit{u} che il nodo \textit{w}, per cui la presenza dell'arco \textit{(u,v)} "chiude" il triangolo \textit{(u,v,w)}. 
 L'output della funzione \textit{Reduce}, nel caso \textit{$\$\in list(w)$}, è la coppia di valori \textit{<(u,v), T>}, dove \textit{T} è il numero di triangoli "chiusi" dalla coppia \textit{(u,v)}. Nel caso in cui \textit{$\$\notin list(w)$} allora la coppia \textit{(u,v)} non ha un arco che collega i 2 vertici, nessuno dei possibili triangolo segnalati in list(w) è "chiuso" e la funzione non produce nessun valore in output.
+In \ref{nodeiteratorMRReducefase2} e  \ref{nodeiteratorMRReducefase2} sono mostrati, rispettivamente, lo pseudocodice della funzione \textit{Map} e della funzione \textit{Reduce}.
 
-Per contare tutti i triangoli rilevati è necessario un'ulteriore passaggio, implementabile sempre in \textit{MapReduce}, in cui vengono contate le somme parziali dei triangoli rilevate delle funzioni \textit{Reduce} nell'iterazione precedente. La funzione \textit{Map} mappa tutte le coppie di valori del tipo \textit{<(u,v), T>} verso un unica funzione \textit{Reduce} utilizzando un unica chiave. La funzione \textit{Reduce} riceve tutti i risultati parziali \textit{T} ricavati nel passo precedente, li somma tra loro e fornisce in output il risultato totale dei triangoli presenti nel grafo.
+In Figura \ref{fig:MRNIT} è rappresentato un esempio della computazione di \textit{NodeIterator++} in \textit{Mapreduce}.
 
-In Figura \ref{fig:MRNIT} è rappresentato un esempio della computazione di \textit{NodeIterator++} in \textit{MapReduce}.
+Per ricavare il numero totale di triangoli è necessario un iterazione aggiuntiva, implementabile sempre in \textit{MapReduce}, in cui vengono contate le somme parziali dei triangoli ricavate  nell'iterazione precedente. La funzione \textit{Map} mappa l'output dell'iterazione precedente, formato dalle coppie \textit{<(u,v), T>}, verso un unica funzione \textit{Reduce} utilizzando un unica chiave. La funzione \textit{Reduce} riceve tutti i risultati parziali \textit{T} ricavati nel passo precedente, li somma tra loro e fornisce in output il risultato totale dei triangoli presenti nel grafo.
+
 
 \begin{minipage}{\linewidth}
-\lstinputlisting[style=customc,caption={Pseudocodice Map Fase 2 NodeIterator++}]{code/nodeiteratorMRMapfase2.c}	
+\lstinputlisting[style=customc,caption={Pseudocodice Map Fase 2 NodeIterator++},label={lst:nodeiteratorMRMapfase2}]{code/nodeiteratorMRMapfase2.c}	
 \end{minipage}
 \begin{minipage}{\linewidth}
-\lstinputlisting[style=customc,caption={Pseudocodice Reduce Fase 2  NodeIterator++}]{code/nodeiteratorMRReducefase2.c}	
+\lstinputlisting[style=customc,caption={Pseudocodice Reduce Fase 2  NodeIterator++},label={lst:nodeiteratorMRReducefase2}]{code/nodeiteratorMRReducefase2.c}	
 \end{minipage}
 
 
@@ -749,24 +753,25 @@ In Figura \ref{fig:MRNIT} è rappresentato un esempio della computazione di \tex
 
 \subsection{Pregel}
 
-L'implementazione realizzata per \textit{NodeIterator++} su \textit{Pregel} prevede, per ogni vertice \textit{v} del grafo, l'esecuzione di 4 \textit{Superstep} :
+L'implementazione realizzata per \textit{NodeIterator++} su \textit{Pregel}, il cui pseudocodice è riportato in \ref{lst:esempioPregeleNodeIterator}, prevede l'esecuzione di quattro \textit{Superstep} :
+
 \begin{enumerate}
 \item Nel primo \textit{Superstep} il vertice \textit{v} calcola ed invia a tutti i nodi vicini il valore \textit{deg(v)}, grado di \textit{v}. 
 
-\item Nel secondo \textit{Superstep} il vertice \textit{v} confronta il proprio grado con il grado dei nodi ricevuti utilizzando la funzione di ordine totale $\prec$ definita in \textit{NodeIterator++}. 
+\item Nel secondo \textit{Superstep} il vertice \textit{v} confronta il proprio grado con il grado dei nodi ricevuti attraverso la funzione di ordine totale $\prec$ definita in \textit{NodeIterator++}. 
 Per ogni coppi di archi orientati, che compongono l'arco non orientato in \textit{Pregel}, viene eliminato l'arco con il verso che non rispetta l'ordine $\prec$.
-Come nell'esempio in \ref{fig:PREGELNIT}, nel grafo \textit{G'}, dopo il secondo \textit{Superstep S\ped{1}}, rimangono solo gli archi che rispettano l'ordine definito da $\prec$, come ad esempio \textit{(0,1)} e \textit{(1,3)}.
+Come nell'esempio in \ref{fig:PREGELNIT}, nel grafo \textit{G'}, dopo il secondo \textit{Superstep S\ped{1}}, rimangono solo gli archi che rispettano l'ordine definito da $\prec$, in questo caso gli archi \textit{(0,1)}, \textit{(0,3)}, \textit{(1,3)} e \textit{(2,3)}.
 
 \item Nel terzo \textit{Superstep}, il vertice \textit{v} invia a tutti i nodi, collegati a \textit{v} da un arco del grafo ottenuto dopo l'iterazione precedente, la lista dei nodi vicini.
 
-\item Nel ultimo \textit{Superstep}, il vertice \textit{v} riceve tramite messaggi la lista dei nodi dai vertici \textit{w} a cui è vicino, \textit{list(w)}. Nel caso in cui l'arco \textit{(v,u)} è un arco del grafo, con \textit{$u \in list(w)$}, allora nel grafo è presente il triangolo \textit{(u, v, w)}. 
+\item Nel ultimo \textit{Superstep}, il vertice \textit{v} riceve tramite messaggi la lista dei nodi dai vertici \textit{w} a cui è vicino, \textit{list(w)}. Nel caso in cui l'arco \textit{(v,u)} è un arco del grafo, con \textit{$u \in list(w)$}, allora i nodi \textit{(u, v, w)} formano un triangolo nel grafo. 
 Il vertice \textit{v} confronta, quindi, la lista dei nodi ricevuta con l'insieme di vertici raggiungibili da \textit{v}. 
 Per ogni corrispondenza segnala il triangolo individuato tramite l'utilizza di un aggregatore di tipo \textit{SUM}, visto nel capitolo introduttivo su \textit{Pregel}.
 \end{enumerate}
 
-Alla fine del \textit{Superstep}, secondo il funzionamento degli aggregatori, il nodo Master raccoglie tutti i valori aggregati ottenendo il numero totale di triangoli presenti nel grafo.
+Alla fine del \textit{Superstep}, attraverso il meccanismo degli aggregatori, il nodo Master raccoglie tutti i valori aggregati ottenendo il numero totale di triangoli presenti nel grafo.
 
-\lstinputlisting[style=customc,caption={Pseudocodice NodeIterator++ Pregel}]{code/esempioPregeleNodeIterator.c}	
+\lstinputlisting[style=customc,caption={Pseudocodice NodeIterator++ Pregel},label={lst:esempioPregeleNodeIterator}]{code/esempioPregeleNodeIterator.c}	
 
 \begin{figure}
 \centering
@@ -777,22 +782,22 @@ Alla fine del \textit{Superstep}, secondo il funzionamento degli aggregatori, il
 
 \section{Densest Subgraph , Ricerca del sottografo più denso in grafi non orientati}
 
-L'algoritmo per la ricerca del sottografo più denso \cite{Bahmani:2012:DSS:2140436.2140442} trova il sottografo \textit{G'} del grado G la cui densità $\rho(G')$ è una  (2 + 2$\epsilon$)-approsimazione di $\rho*(G)$,dove $\rho*(G)$ è la densità maggiore tra tutti i sottografi di G.
+L'algoritmo per la ricerca del sottografo più denso \cite{Bahmani:2012:DSS:2140436.2140442} trova il sottografo \textit{G'} del grafo G la cui densità $\rho(G')$ è una  (2 + 2$\epsilon$)-approsimazione di $\rho*(G)$,dove $\rho*(G)$ è la densità maggiore tra i sottografi di G.
 
 L'algoritmo per la  ricerca del sottografo più denso per grafi non orientati prende in input un grafo \textit{G = (V,E)} non orientato e un valore \textit{$\epsilon > 0$}.
-L'algoritmo procede in modo iterativo sul grafo. Ad ogni passo l'algoritmo prevede:
+L'algoritmo, il cui pseudocodice è mostrato in \ref{lst:densestU} procede in modo iterativo ed ogni iterazione è composta dai seguenti passi:
 \begin{enumerate}
 \item Il calcolo della densità corrente $\rho$ del grafo G' e di un valore \textit{soglia}. La densità del grafo $\rho(G')$ è definita come \textit{$\rho(G') = |E(G')| / |V(G')|$} mentre il  valore \textit{soglia}  è definito da \textit{$solgia = 2 (1 + \epsilon) \rho(G') $}.
 
-\item Ogni nodo \textit{v} con \textit{deg(v) < soglia}, dove \textit{deg(v)} è il grado del vertice \textit{v} nel grafo corrente \textit{G'}, viene rimosso assieme agli archi ad esso associati ottenendo il grafo G".
-\item Se \textit{ |V(G")| > 0}, con \textit{|V(G")|} numero di archi in \textit{G"} allora si ripete l'iterazione dal passo 1, altrimenti termina la computazione e viene restituito in output il sottografo con valore densità $\rho$ maggiore.
+\item Ogni nodo \textit{v} con \textit{deg(v) < soglia}, dove \textit{deg(v)} è il grado del vertice \textit{v} nel grafo \textit{G'}, viene rimosso assieme agli archi ad esso associati ottenendo il grafo \textit{G"}.
+\item Se \textit{ |V(G")| > 0}, con \textit{|V(G")|} numero di archi in \textit{G"} allora si ripete l'iterazione dal passo 1, altrimenti l'algoritmo termina e viene restituito in output il sottografo con valore densità $\rho$ maggiore.
 
 \end{enumerate}
 
-In \cite{Bahmani:2012:DSS:2140436.2140442} viene dimostrato che il sottografo più denso tra i sottografi G" ottenuti dall'algoritmo è un sottografo la cui densità è $\rho(G")$ è una  (2 + 2$\epsilon$)-approsimazione di $\rho*(G)$, dove $\rho*(G)$ è la densità maggiore tra tutti i sottografi di G.
+In \cite{Bahmani:2012:DSS:2140436.2140442} viene dimostrato che il sottografo \textit{G'} più denso tra i sottografi \textit{G"} ottenuti grazie all'algoritmo è un sottografo la cui densità è $\rho(G")$ è una  (2 + 2$\epsilon$)-approsimazione di $\rho*(G)$, dove $\rho*(G)$ è la densità maggiore tra tutti i sottografi di G.
 
 \begin{minipage}{\linewidth}
-\lstinputlisting[style=customc,caption={Pseudocodice Denesest Subgraph per grafi non orientati}]{code/densestU.c}
+\lstinputlisting[style=customc,caption={Pseudocodice Denesest Subgraph per grafi non orientati},label={lst:densestU}]{code/densestU.c}
 \end{minipage}
 
 \subsection{MapReduce}
@@ -802,15 +807,15 @@ Per realizzare l'algoritmo in \textit{MapReduce} è stato implementata l'idea de
 
 In Figura \ref{fig:MRDENSESETU} è rappresentato un esempio dell'esecuzione di un iterazione dell'algoritmo in MapReduce.
 
-Nella prima fase viene calcolato il grado di ogni nodo \textit{v} del grafo in input. La realizzazione di questa fase è la stessa dell'implementazione di \textit{DegreeCalculator} in \textit{MapReduce}. Contestualmente alla funzione \textit{Map} della prima fase vengono contati anche il numero totale di vertici e di archi del grafo con cui è calcolata la densità corrente del grafo e del valore \textit{soglia}. 
+Nella prima fase viene calcolato il grado di ogni nodo \textit{v} del grafo in input. La realizzazione di questa fase è simile all'implementazione di \textit{DegreeCalculator} in \textit{MapReduce}. Contestualmente alla funzione \textit{Map} della prima fase vengono contati anche il numero totale di vertici e di archi del grafo, valore necessario per il calcolo della densità corrente del grafo e del valore \textit{soglia}. 
 
-Tra la prima fase e la successiva è effettuato il controllo  per cui, se il valore densità è il risultato migliore ottenuto, viene salvato lo stato del sottografo corrente.
+Tra la prima fase e la successiva è effettuato il controllo  per cui, se il valore densità è il risultato migliore ottenuto fino a quel momento allora viene salvato lo stato del sottografo corrente.
 
 Nella seconda e terza fase \textit{MapReduce} vengono eliminati gli archi \textit{(u, v)} dove almeno uno tra i vertici \textit{u} e \textit{v} è di grado minore del valore \textit{soglia}. 
-Nella seconda fase vengono controllati i nodi sorgenti di ogni arco mentre nella fase successiva sono i nodi destinazione degli archi ad essere controllati.
+Nella seconda fase vengono controllati i nodi sorgenti di ogni arco mentre nella terza fase sono controllati i nodi destinazione degli archi.
 
 La funzione \textit{Map} della seconda fase prende in input sia l'input iniziale dell'iterazione dell'algoritmo che l'output generato dalla prima fase \textit{MapReduce}.
-\textit{Map} produce in output la coppia \textit{<v, u>} per il primo tipo input. Per il secondo tipo di input, nel formato \textit{<v, deg(v)>}, viene prodotto in output i valori \textit{<v, \$>} solo nel caso che \textit{deg(v) > soglia}. in questo caso il simbolo \$ viene interpretato dalla funzione \textit{Reduce} e significa che l'arco non deve essere eliminato in questa iterazione dell'algoritmo.
+\textit{Map} produce in output la coppia \textit{<v, u>} per i dati appartenenti all'input iniziale. Per i dati che arrivano dall'output della prima fase, che sono nel formato \textit{<v, deg(v)>}, viene prodotto in output il valore \textit{<v, \$>} solo nel caso in cui \textit{deg(v) > soglia}. In questo caso il simbolo \$ viene interpretato dalla funzione \textit{Reduce} e significa che gli archi con vertice di origine \textit{v} devono essere mantenuti.
 
 La funzione \textit{Reduce} riceve in input la coppia valori \textit{<v, list(u)>}, dove \textit{list(u)} è la lista di nodi raggiungibili da \textit{v}. Per ogni elemento \textit{$w \in list(u)$}, \textit{Reduce} produce in output la coppia \textit{<v,w>} solo nel caso in cui $\$ \in list(w)$. 
 
@@ -838,21 +843,20 @@ Anche la funzione \textit{Reduce} opera in modo simile alla funzione \textit{Red
 
 \subsection{Pregel}
 
-Nell'implementazione \textit{Pregel} di \cite{Bahmani:2012:DSS:2140436.2140442}, ogni iterazione dell'algortimo è composta da 2 \textit{Superstep}.
+Nell'implementazione \textit{Pregel} di \cite{Bahmani:2012:DSS:2140436.2140442}, ogni iterazione dell'algoritmo è composta da due \textit{Superstep}.
+Nella Figura \ref{fig:PREGELDENSESETU} è rappresentato un esempio di un'iterazione dell'algoritmo.
 
-Nella Figura \ref{fig:PREGELDENSESETU} è rappresentato un esempio di iterazione dell'algoritmo in Pregel.
-
-Nel primo \textit{Superstep} il vertice \textit{v}, utilizzando le informazioni statistiche del grafo mantenute costantemente dal modello \textit{Pregel}, calcola i valori correnti di densità del grafo, $\rho(G')$, e \textit{soglia}. Se il gredo del \textit{v} non rispetta il valore di \textit{soglia}, cioè se \textit{deg(v)<soglia}, il vertice \textit{v} e tutti gli archi \textit{(v,u)} , in cui il nodo \textit{v} è sorgente, vengono eliminati dal grafo. 
-Visto che in \textit{Pregel}, come visto in precedenza, gli archi non orientati sono composti da 2 archi orientati ed la struttura di ogni arco è mantenuta dal vertice sorgente dall'arco, tramite messaggio viene notificata l'eliminazione dell'arco al nodo destinazione.
+Nel primo \textit{Superstep} il vertice \textit{v}, utilizzando le informazioni statistiche del grafo mantenute costantemente dal modello \textit{Pregel}, calcola i valori correnti di densità del grafo, $\rho(G')$, e \textit{soglia}. Se il grado del \textit{v} non rispetta il valore definito dalla \textit{soglia}, cioè se \textit{deg(v) < soglia}, il vertice \textit{v} e tutti gli archi \textit{(v,u)} , di cui il nodo \textit{v} è sorgente, vengono eliminati dal grafo. 
+In \textit{Pregel}, come visto in precedenza, gli archi non orientati sono composti da 2 archi orientati e la struttura di ogni arco è mantenuta dal vertice sorgente dall'arco, l'eliminazione di ogni arco viene notificata ai nodi vicini tramite l'invio di opportuni messaggi.
   
-Nel secondo \textit{Superstep} i nodi che ricevono i messaggi, che non sono stati già eliminati nel passo precedente, eliminano il verso opposto degli archi segnalati ed eliminati nel primo \textit{Superstep}.
+Nel secondo \textit{Superstep} i nodi che ricevono i messaggi, che non sono stati già eliminati nel passo precedente, eliminano il verso opposto degli archi eliminati \textit{Superstep} precedente.
 
-Alla fine di ogni iterazione viene controllata la densità corrente dal nodo \textit{Master} dell'architettura \textit{Pregel}, ogni volta che si ottiene un valore \textit{densità} migliroe viene salvato il sotto-grafo relativo. 
+Alla fine di ogni iterazione viene controllata la densità corrente dal nodo \textit{Master} definito dell'architettura \textit{Pregel}, ogni volta che si ottiene un valore \textit{densità} migliore viene salvato il sottografo. 
 
 La computazione termina quando non ci sono più vertici attivi nel grafo.
 
 \begin{minipage}{\linewidth}
-\lstinputlisting[style=customc,caption={Pseudocodice Denesest Subgraph per grafi non orientati}]{code/esempioPregeleDensetU.c}
+\lstinputlisting[style=customc,caption={Pseudocodice dell'algoritmo Denesest Subgraph per grafi non orientati}]{code/esempioPregeleDensetU.c}
 \end{minipage}
 
 
@@ -865,49 +869,49 @@ La computazione termina quando non ci sono più vertici attivi nel grafo.
 
 \section{Densest Subgraph, Ricerca del sottografo più denso in grafi orientati}
 
-La versione dell'algoritmo per la ricerca del sottografo più denso \cite{Bahmani:2012:DSS:2140436.2140442} per grafi diretti procede in modo simile alla versione per gradi non diretti. Come per grafi non diretti, l'algoritmo raggiunte, nel caso peggiore, una \textit{2(1+$\epsilon$)-approssimazione} del valore della densità maggiore tra tutti i sottografi del grafo \textit{G}, \textit{$\rho*(G)$}.
+La versione dell'algoritmo per la ricerca del sottografo più denso \cite{Bahmani:2012:DSS:2140436.2140442} per grafi diretti procede in modo simile alla versione per grafi non diretti visto in precedenza. Come per grafi non diretti, l'algoritmo raggiunte, nel caso peggiore, una \textit{2(1+$\epsilon$)-approssimazione} del valore della densità maggiore tra tutti i sottografi del grafo \textit{G}, \textit{$\rho*(G)$}.
 
-L'algoritmo per la  ricerca del sottografo più denso per grafi orientati prende in input un grafo \textit{G = (V,E)} non orientato, un valore \textit{$\epsilon > 0$} ed un valore \textit{$c > 0$}.
-L'algoritmo procede in modo iterativo, ad ogni passo dell'algoritmo:
+L'algoritmo per la  ricerca del sottografo più denso nella versione per grafi orientati prende in input un grafo \textit{G = (V,E)} non orientato, un valore \textit{$\epsilon > 0$} ed un valore \textit{$c > 0$}.
+L'algoritmo, il cui pseudocodice è mostrato in  procede in modo iterativo ed ad ogni passo dell'algoritmo:
 \begin{enumerate}
-\item E' calcolata la densità corrente del grafo \textit{G'}, per un grafo diretto la densità è calcolata come \textit{$\rho(G') = |E(S,T)| /  \sqrt{|S| |T|} $}, con \textit{$S,T \subseteq V$}, $E(S,T) = E \cap (S \times T)$. Gli insieme \textit{S} e \textit{T} sono inizializzati in \textit{S = T = V}. Nella Figura \ref{fig:DENSESET} è mostrato un esempio di come vengono ripartiti i vertici del grafo \textit{G} sugli insieme \textit{S} e \textit{T}.
-\item Se \textit{|S| / |T| > c} allora vengono eliminati vertici dall'insieme S il cui grado uscente è minore del valore \textit{soglia}, altrimenti vengono eliminati vertici dall'insieme T il cui grado entrante e minore del valore \textit{soglia}.
-Nel primo caso sia ha \textit{$soglia = (1 + \epsilon) |E(S,T)| / |S|$} mentre nella seconda caso \textit{$soglia = (1 + \epsilon) |E(S,T)| / |T|$}.
-\item Se nel grafo \textit{G"} ottenuto sono ancora presenti vertici in una dei due insieme S o T, l'iterazone riprende dal passo 1.
+\item E' calcolata la densità corrente del grafo \textit{G'}, per un grafo diretto la densità è calcolata come \textit{$\rho(G') = |E(S,T)| /  \sqrt{|S| |T|} $}, con \textit{$S,T \subseteq V$}, $|E(S,T)| = |E| \cap (|S| \times |T|)$. Gli insieme \textit{S} e \textit{T} sono inizializzati come \textit{S = T = V}. Nella Figura \ref{fig:DENSESET} è mostrato un esempio di come vengono ripartiti i vertici del grafo \textit{G} sugli insieme \textit{S} e \textit{T}.
+\item Se \textit{|S| / |T| > c} allora vengono eliminati vertici dall'insieme S nel caso in cui il grado uscente del vertice è minore del valore \textit{soglia}, altrimenti vengono eliminati vertici dall'insieme T nel caso in cui grado entrante del vertice è minore del valore \textit{soglia}.
+Nel primo il valore di soglia viene calcolato come \textit{$soglia = (1 + \epsilon) |E(S,T)| / |S|$} mentre nel secondo caso viene calcolato come \textit{$soglia = (1 + \epsilon) |E(S,T)| / |T|$}.
+\item Se nel grafo \textit{G"} ottenuto dopo l'eliminazione dei vertici nel passo precedente, sono ancora presenti vertici in una degli insieme S o T, l'iterazione dell'algoritmo ricomincia dal passo 1.
 \end{enumerate}
 
-In \cite{Bahmani:2012:DSS:2140436.2140442} viene dimostrato che uno dei grafi \textit{G"} è una \textit{(2$\epsilon$ + 2)-approssimazione} del sottografo più denso del grafo iniziale \textit{G}.
+In \cite{Bahmani:2012:DSS:2140436.2140442} viene dimostrato che uno dei grafi \textit{G"} ottenuti nel corso dell'algoritmo  è una \textit{(2$\epsilon$ + 2)-approssimazione} del sottografo più denso del grafo iniziale \textit{G}.
 
 \begin{figure}
 \centering
- \includegraphics[width=1\textwidth]{denesestD}
+ \includegraphics[width=1\textwidth]{lst:denesestD}
 \caption{Esempio ripartizione vertici di \textit{G} sugli insiemi\textit{ S} e \textit{T} }
 \label{fig:DENSESET}
 \end{figure}
 
 \begin{minipage}{\linewidth}
-\lstinputlisting[style=customc,caption={Pseudocodice Denesest Subgraph per grafi orientati}]{code/densestD.c}
+\lstinputlisting[style=customc,caption={Pseudocodice Denesest Subgraph per grafi orientati},label={lst:densestD}]{code/densestD.c}
 \end{minipage}
 
 \subsection{MapReduce}
 
-Ogni iterazione dell'algoritmo per la ricerca del sottografo più denso in grafi orientati è stata sviluppata attraverso 3 iterazioni \textit{MapReduce}. Nelle prime due iterazioni è calcolato il grado uscente dei vertici che si trovano nell'insieme S e il grado entrante dei vertici che appartengono all'insieme T. La terza iterazione MapRedure varia a seconda che si vadano ad eliminare vertici dall'insieme S oppure ad eliminare i  vertici dell'inseme T.
+Ogni iterazione dell'algoritmo per la ricerca del sottografo più denso in grafi orientati è stata sviluppata attraverso 3 iterazioni \textit{MapReduce}. Nelle prime due iterazioni è calcolato il grado uscente dei vertici che si trovano nell'insieme S ed il grado entrante dei vertici che appartengono all'insieme T. La terza iterazione MapReduce varia a seconda che l'algoritmo decida di eliminare vertici dall'insieme S oppure di eliminare i  vertici dell'inseme T.
 
-Nella Figura \ref{fig:MRDENSESESTD} è rappresentato un esempio di iterazione in \textit{MapReduce} dell'algoritmo.
+In Figura \ref{fig:MRDENSESESTD} è rappresentato un esempio di iterazione in \textit{MapReduce} dell'algoritmo.
 
-Entrambe le funzioni \textit{Map} relative alla prima e seconda iterazione \textit{MapReduce} prende in input la coppia di valori \textit{<v,u>} arco del grafo G. Nel primo caso, in cui è calcolato il grado uscente dei vertici nell'insieme \textit{S}, \textit{Map} restituisce in output la coppia di vertici \textit{<v,u>}. Nella seconda iterazione, in cui è calcolato il grado uscente dei vertici in \textit{T}, l'output della funzione \textit{Map} è \textit{<u,v>}.
+Entrambe le funzioni \textit{Map}  delle prime due iterazioni \textit{MapReduce} prendono in input la coppia di valori \textit{<v,u>} relativi agli archi del grafo G. Nel primo caso, in cui è calcolato il grado uscente dei vertici nell'insieme \textit{S}, \textit{Map} restituisce in output la coppia di vertici \textit{<v,u>}. Nella seconda iterazione, in cui è calcolato il grado uscente dei vertici in \textit{T}, l'output della funzione \textit{Map} è \textit{<u,v>}.
 
-Le funzioni \textit{Reduce} di entrambe le prime 2 fasi   \textit{MapRedce} ricevono valori in input nel formato \textit{<v,list(u)>}, dove \textit{list(u)} sono i nodi  \textit{u} del grafo corrente collegati da un arco (entrante o uscente) al vertice \textit{v}. L'output restituito dalla funzione è \textit{<v, deg(v)>} dove \textit{deg(v)} è il numero di vertici in \textit{list(u)}, che rappresenta, a seconda della fase \textit{MapReduce} il grado uscente o entrante di \textit{v}.
+Le funzioni \textit{Reduce} relative alle prime due fasi \textit{MapRedce} ricevono valori in input nel formato <v,list(u)>}, dove \textit{list(u)} sono i nodi  \textit{u} del grafo corrente collegati da un arco (entrante o uscente) al vertice \textit{v}. L'output restituito dalla funzione è \textit{<v, deg(v)>} dove \textit{deg(v)} è il numero di vertici in \textit{list(u)}, che rappresenta, a seconda della fase \textit{MapReduce} il grado entrante o uscente di \textit{v}.
 
-Contestualmente alle prime due fasi vengono contati il numero di vertici presenti nei due insieme, \textit{|S|} e \textit{|T|}, e il numeri di archi \textit{|E(S,T)|}. Inoltre è calcolato la densità $\rho(G')$ dove \textit{G'} è lo stato del grafo nell'iterazione corrente. Nel caso $\rho(G')$ è il valore densità più alto rilevato fino a quel momento viene salvato lo stato del grafo \textit{G'}.
+Contestualmente alle prime due fasi vengono contati il numero di vertici presenti nei due insieme, \textit{|S|} e \textit{|T|}, ed il numeri di archi \textit{|E(S,T)|}. Inoltre è calcolato la densità $\rho(G')$ dove \textit{G'} è lo il sottografo corrente. Nel caso $\rho(G')$ è il valore densità più alto rilevato fino a quel momento viene salvato lo stato di \textit{G'}.
 
-Se \textit{|S| / |C| > c} allora è eseguita l'iterazione \textit{MapReduce} che elimina vertici dall'insieme \textit{S}, altrimenti è eseguita l'iterazione \textit{MapReduce} in cui sono eliminati vertici dall'insieme \textit{T}. Entrambe le iterazione prendono 2 differenti dati in input:l'input iniziale contente la lista di archi del grafo G, nella forma <v,u>, e  l'output di una delle 2 iterazioni in cui è calcolato il grado dei nodi degli insiemi \textit{S} o \textit{T}, a seconda di qual'è l'insieme in cui si andrà a controllare il grado dei vertici.
+Se \textit{|S| / |C| > c} allora è eseguita l'iterazione \textit{MapReduce} che elimina vertici dall'insieme \textit{S}, altrimenti è eseguita l'iterazione \textit{MapReduce} in cui sono eliminati vertici dall'insieme \textit{T}. Entrambe le iterazione prendono due differenti tipi di dati in input:l'input iniziale contente la lista di archi del grafo G, nella forma <v,u>, e uno degli output generati da una delle due iterazioni precedenti in cui sono calcolati rispettivamente il grado dei nodi degli insiemi \textit{S} e \textit{T}, a seconda di qual'è l'insieme in cui si andrà a verificare il grado dei vertici.
 %l'output in entrambi i casi e nella forma \textit{<v,deg(v)>}, dove \textit{deg(v)} indica, a seconda dei casi, il grado uscente o entrante di \textit{v}. 
-La funzione \textit{Map} per il primo input (nel formato \textit{<v, u>}) restituisce in output la coppia di valori <\textit{v,u}> nel caso si controllano i vertici in \textit{S} ( \textit{<u,v>} nel caso del controllo dei vertici in \textit{T}). 
+La funzione \textit{Map} per il primo input (nel formato \textit{<v, u>}) restituisce in output la coppia di valori <\textit{v,u}> nel caso in cui siano controllati i vertici in \textit{S} ( \textit{<u,v>} nel caso siano controllati i vertici nell'insieme \textit{T}). 
 Per il secondo  input (nel formato \textit{<v, deg(v)>}) se \textit{deg(v) < soglia} viene generato in output la coppia di valori <v, \$>, dove \$ è un valore segnaposto. \$ ha la funzione di segnalare alla funzione \textit{Reduce} che il vertice \textit{v} ha un grado maggiore del valore \textit{soglia} corrente. Il valore \textit{soglia} dipende dall'insieme, \textit{S} o \textit{T}, che è in esame nell'iterazione corrente dell'algoritmo.
 
 La funzione \textit{Reduce} prende in input la coppia di valori \textit{<v, list(u)>} dove list(u) sono i vertici collegati da un arco entrante a \textit{v} nel caso in cui è in esame l'insieme S ( o da un arco uscente nel caso dell'insieme T).
-In output la funzione \textit{Reduce} restituisce in output, per ogni elemento \textit{$w \in list(u)$} i valori \textit{<v, w>} o \textit{<v,w>} nel caso siano in esame, rispettivamente, gli archi uscenti da un nodo in S o gli archi entranti nei nodi in T. In entrambi i casi la funzione \textit{Reduce} restituisce valori solo se il vertice v rispetta la soglia imposta dall'algoritmo, cioè se il valore segnaposto \textit{$\$ \in list(u) $}.
+In output la funzione \textit{Reduce} restituisce, per ogni elemento \textit{$w \in list(u)$} i valori \textit{<v, w>} o \textit{<v,w>} nel caso siano in esame, rispettivamente, gli archi uscenti da un nodo in S o gli archi entranti nei nodi in T. In entrambi i casi la funzione \textit{Reduce} restituisce valori solo se il vertice v rispetta la soglia imposta dall'algoritmo, cioè se il valore segnaposto \textit{$\$ \in list(u) $}.
 
 L'iterazione termina quando non ci sono più nodi negli insieme \textit{S} e \textit{T}.
 
@@ -929,19 +933,18 @@ L'iterazione termina quando non ci sono più nodi negli insieme \textit{S} e \te
 
 \subsection{Pregel}
 
-L'implementazione \textit{Pregel} dell'algoritmo prevede la realizzazione di ogni iterazione in 2 \textit{Superstep}.
- All'inizio di ogni Superstep il nodo Master decide, in base allo stato degli insiemi S e T rilevato tramite sistema di aggregatori, quale funzione \textit{compute} eseguire, quella che controlla il grado dei vertici \textit{$v \in S$} o il grado dei vertici \textit{$v \in T$}. 
+L'implementazione \textit{Pregel} dell'algoritmo prevede la realizzazione di ogni iterazione in due \textit{Superstep}.
+ All'inizio di ogni Superstep il nodo Master decide, in base allo stato degli insiemi S e T rilevato tramite sistema di aggregatori, quale funzione \textit{compute} eseguire. Ad ogni Supestep possono essere eseguita la funzione che controlla il grado dei vertici nell'insieme \textit{$v \in S$} o il grado dei vertici nell'insieme \textit{$v \in T$}. 
 
-Il modello \textit{Pregel} prevede che ogni arco del grafo sia associate al vertice \textit{Sorgente} dell'arco. Per poter controllare il grado entrante dei vertici in \textit{T} sono svolti 2 ulteriori\textit{Superstep} di inizializzazione, nel primo \textit{Superstep} ogni vertice invia un messaggio con il proprio valore ID ai nodi vicini. Nel \textit{SuperStep} successivo ogni vertici registra ogni messaggio ricevuto come arco entrante nella struttura dati associata al vertice.
+Il modello \textit{Pregel} prevede che ogni arco del grafo sia associato al vertice \textit{Sorgente} dell'arco. Per poter controllare il grado entrante dei vertici in \textit{T} sono svolti 2 ulteriori\textit{Superstep} di inizializzazione, nel primo \textit{Superstep} ogni vertice invia un messaggio con il proprio valore ID ai nodi vicini. Nel \textit{SuperStep} successivo ogni vertici registra i messaggi ricevuto come arco entrante nella struttura dati associata al vertice.
 
 Nella Figura \ref{fig:PREGELDENSESESTD} è rappresentato un esempio di un iterazione dell'algoritmo in Pregel.
 
+Ad ogni Superstep la funzione \textit{compute} associata al vertice \textit{v} calcola il grado del nodo, entrante o uscente a seconda del caso in cui si trova l'algoritmo. Se il valore è minore della \textit{soglia} corrente allora è eliminato il vertice dalla partizione in esame e tutti gli archi associati.
 
-Ad ogni Superstep la funzione \textit{compute} associata al vertice \textit{v} calcola il grado del nodo, entrante o uscente a seconda del caso. Se il valore è minore della \textit{soglia} corrente allora è eliminatp il vertice dalla partizione in esame e tutti gli archi.
+Nel caso è eliminato un vertice \textit{v} dall'insieme \textit{S}, vengono eliminati gli archi uscenti da \textit{v} e vengono inviati i messaggi ai vertici \textit{u} collegati agli archi eliminati. Nel caso di eliminazione di un arco \textit{v} dall'insieme  \textit{T} allora sono inviati messaggi ai vertici collegati da un arco entrante in \textit{v}. 
 
-Nel caso è eliminato un vertice \textit{v} dall'insieme \textit{S}, vengono eliminati gli archi uscenti da \textit{v} e vengono inviati i messaggi ai vertici \textit{u} collegati dagli archi eliminati. Nel caso di eliminazione di un arco \textit{v} dall'insieme  \textit{T} allora sono inviati messaggi ai vertici collegati da un arco entrante in \textit{v}. 
-
-I messaggi contengono l'ID del nodo \textit{v} eliminato e comunicano al vertice \textit{u} che riceve il messaggio, nel secondo \textit{Superstep} dell'iterazione \textit{Pregel}, di eliminare l'arco associato al vertice \textit{v}. Nel caso che \textit{$v\in S$} allora il vertice \textit{u} elimina l'arco entrante \textit{(u,v)}, nel caso {$v \in S$} allora \textit{u} elimina l'arco uscente \textit{(u,v)}.
+I messaggi contengono l'identificativo del nodo \textit{v} eliminato e comunicano al vertice \textit{u} che riceve il messaggio, nel secondo \textit{Superstep} dell'iterazione \textit{Pregel}, di eliminare l'arco associato al vertice \textit{v}. Nel caso che \textit{$v\in S$} allora il vertice \textit{u} elimina l'arco entrante \textit{(u,v)}, nel caso {$v \in S$} allora \textit{u} elimina l'arco uscente \textit{(u,v)}.
 
 Ad ogni iterazione dell'algoritmo è controllata la densità del grafo corrente, nel caso la densità è la maggiore raggiunta dall'algoritmo, viene salvato lo stato del sottografo.
 
