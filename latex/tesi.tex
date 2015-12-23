@@ -96,7 +96,18 @@
 
 \chapter{Introduzione}
 
-intro.....
+
+
+MapReduce \cite{Dean:2008:MSD:1327452.1327492} è un modello di programmazione introdotto da Google nel 2008. In pochi anni, questo modello, è stato adottato ed utilizzato da un numero crescente di aziende come Facebook, Yahoo! ed Amazon. Il modello introdotto con MapReduce permette di parallelizzare in modo semplice il calcolo di grandi quantità di dati su di un insieme di macchine.
+
+Negli ultimi anni, con l'espandersi dei social network, l'analisi di grafi di grandi dimensione. Con l'introduzione del modello Pregel \cite{Malewicz:2010:PSL:1807167.1807184} nel 2010, da parte ancora una sempre di Google, viene fornito il modello per il calcolo parallelizzato su un insieme di macchine per grafi di grandi dimensione.
+
+Lo scopo di questo lavoro di tesi è quello di mettere a confronto questi due modelli di programmazione, MapReduce e Pregel, con lo scopo di fornire un analisi sul parallelo delle prestazioni che verranno misurate tramite l'elaborazione di algoritmi su grafi.
+
+
+
+
+
 
 
 \chapter{MapReduce}
@@ -960,14 +971,11 @@ Ad ogni iterazione dell'algoritmo è controllata la densità del grafo corrente,
 \chapter{Test}
 
 Per testare e confrontare i modelli \textit{Mapreduce} e \textit{Pregel}, in questo lavoro di Tesi, sono state eseguite le implementazioni degli algoritmi su \textit{Amazon Web Servicies} (AWS). I risultati ottenuti, dall'esecuzione degli algoritmi sui due modelli, sono stati successivamente analizzati e messi a confronto. 
-In questo capitolo verrà prima data una descrizione dettagliata dell'ambiente di test utilizzato e delle diverse configurazioni su cui sono stati eseguiti i programmi Mapreduce e Pregel, verranno descritte successivamente le metriche utilizzate per confrontare le prestazioni dei due modelli e la metodologia utilizzata per raccogliere i dati necessari. Successivamente verranno mostrati i risultati ottenuti e un analisi delle conclusioni scaturite dal confronto fra i due modelli.
-
-
+In questo capitolo verrà prima descritto l'ambiente di test utilizzato e le diverse configurazioni su cui sono stati eseguiti i programmi in Mapreduce e Pregel, verranno descritte successivamente le metriche utilizzate per il confronto delle prestazioni dei due modelli e la metodologia utilizzata per raccogliere i dati necessari. Successivamente verranno mostrati i risultati ottenuti e un analisi delle conclusioni scaturite dal confronto fra i due modelli.
 
 \section{Test}
 
-
-In questa sezione verranno descritti prima i dataset su cui sono stati eseguiti gli algoritmi implementati sui due modelli. Successivamente sarannò analizzate le metriche utilizzate per la rilevazione ed il confronto delle prestazioni ottenute dagli esperimenti effettuati. Infine verrà descritto le modalità con cui sono stati esegui i test e la raccolta dei dati utili.
+In questa sezione verranno descritti prima i dataset su cui sono stati eseguiti gli algoritmi implementati sui due modelli. Successivamente saranno analizzate le metriche utilizzate per la rilevazione ed il confronto delle prestazioni ottenute dagli esperimenti effettuati. Infine verrà descritto le modalità con cui sono stati eseguiti i test e la raccolta dei dati utili.
 
 \subsection{Dataset}
 
@@ -981,7 +989,7 @@ Tra i dataset offerti da SNAP sono stati selezionati tre dataset:
 \item \textit{LiveJournal} Dataset relativo al social network LiveJournal  composto da 4847571 nodi e 68993773 archi.
 \end{itemize}
 
-I dataset sono stati scelti in modo da avere dimensione di input di scala differente. In questo modo oltre ad avere un confronto tra le prestazioni dei diversi modelli, anche un confronto tra come questi modelli scalano su dimensioni di input diverse.
+I dataset sono stati scelti in modo da avere dimensione di input di scala differente. In questo modo oltre ad avere un confronto tra le prestazioni dei diversi modelli, è stato possibile ottenere anche un riscontro di come le prestazione di modelli scalano su grafi di diversa dimensione.
 
 
 \subsection{Metriche}
@@ -996,9 +1004,9 @@ Per il confronto tra i modelli sono state scelte quattro metriche:
 Le prime due metriche sono state scelte per avere un riscontro generale sulle prestazioni del modello sugli algoritmi implementati.
 Le metriche relative all'utilizzo delle memoria distribuita sono stati scelti per dare risalto al differente utilizzo che i due modelli ne fanno, in particolare modo in relazione ad algoritmi che prevedono un numero elevato di iterazioni.
 
-Come anticipato nel secondo e terzo capitolo, le implementazioni dei modelli utilizzate sono rispettivamente Apache Hadoop \cite{1_hadoop.apache.org_2015} per Mapreduce e Apache Giraph \cite{4_giraph.apache.org_2015} per Pregel. Essendo Apache Giraph costruito sopra Apache Hadoop, è stato possibile sfruttare il report fornito da quest'ultimo per ricavare i valori relativi alle metriche selezionate.
+Come anticipato nel secondo e terzo capitolo, le implementazioni dei modelli utilizzate sono rispettivamente Apache Hadoop \cite{1_hadoop.apache.org_2015} per Mapreduce e Apache Giraph \cite{4_giraph.apache.org_2015} per Pregel. Essendo Apache Giraph costruito sopra l'architettura di Apache Hadoop, è stato possibile sfruttare il report fornito da quest'ultimo per ricavare i valori relativi alle metriche selezionate.
 
-Il \textit{tempo CPU} è calcolato come la somma totale dei tempi di occupazione della CPU da parte dei processi Mapreduce sul totale delle macchine utilzzate nell'elaborazione. Su ogni macchina l'informazione è ricavata dai dati presenti nel file /proc/cpuinfo del sistema operativo Linux utilizzato da AWS.
+Il \textit{tempo CPU} è calcolato come la somma totale dei tempi di occupazione della CPU da parte dei processi Mapreduce sul totale delle macchine utilizzate nell'elaborazione. Su ogni macchina l'informazione è ricavata dai dati presenti nel file /proc/cpuinfo del sistema operativo Linux utilizzato da AWS.
 
 In modo simile, L'utilizzo della memoria è calcolato come la quantità totale di memoria utilizzata delle macchine coinvolte nel processo. Le informazioni sono ricavate dal file /proc/meminfo  del sistema operativo Linux utilizzato da AWS.
 
@@ -1010,17 +1018,18 @@ Per l'esecuzione dei test  si è seguito il seguente metodo:
 
 \begin{itemize}
 	\item Per ogni versione dei vari algoritmi, Mapreduce e Pregel, è stato eseguita una fase di test su ciascuno dei dataset selezionati.
-	\item Ogni fase di test è composta da tre ripetizioni della stessa elaborazione
-	\item Ogni fase di test è stata due volte su cluster di macchie di dimensione differente
+	\item Ogni fase di test è composta da tre ripetizioni della stessa elaborazione.
+	\item Ogni fase di test è stata due volte su cluster di macchie di dimensione differente.
 \end{itemize}
 
 
-L'esecuzione su dataset di dimensione differenza, come già visto, ci permette di confrontare come le prestazioni dei due modelli scalino in rapporto alla dimensione del grafo in input.
+L'esecuzione degli algoritmi su dataset di dimensioni differenti, come detto in precedenza, permette il confronto delle prestazioni dei modelli in rapporto alla dimensione del grafo in input.
 Per ogni fase di test si è deciso di ripetere l'esecuzione dell'algoritmo tre volte. I dati utilizzati per il  confronto sono ricavati della media dei valori emersi dalla ripetizione dell'elaborazione.
-Infine l'intero set di esperimenti è stato eseguito su due diversi insiemi di macchine, uno composto da 8 unità ed uno composto da 16 unità. Questo ci ha permesso di ricavare una stima di come le prestazione dei due modelli scalino in base alla dimensione del cluster su cui sono eseguiti.
-
+Infine l'intero set di esperimenti è stato eseguito su due diversi insiemi di macchine, uno composto da otto unità ed uno composto da sedici. Questo ha permesso di ricavare una stima di come le prestazione dei due modelli possano scalare anche in relazione alla dimensione del cluster su cui vengono eseguiti.
+%TODO: Aggiungere analisi su come scalano su cluster%
 
 \subsection{Ambiente di test}
+
 Come anticipato, l'ambiente su cui sono stati eseguiti tutti i test è \textit{Amazon Web Servicis (AWS)}. 
 AWS è composto da una serie di servizi basati sul cloud altamente configurabili in base alle necessità, in particolare in termini di numero di macchine, di potenza di calcolo, di memoria e di connettività.
 
@@ -1041,9 +1050,9 @@ In questa sezione verranno mostrati i risultati ottenuti dai test effettuati. Pe
 L'analisi dei risultati ottenuti sul tempo di occupazione totale della CPU ha evidenziato le migliori prestazioni ottenute dagli algoritmi implementati in Pregel. 
 In tutti i risultati ottenuti dagli esperimenti svolti è possibile osservare che, all'aumentare delle iterazioni dell'algoritmo sul grafo, il guadagno in termini di occupazione della CPU aumenta.
 
-Infatti è possibile notare che i risultati ottenuti per l'algoritmo \textit{DegreeComputation} rappresentati in Figura \ref{tab:degree8} e \ref{tab:degree16} mostrano un occupazione della CPU meno netto rispetto agli altri algoritmi che effettuano più iterazioni sul grafo come ad esempio avviene in SSSP \ref{tab:SSSP8} \ref{tab:SSSP16} e Denset Subgraph nella versione per grafi orientati \ref{tab:DenesestNO8} \ref{tab:DenesestNO16}.
+Infatti è possibile notare nel confonto dei risultati ottenuti per l'algoritmo \textit{DegreeComputation}, rappresentati nelle Figure \ref{tab:degree8} e \ref{tab:degree16}, come la differenza tra l'occupazione della CPU tra i due modelli risulti meno netta rispetto ai risultati ottenuti utilizzando gli altri algoritmi, i quali effettuano  un numero maggiore di iterazioni sul grafo. Come ad esempio avviene in SSSP e Denset Subgraph nella versione per grafi orientati, i cui risultati sono mostrati rispettivamente nelle tabelle \ref{tab:SSSP8} \ref{tab:SSSP16} e  nelle tabelle \ref{tab:DenesestNO8} \ref{tab:DenesestNO16}.
 
-L'unico caso in cui Mapreduce mostra comportamento migliore è in DegreeComputation eseguito su cluster di 16 macchine sul dataset dimensioni minori, Facebook \ref{tab:degree16}. In questo caso hanno inciso sul confronto tempi di inizializzazione del framework Apache Giraph rispetto a Apache Hadoop. Tempi di inizializzazione che risultano trascurabili rispetto al tempo totale di computazione in tutti gli altri test affrontati sugli altri due grafi di dimensione maggiore. 
+L'unico test in cui è stato rilevato un minor consumo in termini di CPU è quando è stato effettuato il confronto dei risultati sull'algoritmo  DegreeComputation su cluster di 16 macchine e in input il grafo di dimensioni minori, come mostrato nella tabella \ref{tab:degree16}. In questo caso particolare hanno inciso i tempi di inizializzazione maggiore del framework Apache Giraph rispetto a Apache Hadoop. Tali tempi di inizializzazione sono risultati trascurabili rispetto al tempo totale di computazione in tutti gli altri test svolti su  grafi di dimensione maggiore. 
 
 
 \begin{table}[h!]
@@ -1469,13 +1478,13 @@ L'unico caso in cui Mapreduce mostra comportamento migliore è in DegreeComputat
 
 I test effettuati hanno mostrato che, anche in termini di memoria utilizzata, gli algoritimi sviluppati in Pregel raggiungono performance migliori rispetto agli algoritmi sviluppati secondo il modello MapReduce.
 
-Anche analizzando i risultati ottenuti sul consumo di memoria si può notare che, all'aumentare del numero di volte che l'algoritmo itera sul grafo, gli algoritmi sviluppati in \textit{Pregel} hanno un consumo minore di memoria in confronto agli stessi algoritmi sviluppati in \textit{Mapreduce}. Questo comportamento si può notare nei risultati relativi agli esperimenti con più iterazioni, per esempio SSSP \ref{tab:GRPHSSSP8} \ref{tab:GRPHSSSP16} o Denesest Subgraph su grafi non orientati, dove viene mostrato il guadagno netto in termini di memoria per le versioni degli algoritmi sviluppati in Pregel. Al contrario, si può notare che i risultati relativi a DegreeComputation \ref{tab:GRPHdegreeMem8} \ref{tab:GRPHdegree16}, il cui algoritmo prevede una singola iterazione sul grafo, il guadagno nell'utilizzo di memoria risulta meno netto nel confronto con gli algoritmi in MapReduce.
+Infatti, l'analisi dei risultati ottenuti sul consumo di memoria ha mostrato che, all'aumentare del numero di volte che l'algoritmo itera sul grafo, gli algoritmi sviluppati in \textit{Pregel} hanno un consumo minore di memoria in confronto agli stessi algoritmi sviluppati in \textit{Mapreduce}. Questo comportamento si può notare, per esempio, nei test effettuati per l'algortimo SSSP, i cui risultati sono mostati nelle tabelle \ref{tab:GRPHSSSP8} \ref{tab:GRPHSSSP16}, e Denesest Subgraph su grafi non orientati, i cui risultati sono mostrati nelle tabelle \ref{tab:GRPHDenesestNO8} e \ref{tab:GRPHDenesestNO16}. In questi test di esempio viene mostrato il guadagno netto in termini di memoria per le versioni degli algoritmi sviluppati in Pregel. Al contrario, si può notare che nei risultati relativi a DegreeComputation \ref{tab:GRPHdegreeMem8} \ref{tab:GRPHdegree16}, il cui algoritmo prevede una singola iterazione sul grafo, il guadagno nell'utilizzo di memoria risulta meno netto nel confronto con l'implementazione dell'algoritmo in Mapreduce.
 
 Il maggior consumo di memoria degli algoritmi sviluppati in \textit{Mapreduce} è dovuto al fatto che il grafo, ad ogni iterazione, deve essere ricaricato nuovamente. Questo non avviene solo ad ogni iterazione dell'algoritmo ma ad ogni singola iterazione di Mapreduce. Come visto in precedenza, ad ogni singola iterazione di MapReduce i dati prima vengono caricati in memoria ed elaborati prima dai Mapper e successivamente dai Reducer.
 In Pregel, invece, lo stato del grafo viene caricato in memoria durante la fase iniziale e mantenuto durante tutte le fasi dell'algoritmo. Durante l'esecuzione il consumo di memoria dovuto al modello Pregel è dovuto soltanto allo scambio dei messaggi tra i vertici ad all'utilizzo degli aggregatori.
 
-Lo svantaggio nel mantenere in memoria l'intero stato del grafo è che il cluster deve avere un numero totale di risorse tali da poter supportare l'elaborazione dell'intera computazione in \textit{Pregel}. Mentre \textit{Mapreduce} suddivide l'elaborazione in task che vengono eseguiti in serie dalla macchine che compongono il cluster, dove ogni task può essere elaborato in istanti differenti. In \textit{Pregel} ogni macchina deve avere un numero di risorse tale da sopportare il calcolo di tutta la porzione di sottografo assegnata.
-Questo è possibile notarlo, per esempio, negli esperimento eseguiti per l'algoritmo \textit{NodeIterator++} \ref{tab:GRPHNodeIterator8} \ref{tab:GRPHNodeIterator16}. Per questo algoritmo, i cluster utilizzati, non possedevano risorse sufficienti a mantenere l'intera elaborazione del grafo relativo al dataset \textit{LiveJournal}.
+Lo svantaggio nel mantenere in memoria l'intero stato del grafo è che il cluster deve avere un numero totale di risorse tali da poter supportare l'elaborazione dell'intera computazione in \textit{Pregel}. Al contrario \textit{Mapreduce} suddivide l'elaborazione in task che vengono eseguiti in serie dalle macchine che compongono il cluster e ogni task viene  elaborato in istanti differenti. In \textit{Pregel} ogni macchina deve avere un numero di risorse tale da sopportare il calcolo di tutta la porzione di sottografo assegnata.
+Questo è possibile notarlo, per esempio, negli esperimenti eseguiti sull'algoritmo \textit{NodeIterator++} \ref{tab:GRPHNodeIterator8} \ref{tab:GRPHNodeIterator16}. Per questo algoritmo, i cluster utilizzati non possedevano risorse sufficienti a mantenere l'intera elaborazione del grafo relativo al dataset \textit{LiveJournal}.
 
 
 
