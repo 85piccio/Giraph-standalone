@@ -97,19 +97,35 @@
 \chapter{Introduzione}
 
 
-
+\section{MapReduce}
 MapReduce \cite{Dean:2008:MSD:1327452.1327492} è un modello di programmazione introdotto da Google nel 2008. In pochi anni, questo modello, è stato adottato ed utilizzato da un numero crescente di aziende come Facebook, Yahoo! ed Amazon. Il modello introdotto con MapReduce permette la parallelizzazione in modo semplice del calcolo di grandi quantità di dati su di un insieme di macchine.
 
-Negli ultimi anni, con l'espandersi dei social network, ha preso sempre più campo l'analisi di grafi di grandi dimensione. Con l'introduzione del modello Pregel \cite{Malewicz:2010:PSL:1807167.1807184} nel 2010, sempre da Google, viene fornito un modello per il calcolo parallelizzato di algoritmi su grafi su un insieme di macchine.
+Il modello descritto da MapReduce prende ispirazione dalle primitive Map e Reduce presenti nei linguaggi funzionali.  L'input viene elaborato tramite la funzione Map producendo un insieme intermedio di coppie chiave/valore. Viene poi applicata la funzione Reduce a tutte le coppie di valori che condividono la stessa chiave.
 
-Lo scopo di questo lavoro di tesi è quello di mettere a confronto questi due modelli di programmazione, MapReduce e Pregel, con lo scopo di fornire un analisi sul parallelo delle prestazioni che verranno misurate tramite l'elaborazione di algoritmi su grafi.
+In questo modo, tramite la definizione delle funzioni \textit{Map} e \textit{Reduce}, MapReduce permette di ottenere un modello in grado di parallelizzare il calcolo di grandi quantità di dati in modo semplice.
+
+Per realizzare i programmi secondo MapReduce col fine di testarne le prestazione è stato utilizzato Apache Hadoop \cite{1_hadoop.apache.org_2015}.
+
+\section{Giraph}
+Negli ultimi anni, con l'espandersi dei social network, ha preso sempre più campo l'analisi di grafi di grandi dimensione. Con l'introduzione del modello Pregel \cite{Malewicz:2010:PSL:1807167.1807184} nel 2010, sempre da Google, viene fornito un modello per il calcolo parallelizzato di algoritmi su grafi su un insieme di macchine. Pregel definisce un modello vertice centrico basato sul modello Bulk Synchronous Parallel \cite{Valiant:1990:BMP:79173.79181}. 
+
+Un programma in Pregel viene implementato attraverso la funzione \textit{Compute} che definisce il comportamento del vertice del grafo durante ogni iterazione del programma. La specifica di questa funzione determina la logica del intero programma in Pregel.
+
+Come in MapReduce, l'approccio vertice centrico permette di suddividere la computazione di un algoritmo in più componenti indipendenti tra loro, permettendo la parallelizzazione dell'esecuzione del programma su un ambiente distribuito.
+
+Le implementazioni degli algoritmi secondo questo modello, per questo lavoro di tesi, sono state realizzate attraverso l'utilizzo dell'implementazione Pregel realizzata da Apache Giraph \cite{4_giraph.apache.org_2015}.
 
 
-In questa tesi verrà prima fornito un approfondimento sui modelli presi in analisi. Nel secondo capitolo verrà approfondito il modello MapReduce mentre nel terzo capitolo verrà descritto in dettaglio il modello introdotto con Pregel.
+\section{•}
+Lo scopo di questo lavoro di tesi è quello di mettere a confronto i due modelli di programmazione, MapReduce e Pregel, con lo scopo di fornire un analisi sul parallelo delle prestazioni che verranno misurate tramite l'elaborazione di algoritmi su grafi.
 
-Nel capitolo successivo, il quarto, verranno descritti gli algoritmi selezionati per il confronto tra i due modelli. Per ogni algoritmo verrà fornito una descrizione generale, l'implementazione MapReduce e l'implementazione Pregel.
 
-Infine verranno descritti gli esperimenti eseguiti ed i risultati ottenuti dall'esecuzioni delle implementazioni realizzate per i due modelli. Nel corso dell'ultimo capitolo saranno inoltre confrontate le prestazioni con lo scopo di fornire un analisi qualitativa sul comportamento dei due modelli applicati agli algoritmi su grafi.AAAA
+In questa tesi verrà prima fornito un approfondimento sui modelli presi in analisi. In particolare nel secondo capitolo verrà approfondito il modello MapReduce mentre nel corso del terzo capitolo verrà descritto in dettaglio il modello introdotto con Pregel.
+
+Nel capitolo successivo, il quarto, verranno descritti gli algoritmi selezionati per il confronto tra i due modelli. Per ogni algoritmo selezionato verrà fornito una descrizione generale dei passi che lo compongono, l'implementazione realizzata per effettuare i test in MapReduce e l'implementazione realizzata per effettuare test in Pregel.
+
+Infine, nel corso del sesto capitolo, verranno descritti i test  effettuati ed i risultati ottenuti dalle esecuzioni delle implementazioni realizzate per i due modelli. 
+Nel corso del capitolo saranno inoltre confrontate le prestazioni con lo scopo di fornire un analisi qualitativa sul comportamento dei due modelli applicati agli algoritmi su grafi.
 
 
 
@@ -122,7 +138,7 @@ Infine verranno descritti gli esperimenti eseguiti ed i risultati ottenuti dall'
 
 \textit{MapReduce} \cite{Dean:2008:MSD:1327452.1327492} è un modello di  programmazione in grado di operare su grandi quantità di dati, dove la computazione viene distribuita e parallelizzata su di un cluster di computer.
 
-Oltre al modello di programmazione, \textit{MapReduce} definisce il modello architetturale del cluster in cui deve essere eseguito il programma. In questo modo sono mantenute separate ed indipendenti le componenti implementative dell'algoritmo \textit{MapReduce} dal framework che si occupa della gestione delle risorse del cluster, del controllo dell'esecuzione del flusso del programma, del controllo degli errori e del recupero successivo al guasto di una o più macchine del cluster.
+Oltre al modello di programmazione, \textit{•}tit{MapReduce} definisce il modello architetturale del cluster in cui deve essere eseguito il programma. In questo modo sono mantenute separate ed indipendenti le componenti implementative dell'algoritmo \textit{MapReduce} dal framework che si occupa della gestione delle risorse del cluster, del controllo dell'esecuzione del flusso del programma, del controllo degli errori e del recupero successivo al guasto di una o più macchine del cluster.
 
 %L'implementazione di un programma in MapReduce si limita alla definizione della funziona \textbf{MAP} e della funzione \textbf{REDUCE}.
 
@@ -132,7 +148,7 @@ Come rappresentato in Figura \ref{fig:SchemaMapReduce}, il modello suddivide l'e
 	\item Nella seconda fase, i risultati parziali vengono distribuiti su un secondo sottoinsieme di macchine del cluster, ogni macchina riceve i risultati di tutti i valori intermedi relativi ad una \textit{chiave} e producono un risultato in output.
 	\end{itemize}
 	
-Nelle prossime sezioni di questo capitolo andrò a descrivere più in dettaglio le funzioni che compongono un programma in MapReduce e l'architettura su cui viene eseguito. %TODO riformulare secondo parte
+Nelle prossime sezioni di questo capitolo andrò a descrivere più in dettaglio le funzioni che compongono un programma in MapReduce e l'architettura su cui viene eseguito. 
 
 \section{MAP e REDUCE}
 
