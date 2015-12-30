@@ -96,15 +96,30 @@
 
 \chapter{Introduzione}
 
+Nell'ambito dei Big Data, negli ultimi anni sono stati sviluppati molti modelli per il calcolo parallelizzato e distribuito di grandi quanti da dati, tra cui MapReduce \cite{Dean:2008:MSD:1327452.1327492}, uno dei più utilizzati e che ha avuto più successo. Più recentemente è stato introdotto un'altro modello per il calcolo parallelizzato e distribuito specializzato su Grafi, Pregel \cite{Malewicz:2010:PSL:1807167.1807184}, anche questo modello è subito stato apprezzato ed utilizzato in parecchie realtà, come ad esempio in Facebook dove è utilizzato per effettuare le analisi sul grafo relativo al suo social-network.
+
+Lo scopo di questo lavoro di tesi è stato quello di sviluppare algoritmi su Grafi per questi due modelli con il fine di confrontare i risultati prestazionali ottenuti da Pregel e MapReduce.
+
 
 \section{MapReduce}
+
 MapReduce \cite{Dean:2008:MSD:1327452.1327492} è un modello di programmazione introdotto da Google nel 2008. In pochi anni, questo modello, è stato adottato ed utilizzato da un numero crescente di aziende come Facebook, Yahoo! ed Amazon. Il modello introdotto con MapReduce permette la parallelizzazione in modo semplice del calcolo di grandi quantità di dati su di un insieme di macchine.
 
 Il modello descritto da MapReduce prende ispirazione dalle primitive Map e Reduce presenti nei linguaggi funzionali.  L'input viene elaborato tramite la funzione Map producendo un insieme intermedio di coppie chiave/valore. Viene poi applicata la funzione Reduce a tutte le coppie di valori che condividono la stessa chiave.
 
+
+
 In questo modo, tramite la definizione delle funzioni \textit{Map} e \textit{Reduce}, MapReduce permette di ottenere un modello in grado di parallelizzare il calcolo di grandi quantità di dati in modo semplice.
 
-Per realizzare i programmi secondo MapReduce col fine di testarne le prestazione è stato utilizzato Apache Hadoop \cite{1_hadoop.apache.org_2015}.
+Per realizzare i programmi secondo MapReduce col fine di testarne le prestazione è stato utilizzato Apache Hadoop \cite{1_hadoop.apache.org_2015} il cui logo è rappresentato nel Figura \ref{fig:HadoopLogo} .
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.4\textwidth]{hadoop+elephant_rgb}
+\caption{Logo Apache Hadoop}
+\label{fig:HadoopLogo}
+\end{figure}
+
 
 \section{Giraph}
 Negli ultimi anni, con l'espandersi dei social network, ha preso sempre più campo l'analisi di grafi di grandi dimensione. Con l'introduzione del modello Pregel \cite{Malewicz:2010:PSL:1807167.1807184} nel 2010, sempre da Google, viene fornito un modello per il calcolo parallelizzato di algoritmi su grafi su un insieme di macchine. Pregel definisce un modello vertice centrico basato sul modello Bulk Synchronous Parallel \cite{Valiant:1990:BMP:79173.79181}. 
@@ -116,7 +131,14 @@ Come in MapReduce, l'approccio vertice centrico permette di suddividere la compu
 Le implementazioni degli algoritmi secondo questo modello, per questo lavoro di tesi, sono state realizzate attraverso l'utilizzo dell'implementazione Pregel realizzata da Apache Giraph \cite{4_giraph.apache.org_2015}.
 
 
-\section{•}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.4\textwidth]{apache-giraph-logo}
+\caption{Logo Apache Giraph}
+\label{fig:GiraphLogo}
+\end{figure}
+
+\section{Scopo della tesi}
 Lo scopo di questo lavoro di tesi è quello di mettere a confronto i due modelli di programmazione, MapReduce e Pregel, con lo scopo di fornire un analisi sul parallelo delle prestazioni che verranno misurate tramite l'elaborazione di algoritmi su grafi.
 
 
@@ -126,9 +148,6 @@ Nel capitolo successivo, il quarto, verranno descritti gli algoritmi selezionati
 
 Infine, nel corso del sesto capitolo, verranno descritti i test  effettuati ed i risultati ottenuti dalle esecuzioni delle implementazioni realizzate per i due modelli. 
 Nel corso del capitolo saranno inoltre confrontate le prestazioni con lo scopo di fornire un analisi qualitativa sul comportamento dei due modelli applicati agli algoritmi su grafi.
-
-
-
 
 
 
