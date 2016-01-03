@@ -115,7 +115,7 @@ Per realizzare i programmi secondo MapReduce col fine di testarne le prestazione
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.4\textwidth]{hadoop+elephant_rgb}
+\includegraphics[width=0.4\textwidth]{hadoop+elephant_rg}
 \caption{Logo Apache Hadoop}
 \label{fig:HadoopLogo}
 \end{figure}
@@ -834,7 +834,7 @@ Alla fine del \textit{Superstep}, attraverso il meccanismo degli aggregatori, il
 \label{fig:PREGELNIT}
 \end{figure}
 
-\section{Densest Subgraph , Ricerca del sottografo più denso in grafi non orientati}
+\section{Densest Subgraph , Ricerca del sottografo più denso in grafi non orientati} \label{sssec:densestU}
 
 L'algoritmo per la ricerca del sottografo più denso \cite{Bahmani:2012:DSS:2140436.2140442} trova il sottografo \textit{G'} del grafo G la cui densità $\rho(G')$ è una  (2 + 2$\epsilon$)-approsimazione di $\rho*(G)$,dove $\rho*(G)$ è la densità maggiore tra i sottografi di G.
 
@@ -854,7 +854,7 @@ In \cite{Bahmani:2012:DSS:2140436.2140442} viene dimostrato che il sottografo \t
 \lstinputlisting[style=customc,caption={Pseudocodice Denesest Subgraph per grafi non orientati},label={lst:densestU}]{code/densestU.c}
 \end{minipage}
 
-\subsection{MapReduce}
+\subsection{MapReduce} 
 
 Per realizzare l'algoritmo in \textit{MapReduce} è stato implementata l'idea descritta in \cite{Bahmani:2012:DSS:2140436.2140442}. Ogni iterazione dell'algoritmo viene realizzata in 3 fasi \textit{MapReduce}.
 
@@ -1949,6 +1949,58 @@ Questo è possibile notarlo, per esempio, negli esperimenti eseguiti sull'algori
 
 
 \chapter{Conclusioni}
+
+
+In questo lavoro di tesi, sono stati approfonditi due modelli per il calcolo distribuito e parallelizzato su cluster di macchine. Nel modello MapReduce \cite{Dean:2008:MSD:1327452.1327492} abbiamo visto come l'algoritmo viene implementato tramite le iterazioni composte dalle funzioni base \textit{Map} e \textit{Reduce}. Nel modello Pregel \cite{Malewicz:2010:PSL:1807167.1807184} che, come visto nel secondo capitolo di questa tesi, invece l'algoritmo è implementato tramite la definizione della funzione \textit{Compute} in cui è definito il comportamento del vertice del grafo durante un'iterazione dell'algoritmo, chiamata \textit{Superstep}.
+
+Per effettuare il confronto fra i due modelli presi in esame, sono stati implementati cinque diversi algoritmi su grafi.
+Quattro algoritmi su grafi non diretti:
+\begin{itemize}
+\item \textit{DegreeCalculator}, Algoritmo per il calcolo del grado dei vertici del grafo.
+\item Single Source Shortest Path (SSSP), Algoritmo per il calcolo della distanza dei vertici del grafo dal nodo sorgente.
+\item \textit{NodeIterator++}, Algoritmo per il calcolo del numero di triangoli presenti nel grafo.
+\item \textit{Densest Subgraph }per grafi non diretti, Algoritmo per ricavare il sottografo più denso nella versione per grafi non orientati.
+\end{itemize}
+Un algoritmo per grafi diretti: \textit{Densest Subgraph }per grafi diretti, la versione per grafi orientati dell'algoritmo per ricavare il sottografo più denso.
+Nel corso del quarto capitolo è stata fornita, per ognuno degli algoritmi presi in considerazioni, la descrizione generale dell'algoritmo e dei passi che lo compongono, l'implementazione dell'algoritmo per il modello \textit{MapReduce} e l'implementazione dell'algoritmo per il modello \textit{Pregel}.
+
+Dall'esperienza maturata da questo lavoro di tesi sull'implementazione di questi algoritmi sui due modelli, è possibile notare che:
+\begin{itemize}
+\item La traduzione dei passi dell'algoritmo in termini di funzioni \textit{Map}  e \textit{Reduce} è molto complessa e tende a stravolgere il flusso originale dell'algoritmo. Questo si può notare in tutte le implementazioni realizzate come, ad esempio, nel caso dell'algoritmo Densest Subgraph nella versione per Grafi non diretti \ref{sssec:densestU}. In questo caso per la traduzione di un iterazione dell'algoritmo in termini \textit{MapReduce} si è reso necessario implementare tre diverse istanze MapReduce, una prima istanza per ricavare il grado dei vertici del grafo ed il numero totale di vertici e archi presenti nel sottografo, le altre due istanze MapReduce per eliminare i nodi il cui grado risultasse sotto il valore soglia. 
+\item La traduzione dei passi dell'algoritmo nella logica definita dal modello \textit{Pregel} è risultata più intuitiva. Questo ha portato ad un codice più pulito e vicino alla logica originale definita dall'algoritmo. Sempre prendendo in esempio l'algoritmo Densest Subgraph nella versione per Grafi non diretti \ref{sssec:densestU}, per la costruzione della funzione \textit{Compute} di Pregel si è reso necessario implementarne una sola istanza in cui vengono alternati un \textit{Superstep} in cui è applicata la logica definita dall'algoritmo ed un \textit{Superstep} il cui il risultato veniva propagato da un nodo del grafo ai sui vicini.
+\end{itemize}
+
+Le implementazioni realizzate per gli algoritmi sui due modelli sono state base di esperimenti i cui dettagli e risultati sono stati approfonditi  e analizzati nel corso del quinto capitolo.
+
+Per implementare i programmi nei modelli definiti da \textit{MapReduce} e \textit{Pregel} sono stati utilizzati, rispettivamente, Apache Hadoop \cite{1_hadoop.apache.org_2015} ed Apache Giraph \cite{4_giraph.apache.org_2015}.
+I test sono stati effettuati sulla piattaforma \textit{Amazon Web Services (AWS)} \cite{1_amazon web services} su due differenti configurazione dell'ambiente \textit{Elastic Map Reduce (EMR)}: un cluster composto da 8 macchine ed un cluster di 16 macchine.
+Le implementazioni realizzate dei vari algoritmi sono state testate su entrambi gli ambienti, nel quinto capitolo sono stati descritti in dettaglio gli ambienti utilizzati nel corso dei test e la metodologia utilizzata per l'esecuzione di quest'ultimi.
+
+Sfruttando i framework Apache utilizzati per l'implementazione degli algoritmi, sono state estratte le metriche prestazionali utilizzate per il confronto tra i due modelli.
+Le metriche che sono state utilizzare per ricavare un riscontro qualitativo su le prestazioni ottenute dall'implementazione degli algoritmi su MapReduce e Pregel sono: 
+
+\begin{itemize}
+\item Tempo CPU
+\item Utilizzo di memoria
+\item Scrittura su memoria distribuita
+\item Lettura da memoria distribuita
+\end{itemize}
+
+
+Dall'analisi dei dati ottenuti dalla rilevazione di queste metriche possiamo concludere che:
+\begin{itemize}
+\item Le prestazioni ottenute dagli algoritmi implementati attraverso il modello definito in \textit{Pregel} raggiungono globalmente prestazioni migliori rispetto alla controparte implementata tramite modello \textit{MapReduce}. 
+\item Le migliori prestazioni raggiungibili attraverso il modello Pregel è dovuto al fatto che il modello prevede il mantenimento del grafo nella memoria delle singole macchine del grafo in modo nativo.  Mentre in \textit{MapReduce}, ad ogni iterazione dell'algoritmo, il grafo viene letto completamente dalla memoria condivisa ad inizio dell'iterazione e scritto nuovamente al termine. Questo implica che al aumentare del numero di iterazione aumenta il dislivello tra le prestazioni a favore del modello Pregel.
+\item \textit{Pregel} per essere eseguito deve essere supportato dal cluster. In altre parole, per poter portare a termine l'esecuzione il cluster deve avere una quantità di memoria tale da poter sopportare l'esecuzione in tutti i \textit{Superstep }che compongono il programma. Questo non avviene nel modello \textit{MapReduce} che invece è in grado di suddividere l'esecuzione in modo tale da poter serializzare l'utilizzo della memoria delle macchine che compongono il cluster per l'esecuzione delle fasi di \textit{Map} e delle fasi \textit{Reduce}.
+\end{itemize}
+
+
+
+
+
+
+
+
 
 % bibliography
 \cleardoublepage
