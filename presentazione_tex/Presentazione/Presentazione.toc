@@ -1,0 +1,9 @@
+\beamer@endinputifotherversion {3.24pt}
+\select@language {italian}
+\select@language {italian}
+\beamer@sectionintoc {1}{Introduzione}{3}{0}{1}
+\beamer@sectionintoc {2}{MapReduce}{5}{0}{2}
+\beamer@sectionintoc {3}{Pregel}{13}{0}{3}
+\beamer@sectionintoc {4}{Algortimi su grafi}{23}{0}{4}
+\beamer@sectionintoc {5}{Test}{23}{0}{5}
+\beamer@sectionintoc {6}{Conclusioni}{23}{0}{6}
